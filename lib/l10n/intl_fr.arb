@@ -1,0 +1,23 @@
+{
+  "settingsTitle": "Paramètres",
+  "takePhoto": "Prendre une photo",
+  "chooseFromGallery": "Choisir depuis la galerie",
+  "selectLanguage": "Choisir la langue",
+  "admin": "Administrateur",
+  "manager": "Gestionnaire",
+  "worker": "Travailleur",
+  "darkTheme": "Thème sombre",
+  "lightTheme": "Thème clair",
+  "logout": "Se déconnecter",
+  "english": "Anglais",
+  "french": "Français",
+  "german": "Allemand",
+  "spanish": "Espagnol",
+  "russian": "Russe",
+  "arabic": "Arabe",
+  "dashboard": "Tableau de bord",
+"users": "Utilisateurs",
+"workflows": "Flux de travail",
+"settings": "Paramètres"
+
+}

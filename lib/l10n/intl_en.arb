@@ -1,0 +1,22 @@
+{
+  "settingsTitle": "Settings",
+  "takePhoto": "Take photo",
+  "chooseFromGallery": "Choose from gallery",
+  "selectLanguage": "Select Language",
+  "admin": "Admin",
+  "manager": "Manager",
+  "worker": "Worker",
+  "darkTheme": "Dark Theme",
+  "lightTheme": "Light Theme",
+  "logout": "Log Out",
+  "english": "English",
+  "french": "French",
+  "german": "German",
+  "spanish": "Spanish",
+  "russian": "Russian",
+  "arabic": "Arabic",
+  "dashboard" :"Dashboard",
+  "users":"Users",
+  "workflows":"Workflows",
+  "settings":"Settings"
+}

@@ -7,7 +7,11 @@ class User {
   String? phone;
   String? password;
   int? role;
-  User({this.id, this.name, this.email, this.phone, this.password, this.role});
+  String? image;     
+  String? imageType;
+  
+  User({this.id, this.name, this.email, this.phone, this.password, this.role,    this.image,
+    this.imageType,});
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         id: json['id'] as int?,
@@ -16,6 +20,8 @@ class User {
         phone: json['phone'] as String?,
         password: json['password'] as String?,
         role: json['role'] as int?,
+        image:json['image'] as String?,
+        imageType:json['imageType'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -25,5 +31,7 @@ class User {
         'phone': phone,
         'password': password,
         'role': role,
+        'image':     image,
+        'imageType': imageType,
       };
 }

@@ -1,0 +1,23 @@
+{
+  "settingsTitle": "Настройки",
+  "takePhoto": "Сделать фото",
+  "chooseFromGallery": "Выбрать из галереи",
+  "selectLanguage": "Выбрать язык",
+  "admin": "Администратор",
+  "manager": "Менеджер",
+  "worker": "Рабочий",
+  "darkTheme": "Темная тема",
+  "lightTheme": "Светлая тема",
+  "logout": "Выйти",
+  "english": "Английский",
+  "french": "Французский",
+  "german": "Немецкий",
+  "spanish": "Испанский",
+  "russian": "Русский",
+  "arabic": "Арабский",
+  "dashboard": "Панель управления",
+"users": "Пользователи",
+"workflows": "Рабочие процессы",
+"settings": "Настройки"
+
+}

@@ -19,25 +19,35 @@ class DBHelper {
     final path = join(dbPath, 'app.db');
     return openDatabase(
       path,
-      version: 1,
-      onCreate: (db, ver) async {
+      version: 3,  // bumped from 1 → 2
+      onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE user (
-            id      INTEGER PRIMARY KEY,
-            name    TEXT,
-            email   TEXT,
-            phone   TEXT,
-            password TEXT,
-            role    INTEGER,
+            id             INTEGER PRIMARY KEY,
+            name           TEXT,
+            email          TEXT,
+            phone          TEXT,
+            password       TEXT,
+            role           INTEGER,
+            image        TEXT,
+            imageType    TEXT
           )
         ''');
       },
+    onUpgrade: (db, oldVersion, newVersion) async {
+      if (oldVersion < 2) {
+        await db.execute('ALTER TABLE user ADD COLUMN profilePicture TEXT');
+      }
+      if (oldVersion < 3) {
+        await db.execute('ALTER TABLE user ADD COLUMN image TEXT');
+        await db.execute('ALTER TABLE user ADD COLUMN imageType TEXT');
+      }
+    },
     );
   }
 
   Future<void> saveUser(User user) async {
     final db = await database;
-    // only one row, so clear first:
     await db.delete('user');
     await db.insert('user', user.toJson());
   }

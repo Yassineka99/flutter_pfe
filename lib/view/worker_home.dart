@@ -1,37 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:front/model/user_session.dart';
-import 'package:front/view/settings.dart';
 import 'package:front/viewmodel/process_view_model.dart';
 import 'package:front/viewmodel/sub_process_view_model.dart';
 import 'package:front/viewmodel/user_view_model.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import '../model/user.dart';
 import 'dashboard.dart';
 import 'login.dart';
 
-class AdminHome extends StatefulWidget {
-  const AdminHome({super.key});
+class WorkerHome extends StatefulWidget {
+  const WorkerHome({super.key});
 
   @override
-  State<AdminHome> createState() => _AdminHomeState();
+  State<WorkerHome> createState() => _WorkerHomeState();
 }
 
-class _AdminHomeState extends State<AdminHome> {
+class _WorkerHomeState extends State<WorkerHome> {
   User? user;
   int _selectedIndex = 0;
   SubProcessViewModel sub = SubProcessViewModel();
   ProcessViewModel pro = ProcessViewModel();
   late List<Widget> _pages;
-  
+
   @override
   void initState() {
     super.initState();
     _pages = [
-      DashboardWidget(processVM: pro, subProcessVM: sub),
-      SettingsView(),
-      SettingsView(),
-       SettingsView(),
+      // UsersView(),
+      // WorkflowsView(),
+      // SettingsView(),
     ];
   }
 
@@ -43,7 +41,6 @@ class _AdminHomeState extends State<AdminHome> {
 
   @override
   Widget build(BuildContext context) {
-    final intl = AppLocalizations.of(context)!;
     final session = context.watch<UserSession>();
     if (!session.isLoggedIn) {
       return const Login();
@@ -64,15 +61,7 @@ class _AdminHomeState extends State<AdminHome> {
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
-            label: 'Dashboard',
-            icon: Icon(Icons.dashboard),
-          ),
-          BottomNavigationBarItem(
-            label: 'Users',
-            icon: Icon(Icons.person),
-          ),
-          BottomNavigationBarItem(
-            label: 'Workflows',
+            label: 'Sub Processes',
             icon: Icon(Icons.polyline_rounded),
           ),
           BottomNavigationBarItem(

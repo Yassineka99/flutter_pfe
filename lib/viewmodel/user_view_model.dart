@@ -1,5 +1,5 @@
 
-
+import 'dart:typed_data';
 import '../model/user.dart';
 import '../repository/user_repository.dart';
 
@@ -51,4 +51,24 @@ Future<User?> getClientbyEmail(String email) async {
   Future<List<User>> getByStatusId(int id) async {
   return await _clientRepository.getByStatusId(id);
 }
+
+Future<User?> updateUserProfilePicture(int userId, String base64Image, String mimeType) async {
+  try {
+    _client = await _clientRepository.updateUserProfilePicture(userId, base64Image, mimeType);
+    return _client;
+  } catch (e) {
+    print('Error updating profile picture: $e');
+    return null;
+  }
+}
+
+Future<Uint8List?> getUserImage(int userId) async {
+  try {
+    return await _clientRepository.getUserImage(userId);
+  } catch (e) {
+    print('Error fetching user image: $e');
+    return null;
+  }
+}
+
 }

@@ -1,0 +1,23 @@
+{
+  "settingsTitle": "الإعدادات",
+  "takePhoto": "التقاط صورة",
+  "chooseFromGallery": "اختيار من المعرض",
+  "selectLanguage": "اختر اللغة",
+  "admin": "المسؤول",
+  "manager": "المدير",
+  "worker": "العامل",
+  "darkTheme": "الوضع الداكن",
+  "lightTheme": "الوضع الفاتح",
+  "logout": "تسجيل الخروج",
+  "english": "الإنجليزية",
+  "french": "الفرنسية",
+  "german": "الألمانية",
+  "spanish": "الإسبانية",
+  "russian": "الروسية",
+  "arabic": "العربية",
+  "dashboard": "لوحة التحكم",
+"users": "المستخدمون",
+"workflows": "سير العمل",
+"settings": "الإعدادات"
+
+}

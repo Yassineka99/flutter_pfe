@@ -1,0 +1,23 @@
+{
+  "settingsTitle": "Configuración",
+  "takePhoto": "Tomar foto",
+  "chooseFromGallery": "Elegir de la galería",
+  "selectLanguage": "Seleccionar idioma",
+  "admin": "Administrador",
+  "manager": "Gerente",
+  "worker": "Trabajador",
+  "darkTheme": "Tema oscuro",
+  "lightTheme": "Tema claro",
+  "logout": "Cerrar sesión",
+  "english": "Inglés",
+  "french": "Francés",
+  "german": "Alemán",
+  "spanish": "Español",
+  "russian": "Ruso",
+  "arabic": "Árabe",
+  "dashboard": "Panel de control",
+"users": "Usuarios",
+"workflows": "Flujos de trabajo",
+"settings": "Configuraciones"
+
+}

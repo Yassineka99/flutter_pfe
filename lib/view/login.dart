@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:front/view/worker_home.dart';
 import 'package:provider/provider.dart';
 
 import '../model/user.dart';
 import '../model/user_session.dart';
 import '../viewmodel/user_view_model.dart';
 import 'home.dart';
+import 'manager_home.dart';
+import 'mini_widgets/password_input.dart';
 import 'mini_widgets/text_input.dart';
 
 class Login extends StatefulWidget {
@@ -48,7 +51,7 @@ class _LoginState extends State<Login> {
                   hint: "Email", controller: emailcontroller
                 ),
                 const SizedBox(height: 10),
-                TextInput(
+                PasswordInput(
                   hint: "Password", controller: passwordcontroller
                 ),
                 Container(
@@ -66,13 +69,31 @@ class _LoginState extends State<Login> {
                                 
                                 // ignore: use_build_context_synchronously
                                await Provider.of<UserSession>(context, listen: false).logIn(client);
-                                     // ignore: use_build_context_synchronously
-                                     
+                                    
+                                    if (client.role==1) 
+                                    { 
+                                      // ignore: use_build_context_synchronously
                                      Navigator.pushReplacement(
                                      context,
                                       MaterialPageRoute(
-                                        builder: (context) => const Home()),
+                                        builder: (context) => const AdminHome()),
                                   );
+                                  }else if (client.role==2)
+                                  {
+                                      // ignore: use_build_context_synchronously
+                                     Navigator.pushReplacement(
+                                     context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const ManagerHome()),
+                                  );
+                                  }else {
+                                                                          // ignore: use_build_context_synchronously
+                                     Navigator.pushReplacement(
+                                     context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const WorkerHome()),
+                                  );
+                                  }
                               } else {
                                 // ignore: use_build_context_synchronously
                                 ScaffoldMessenger.of(context).showSnackBar(

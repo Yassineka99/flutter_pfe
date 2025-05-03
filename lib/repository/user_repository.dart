@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../env.dart';
 import '../model/user.dart';
@@ -71,4 +72,37 @@ class UserRepoitory {
     throw Exception('Failed to load by user ID');
   }
 }
+
+Future<User> updateUserProfilePicture(int userId, String newBase64Image, String mimeType) async {
+  final response = await http.post(
+    Uri.parse('$apiUrl1/update/picture'),
+    headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+    body: jsonEncode({
+      'id':        userId,
+      'image':     newBase64Image,   // match DTO
+      'imageType': mimeType,         // match DTO
+    }),
+  );
+  if (response.statusCode == 200) {
+    return User.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Failed to update profile picture.');
+  }
+}
+
+Future<Uint8List?> getUserImage(int userId) async {
+  final response = await http.get(
+    Uri.parse('$apiUrl1/get/$userId/image'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+  );
+  if (response.statusCode == 200) {
+    return response.bodyBytes; // Return raw image bytes
+  } else {
+    print('Failed to fetch image. Status: ${response.statusCode}');
+    return null;
+  }
+}
+
 }
