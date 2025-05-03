@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:front/model/user_session.dart';
 import 'package:front/view/settings.dart';
+import 'package:front/view/users_view.dart';
 import 'package:front/viewmodel/process_view_model.dart';
 import 'package:front/viewmodel/sub_process_view_model.dart';
 import 'package:front/viewmodel/user_view_model.dart';
@@ -29,7 +30,7 @@ class _AdminHomeState extends State<AdminHome> {
     super.initState();
     _pages = [
       DashboardWidget(processVM: pro, subProcessVM: sub),
-      SettingsView(),
+      UsersView(),
       SettingsView(),
        SettingsView(),
     ];
@@ -56,27 +57,27 @@ class _AdminHomeState extends State<AdminHome> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFF6200EE),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white.withOpacity(.60),
+        backgroundColor: const Color(0xFF78A190),
+        selectedItemColor: const Color(0xFF28445C),
+        unselectedItemColor: const Color(0xFF28445C).withOpacity(.40),
         selectedFontSize: 14,
         unselectedFontSize: 14,
         onTap: _onItemTapped,
-        items: const [
+        items:  [
           BottomNavigationBarItem(
-            label: 'Dashboard',
+            label: intl.dashboard,
             icon: Icon(Icons.dashboard),
           ),
           BottomNavigationBarItem(
-            label: 'Users',
+            label: intl.users,
             icon: Icon(Icons.person),
           ),
           BottomNavigationBarItem(
-            label: 'Workflows',
+            label: intl.workflows,
             icon: Icon(Icons.polyline_rounded),
           ),
           BottomNavigationBarItem(
-            label: 'Settings',
+            label: intl.settings,
             icon: Icon(Icons.settings),
           ),
         ],

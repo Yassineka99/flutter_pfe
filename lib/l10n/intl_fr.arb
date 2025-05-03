@@ -18,6 +18,26 @@
   "dashboard": "Tableau de bord",
 "users": "Utilisateurs",
 "workflows": "Flux de travail",
-"settings": "Paramètres"
+"settings": "Paramètres",
+  "errorLoadingUsers": "Erreur lors du chargement des utilisateurs",
+  "assignedProcesses": "Processus assignés",
+  "noAssignedProcesses": "Aucun processus assigné",
+    "noUsersFound": "Aucun utilisateur trouvé",
+  "unknownRole": "Rôle inconnu",
+    "addUser": "Ajouter un utilisateur",
+  "name": "Nom",
+  "requiredField": "Champ requis",
+  "email": "Email",
+  "invalidEmail": "Email invalide",
+  "phone": "Téléphone",
+  "password": "Mot de passe",
+  "passwordLength": "Longueur du mot de passe",
+  "role": "Rôle",
+  "cancel": "Annuler",
+  "errorCreatingUser": "Erreur lors de la création de l'utilisateur",
+  "save": "Enregistrer",
+  "byName": "par nom",
+  "byRole": "par rôle",
+  "byMaxFinished": "Par maximum terminé"
 
 }

@@ -118,4 +118,14 @@ Future<void> deleteSubProcess(int id) async {
 }
 
 
+Future<List<SubProcess>> getByStatusAndUserId(int status, int userid) async {
+  final response = await http.get(Uri.parse('$apiUrl1/get-all-by-status-and-user-id/$status/$userid'));
+  if (response.statusCode == 200) {
+    List<dynamic> data = jsonDecode(response.body);
+    return data.map((item) => SubProcess.fromJson(item)).toList();
+  } else {
+    throw Exception('Failed to load by user and process ID');
+  }
+}
+
 }

@@ -154,13 +154,13 @@ class _SettingsViewState extends State<SettingsView> {
                           children: [
                             Text(user.name ?? '',
                                 style: const TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 22,
                                   fontFamily: 'BrandonGrotesque',
                                   fontWeight: FontWeight.bold,
                                 )),
                             Text(user.email ?? '',
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 18,
                                   fontFamily: 'BrandonGrotesque',
                                 )),
                             Text(
@@ -170,13 +170,13 @@ class _SettingsViewState extends State<SettingsView> {
                                       ? intl.manager
                                       : intl.worker,
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 18,
                                 fontFamily: 'BrandonGrotesque',
                               ),
                             ),
                             Text(user.phone ?? '',
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 18,
                                   fontFamily: 'BrandonGrotesque',
                                 )),
                           ],
@@ -212,14 +212,15 @@ class _SettingsViewState extends State<SettingsView> {
                                       decoration: BoxDecoration(
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(10)),
-                                          color: Color.fromARGB(
-                                              255, 182, 181, 181)),
-                                      child: Text(
-                                          _getLanguageName(localeCode, intl),
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                              fontSize: 20,
-                                              fontFamily: 'BrandonGrotesque')),
+                                          color: Color.fromARGB(255, 228, 228, 228)),
+                                      child: Center(
+                                        child: Text(
+                                            _getLanguageName(localeCode, intl),
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                                fontSize: 20,
+                                                fontFamily: 'BrandonGrotesque')),
+                                      ),
                                     ),
                                     onPressed: () =>
                                         Navigator.pop(context, localeCode),

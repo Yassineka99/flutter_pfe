@@ -18,6 +18,26 @@
   "dashboard": "Dashboard",
 "users": "Benutzer",
 "workflows": "Arbeitsabläufe",
-"settings": "Einstellungen"
+"settings": "Einstellungen",
+  "errorLoadingUsers": "Fehler beim Laden der Benutzer",
+  "assignedProcesses": "Zugewiesene Prozesse",
+  "noAssignedProcesses": "Keine zugewiesenen Prozesse",
+    "noUsersFound": "Keine Benutzer gefunden",
+  "unknownRole": "Unbekannte Rolle",
+    "addUser": "Benutzer hinzufügen",
+  "name": "Name",
+  "requiredField": "Pflichtfeld",
+  "email": "E-Mail",
+  "invalidEmail": "Ungültige E-Mail",
+  "phone": "Telefon",
+  "password": "Passwort",
+  "passwordLength": "Passwortlänge",
+  "role": "Rolle",
+  "cancel": "Abbrechen",
+  "errorCreatingUser": "Fehler beim Erstellen des Benutzers",
+  "save": "Speichern",
+  "byName": "nach Name",
+  "byRole": "nach Rolle",
+  "byMaxFinished": "nach max. abgeschlossen"
 
 }

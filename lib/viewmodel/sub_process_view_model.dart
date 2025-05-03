@@ -61,5 +61,8 @@ Future<void> delete(int id) async {
   }
 }
 
+Future<List<SubProcess>> getByStatusAndUserId(int status, int userid) async {
+  return await subprocessRepository.getByStatusAndUserId(status, userid);
+}
 
 }

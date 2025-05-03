@@ -18,6 +18,26 @@
   "dashboard": "Панель управления",
 "users": "Пользователи",
 "workflows": "Рабочие процессы",
-"settings": "Настройки"
+"settings": "Настройки",
+  "errorLoadingUsers": "Ошибка загрузки пользователей",
+  "assignedProcesses": "Назначенные процессы",
+  "noAssignedProcesses": "Нет назначенных процессов",
+    "noUsersFound": "Пользователи не найдены",
+  "unknownRole": "Неизвестная роль",
+    "addUser": "Добавить пользователя",
+  "name": "Имя",
+  "requiredField": "Обязательное поле",
+  "email": "Электронная почта",
+  "invalidEmail": "Неверный адрес электронной почты",
+  "phone": "Телефон",
+  "password": "Пароль",
+  "passwordLength": "Длина пароля",
+  "role": "Роль",
+  "cancel": "Отмена",
+  "errorCreatingUser": "Ошибка при создании пользователя",
+  "save": "Сохранить",
+  "byName": "по имени",
+  "byRole": "по роли",
+  "byMaxFinished": "по макс. завершенным"
 
 }

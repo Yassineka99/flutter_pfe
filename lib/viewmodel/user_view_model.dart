@@ -70,5 +70,15 @@ Future<Uint8List?> getUserImage(int userId) async {
     return null;
   }
 }
+Future<List<User>> getUsersByRoleId(int roleId) async {
+  print("Fetching users by role ID: $roleId");
+  try {
+    final users = await _clientRepository.getUsersByRoleId(roleId);
+    return users;
+  } catch (e) {
+    print('Error fetching users by role ID: $e');
+    return [];
+  }
+}
 
 }

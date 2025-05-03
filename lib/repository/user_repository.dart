@@ -104,5 +104,23 @@ Future<Uint8List?> getUserImage(int userId) async {
     return null;
   }
 }
+Future<List<User>> getUsersByRoleId(int id) async {
+  final response = await http.get(
+    Uri.parse('$apiUrl1/get-all-by-role-id/$id'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+  );
+
+  print('Response status: ${response.statusCode}');
+  print('Response body: ${response.body}');
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map((json) => User.fromJson(json)).toList();
+  } else {
+    throw Exception('Failed to load users by role id.');
+  }
+}
 
 }
