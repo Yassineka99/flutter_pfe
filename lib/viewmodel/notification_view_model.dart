@@ -14,7 +14,7 @@ class NotificationViewModel {
     }
   }
 
-  Future<List<Notification>>? getUserId(int userid) async {
+  Future<List<Notification>> getUserId(int userid) async {
   return await notificationRepository.getByUserId(userid);
 }
 Future<void> markAllAsRead(int userId) async {
@@ -26,8 +26,8 @@ Future<void> markAllAsRead(int userId) async {
   }
 }
 
-  Future<List<Notification>>? getUnreadNotifications(int userid) async {
+  Future<List<Notification>> getUnreadNotifications(int userid) async {
   return await notificationRepository.getUnreadNotifications(userid);
-}
+  }
 
 }

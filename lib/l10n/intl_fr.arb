@@ -48,7 +48,14 @@
   "message": "Message",
   "send": "Envoyer",
   "notificationSentSuccessfully": "Notification envoyée avec succès",
-  "errorSendingNotification": "Erreur lors de l'envoi de la notification"
+  "errorSendingNotification": "Erreur lors de l'envoi de la notification",
+  "notifications": "Notifications",
+"noNotifications": "Aucune notification",
+"status": "Statut",
+"close": "Fermer",
+"markAllRead": "Tout marquer comme lu"
+
+
 
 
 

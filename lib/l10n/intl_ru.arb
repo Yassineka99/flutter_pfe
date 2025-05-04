@@ -48,7 +48,14 @@
   "message": "Сообщение",
   "send": "Отправить",
   "notificationSentSuccessfully": "Уведомление успешно отправлено",
-  "errorSendingNotification": "Ошибка при отправке уведомления"
+  "errorSendingNotification": "Ошибка при отправке уведомления",
+  "notifications": "Уведомления",
+"noNotifications": "Нет уведомлений",
+"status": "Статус",
+"close": "Закрыть",
+"markAllRead": "Отметить всё как прочитанное"
+
+
 
 
 

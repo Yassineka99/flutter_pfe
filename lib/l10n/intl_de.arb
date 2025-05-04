@@ -48,7 +48,14 @@
   "message": "Nachricht",
   "send": "Senden",
   "notificationSentSuccessfully": "Benachrichtigung erfolgreich gesendet",
-  "errorSendingNotification": "Fehler beim Senden der Benachrichtigung"
+  "errorSendingNotification": "Fehler beim Senden der Benachrichtigung",
+  "notifications": "Benachrichtigungen",
+"noNotifications": "Keine Benachrichtigungen",
+"status": "Status",
+"close": "Schließen",
+"markAllRead": "Alle als gelesen markieren"
+
+
 
 
 

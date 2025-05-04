@@ -48,6 +48,11 @@
   "message": "Message",
   "send": "Send",
   "notificationSentSuccessfully":"Notification Sent Successfully",
-  "errorSendingNotification":"Error Sending Notification"
+  "errorSendingNotification":"Error Sending Notification",
+  "notifications":"Notifications",
+  "noNotifications":"No Notifications",
+  "status":"Status",
+  "close":"Close",
+  "markAllRead":"Mark All Read"
 
 }
