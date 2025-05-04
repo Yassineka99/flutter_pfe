@@ -41,9 +41,17 @@
   "byMaxFinished": "nach max. abgeschlossen",
   "errorLoadingProcesses": "Fehler beim Laden der Unterprozesse",
   "assignedSubProcess": "Zugewiesene Unterprozesse",
-"noAssignedSubProcesses": "Keine zugewiesenen Unterprozesse",
-"userAddedSuccess": "Benutzer erfolgreich hinzugefügt!",
-"usersList": "Benutzerliste"
+  "noAssignedSubProcesses": "Keine zugewiesenen Unterprozesse",
+  "userAddedSuccess": "Benutzer erfolgreich hinzugefügt!",
+  "usersList": "Benutzerliste",
+  "sendNotification": "Benachrichtigung senden",
+  "message": "Nachricht",
+  "send": "Senden",
+  "notificationSentSuccessfully": "Benachrichtigung erfolgreich gesendet",
+  "errorSendingNotification": "Fehler beim Senden der Benachrichtigung"
+
+
+
 
 
 

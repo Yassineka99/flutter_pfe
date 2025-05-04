@@ -43,7 +43,15 @@
   "assignedSubProcess": "Subprocesos asignados",
   "noAssignedSubProcesses": "No hay subprocesos asignados",
   "userAddedSuccess": "¡Usuario agregado con éxito!",
-  "usersList": "Lista de usuarios"
+  "usersList": "Lista de usuarios",
+  "sendNotification": "Enviar notificación",
+  "message": "Mensaje",
+  "send": "Enviar",
+  "notificationSentSuccessfully": "Notificación enviada con éxito",
+  "errorSendingNotification": "Error al enviar la notificación"
+
+
+
 
 
 

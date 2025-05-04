@@ -1,9 +1,5 @@
 import 'package:front/model/notification.dart';
 import 'package:front/repository/notification_repository.dart';
-
-import '../model/sub_process.dart';
-import '../repository/sub_process_repository.dart';
-
 class NotificationViewModel {
   NotificationRepository notificationRepository = NotificationRepository();
   Notification? notification;

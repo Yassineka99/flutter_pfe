@@ -41,9 +41,17 @@
   "byMaxFinished": "Par maximum terminé",
   "errorLoadingProcesses": "Erreur lors du chargement des sous-processus",
   "assignedSubProcess": "Sous-processus assignés",
-"noAssignedSubProcesses": "Aucun sous-processus assigné",
-"userAddedSuccess": "Utilisateur ajouté avec succès !",
-"usersList": "Liste des utilisateurs"
+  "noAssignedSubProcesses": "Aucun sous-processus assigné",
+  "userAddedSuccess": "Utilisateur ajouté avec succès !",
+  "usersList": "Liste des utilisateurs",
+  "sendNotification": "Envoyer une notification",
+  "message": "Message",
+  "send": "Envoyer",
+  "notificationSentSuccessfully": "Notification envoyée avec succès",
+  "errorSendingNotification": "Erreur lors de l'envoi de la notification"
+
+
+
 
 
 

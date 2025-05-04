@@ -43,7 +43,15 @@
   "assignedSubProcess": "العمليات الفرعية المخصصة",
   "noAssignedSubProcesses": "لا توجد عمليات فرعية مخصصة",
   "userAddedSuccess": "تمت إضافة المستخدم بنجاح!",
-  "usersList": "قائمة المستخدمين"
+  "usersList": "قائمة المستخدمين",
+  "sendNotification": "إرسال إشعار",
+  "message": "رسالة",
+  "send": "إرسال",
+  "notificationSentSuccessfully": "تم إرسال الإشعار بنجاح",
+  "errorSendingNotification": "حدث خطأ أثناء إرسال الإشعار"
+
+
+
 
 
 

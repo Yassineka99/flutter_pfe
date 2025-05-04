@@ -43,5 +43,11 @@
   "assignedSubProcess":"Assigned Sub Processes",
   "noAssignedSubProcesses": "No Assigned Sub Processes",
   "userAddedSuccess": "User added successfully!",
-  "usersList":"Users List"
+  "usersList":"Users List",
+  "sendNotification": "Send Notification",
+  "message": "Message",
+  "send": "Send",
+  "notificationSentSuccessfully":"Notification Sent Successfully",
+  "errorSendingNotification":"Error Sending Notification"
+
 }

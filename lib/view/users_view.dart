@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/user.dart';
 import '../model/sub_process.dart';
+import '../viewmodel/notification_view_model.dart';
 import '../viewmodel/user_view_model.dart';
 import '../viewmodel/sub_process_view_model.dart';
 
@@ -448,6 +449,7 @@ class __UserCardState extends State<_UserCard> {
   bool _isExpanded = false;
   int finishedsum = 0;
   late Future<Map<String, dynamic>> _combinedFuture;
+    final NotificationViewModel _notificationViewModel = NotificationViewModel();
 
   @override
   void initState() {
@@ -463,7 +465,171 @@ class __UserCardState extends State<_UserCard> {
       'finished': finished,
     };
   }
+  void _showResultPopup(bool success) {
+  final intl = AppLocalizations.of(context)!;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: success ? const Color(0xFF78A190) : Colors.redAccent,
+      content: Row(
+        children: [
+          Icon(success ? Icons.check_circle : Icons.error, color: Colors.white),
+          const SizedBox(width: 12),
+          Text(
+            success ? intl.notificationSentSuccessfully : intl.errorSendingNotification,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ],
+      ),
+      duration: const Duration(seconds: 3),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      margin: const EdgeInsets.all(20),
+    ),
+  );
+}
+void _showSendNotificationDialog(BuildContext context, int userId) {
+  final intl = AppLocalizations.of(context)!;
+  final _formKey = GlobalKey<FormState>();
+  String message = '';
 
+  showDialog(
+    context: context,
+    builder: (context) {
+      return Theme(
+        data: Theme.of(context).copyWith(
+          dialogBackgroundColor: Colors.white,
+          dialogTheme: DialogTheme(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            elevation: 16,
+          ),
+        ),
+        child: AlertDialog(
+          title: Center(
+            child: Text(
+              intl.sendNotification,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF28445C),
+              ),
+            ),
+          ),
+          content: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildMessageField(
+                    label: intl.message,
+                    validator: (value) => value?.isEmpty ?? true 
+                        ? intl.requiredField 
+                        : null,
+                    onSaved: (value) => message = value!,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFF78A190).withOpacity(0.1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      intl.cancel,
+                      style: TextStyle(
+                        color: const Color(0xFF28445C),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF78A190),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        try {
+                          await _notificationViewModel.create(
+                            message,
+                            userId
+                          );
+                          Navigator.pop(context);
+                          _showResultPopup(true);
+                        } catch (e) {
+                          Navigator.pop(context);
+                          _showResultPopup(false);
+                        }
+                      }
+                    },
+                    child: Text(
+                      intl.send,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+          actionsPadding: const EdgeInsets.all(24),
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildMessageField({
+  required String label,
+  required String? Function(String?) validator,
+  required void Function(String?) onSaved,
+}) {
+  return TextFormField(
+    maxLines: 3,
+    decoration: InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(
+        Icons.message_outlined,
+        color: const Color(0xFF28445C).withOpacity(0.6),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: const Color(0xFF28445C).withOpacity(0.2)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFF78A190)),
+      ),
+      labelStyle: TextStyle(color: const Color(0xFF28445C).withOpacity(0.6)),
+    ),
+    validator: validator,
+    onSaved: onSaved,
+  );
+}
   @override
   Widget build(BuildContext context) {
     final intl = AppLocalizations.of(context)!;
@@ -520,6 +686,13 @@ class __UserCardState extends State<_UserCard> {
                     ],
                   ),
                 ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.message_outlined,
+                        color: const Color(0xFF28445C).withOpacity(0.6),
+                      ),
+                      onPressed: () => _showSendNotificationDialog(context, widget.user.id!),
+                    ),
               ],
             ),
             const SizedBox(height: 16),

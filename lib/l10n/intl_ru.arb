@@ -43,7 +43,15 @@
   "assignedSubProcess": "Назначенные подпроцессы",
   "noAssignedSubProcesses": "Нет назначенных подпроцессов",
   "userAddedSuccess": "Пользователь успешно добавлен!",
-  "usersList": "Список пользователей"
+  "usersList": "Список пользователей",
+  "sendNotification": "Отправить уведомление",
+  "message": "Сообщение",
+  "send": "Отправить",
+  "notificationSentSuccessfully": "Уведомление успешно отправлено",
+  "errorSendingNotification": "Ошибка при отправке уведомления"
+
+
+
 
 
 
