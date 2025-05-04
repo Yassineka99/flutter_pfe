@@ -69,7 +69,12 @@
   "started": "بدأ",
   "finished": "انتهى",
   "unknown": "غير معروف",
-  "subProcesses": "العمليات الفرعية"
+  "subProcesses": "العمليات الفرعية",
+  "signReport": "توقيع التقرير",
+"clear": "مسح",
+"confirm": "تأكيد",
+"provideSignature": "يرجى تقديم توقيع"
+
 
 
 

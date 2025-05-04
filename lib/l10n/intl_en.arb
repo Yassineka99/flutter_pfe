@@ -69,6 +69,10 @@
   "started":"Started",
   "finished":"Finished",
   "unknown":"Unknown",
-  "subProcesses":"Sub Processes"
+  "subProcesses":"Sub Processes",
+  "signReport": "Sign Report",
+"clear": "Clear",
+"confirm": "Confirm",
+"provideSignature": "Please provide a signature"
 
 }

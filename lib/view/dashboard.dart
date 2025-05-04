@@ -1,13 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:path_provider/path_provider.dart';
 import '../model/workflow.dart';
 import '../model/process.dart';
 import '../model/sub_process.dart';
 import '../viewmodel/workflow_view_model.dart';
 import '../viewmodel/process_view_model.dart';
 import '../viewmodel/sub_process_view_model.dart';
-
+import 'package:signature/signature.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
 
@@ -34,6 +42,10 @@ class _DashboardViewState extends State<DashboardView> {
       _isPieChart = !_isPieChart;
     });
   }
+  final SignatureController _signatureController = SignatureController(
+  penStrokeWidth: 3,
+  penColor: Colors.black,
+);
   Future<Map<String, Map<int, int>>> _loadWorkflowData(Workflow workflow) async {
     try {
       // 1. Get processes for this workflow
@@ -106,7 +118,222 @@ class _DashboardViewState extends State<DashboardView> {
       return _buildBarChart(statusCounts, title, context);
     }
   }
-  
+ void _showSignatureDialog() async {
+  final Uint8List? signature = await showDialog<Uint8List>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(AppLocalizations.of(context)!.signReport),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 200,
+        child: Signature(
+          controller: _signatureController,
+          backgroundColor: Colors.white,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _signatureController.clear,
+          child: Text(AppLocalizations.of(context)!.clear),
+        ),
+        TextButton(
+onPressed: () async {
+  if (_signatureController.isNotEmpty) {
+    final signatureImage = await _signatureController.toPngBytes(
+      height: 200,  // Explicit dimensions
+      width: 400,
+    );
+    if (signatureImage != null && signatureImage.isNotEmpty) {
+      Navigator.pop(context, signatureImage);
+    }
+  }
+},
+          child: Text(AppLocalizations.of(context)!.confirm),
+        ),
+      ],
+    ),
+  );
+
+  if (signature != null && signature.isNotEmpty) {
+    await _generateReport(signature);
+  }
+  _signatureController.clear();
+}
+Future<void> _generateReport(Uint8List signatureImage) async {
+  // Remove this line: final context = context;
+  final currentContext = context; // Rename the context reference
+
+  showDialog(
+    context: currentContext, // Use renamed context
+    barrierDismissible: false,
+    builder: (context) => const AlertDialog(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('Generating Report...'),
+        ],
+      ),
+    ),
+  );
+
+  try {
+    final allData = await Future.wait(
+      _workflows.map((workflow) => _loadWorkflowData(workflow))
+    );
+
+    final pdf = await _buildPdf(allData, signatureImage);
+    final bytes = await pdf.save();
+
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/report.pdf');
+    await file.writeAsBytes(bytes);
+
+    if (mounted) {
+      Navigator.of(currentContext).pop(); // Use renamed context
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename: 'workflow_report.pdf',
+      );
+    }
+  } catch (e) {
+    if (mounted) {
+      Navigator.of(currentContext).pop(); // Use renamed context
+      ScaffoldMessenger.of(currentContext).showSnackBar(
+        SnackBar(content: Text('Error generating report: $e')),
+      );
+    }
+  }
+}
+
+Future<pw.Document> _buildPdf(
+  List<Map<String, Map<int, int>>> allData, 
+  Uint8List signature
+) async {
+  final pdf = pw.Document();
+  final image = pw.MemoryImage(signature);
+  final font = await PdfGoogleFonts.notoSansRegular();
+  final boldFont = await PdfGoogleFonts.notoSansBold();
+
+  pdf.addPage(
+    pw.MultiPage(
+      theme: pw.ThemeData.withFont(base: font, bold: boldFont),
+      header: (pw.Context context) => pw.Column(
+        children: [
+          pw.Text('Workflow Report', 
+            style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+          pw.Divider(),
+        ],
+      ),
+      footer: (pw.Context context) => pw.Column(
+        children: [
+          pw.Divider(),
+          _buildSignatureSection(image),
+        ],
+      ),
+      build: (pw.Context context) => [
+        ..._buildWorkflowSections(allData),
+      ],
+    ),
+  );
+
+  return pdf;
+}
+pw.Widget _buildSignatureSection(pw.ImageProvider image) {
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    children: [
+      pw.Text('Approval Signature:', 
+        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+      pw.SizedBox(height: 10),
+      pw.Container(
+        height: 80,
+        width: 200,
+        decoration: pw.BoxDecoration(
+          border: pw.Border.all(),
+          borderRadius: pw.BorderRadius.circular(5),
+        ),
+        child: pw.Image(
+          image,
+          fit: pw.BoxFit.contain,
+          dpi: 300,  // Increase resolution
+        ),
+      ),
+      pw.Padding(
+        padding:pw.EdgeInsets.only(top: 10,) ,
+       child: pw.Text("Yassine Kadri "),
+      )
+    ],
+  );
+}
+
+
+
+List<pw.Widget> _buildWorkflowSections(List<Map<String, Map<int, int>>> allData) {
+  return _workflows.asMap().entries.map((entry) {
+    final index = entry.key;
+    final workflow = entry.value;
+    final data = allData[index];
+    
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text('Workflow ${index + 1}: ${workflow.name ?? 'Unnamed'}',
+          style:  pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        pw.SizedBox(height: 10),
+        _buildPdfSection('Process Status', data['process']!),
+        _buildPdfSection('Sub-Process Status', data['subProcess']!),
+        pw.Divider(thickness: 0.5),
+        pw.SizedBox(height: 20),
+      ],
+    );
+  }).toList();
+}
+
+pw.Widget _buildPdfSection(String title, Map<int, int> data) {
+  return pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    children: [
+      pw.Text(title, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+      pw.Table(
+        border: pw.TableBorder.all(),
+        children: [
+          pw.TableRow(
+            children: [
+              pw.Padding(child: pw.Text('Status'), padding: const pw.EdgeInsets.all(4)),
+              pw.Padding(child: pw.Text('Count'), padding: const pw.EdgeInsets.all(4)),
+            ],
+          ),
+          ...data.entries.map((entry) => pw.TableRow(
+            children: [
+              pw.Padding(
+                child: pw.Text(_getStatusLabelPdf(entry.key)),
+                padding: const pw.EdgeInsets.all(4),
+              ),
+              pw.Padding(
+                child: pw.Text(entry.value.toString()),
+                padding: const pw.EdgeInsets.all(4),
+              ),
+            ],
+          )),
+        ],
+      ),
+      pw.SizedBox(height: 10),
+    ],
+  );
+}
+
+String _getStatusLabelPdf(int status) {
+  switch (status) {
+    case 1: return 'Created';
+    case 2: return 'Started';
+    case 3: return 'Finished';
+    default: return 'Unknown';
+  }
+}
+
+
   Widget _buildPieChart(Map<int, int> statusCounts, String title, BuildContext context) {
     final hasData = statusCounts.values.any((v) => v > 0);
     final sections = statusCounts.entries.map((entry) {
@@ -348,16 +575,29 @@ Widget _buildWorkflowCharts(Workflow workflow, BuildContext context) {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFF78A190),
         title: Padding(
-          padding:EdgeInsets.only(left: 50),
+          padding:EdgeInsets.only(left: 118),
           child: Text(
-          intl.dashboard
+            
+          intl.dashboard,
+          style:const TextStyle(
+            color: Color(0xFF28445C) ,
+            fontFamily: 'BrandonGrotesque',
+            fontWeight: FontWeight.bold
+          ),
           )
           ),
           actions: [
+              IconButton(
+                color: Color(0xFF28445C).withOpacity(.40),
+    icon: const Icon(Icons.report),
+    onPressed: _showSignatureDialog,
+  ),
             IconButton(
             icon: Icon(_isPieChart ? Icons.bar_chart : Icons.pie_chart),
             onPressed: _toggleChartType,
+            color: Color(0xFF28445C).withOpacity(.40),
           ),
           ],
       ),
@@ -376,4 +616,7 @@ Widget _buildWorkflowCharts(Workflow workflow, BuildContext context) {
             ),
     );
   }
+
+  
 }
+

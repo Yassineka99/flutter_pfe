@@ -69,7 +69,12 @@
   "started": "Запущено",
   "finished": "Завершено",
   "unknown": "Неизвестно",
-  "subProcesses": "Подпроцессы"
+  "subProcesses": "Подпроцессы",
+  "signReport": "Подписать отчет",
+"clear": "Очистить",
+"confirm": "Подтвердить",
+"provideSignature": "Пожалуйста, предоставьте подпись"
+
 
 
 

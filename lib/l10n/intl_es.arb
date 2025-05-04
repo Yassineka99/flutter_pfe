@@ -69,7 +69,12 @@
   "started": "Iniciado",
   "finished": "Finalizado",
   "unknown": "Desconocido",
-  "subProcesses": "Subprocesos"
+  "subProcesses": "Subprocesos",
+  "signReport": "Firmar informe",
+"clear": "Borrar",
+"confirm": "Confirmar",
+"provideSignature": "Por favor, proporcione una firma"
+
 
 
 

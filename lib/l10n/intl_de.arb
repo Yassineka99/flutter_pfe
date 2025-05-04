@@ -69,7 +69,12 @@
   "started": "Gestartet",
   "finished": "Beendet",
   "unknown": "Unbekannt",
-  "subProcesses": "Teilprozesse"
+  "subProcesses": "Teilprozesse",
+  "signReport": "Bericht unterschreiben",
+"clear": "Löschen",
+"confirm": "Bestätigen",
+"provideSignature": "Bitte eine Unterschrift leisten"
+
 
 
 

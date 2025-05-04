@@ -41,6 +41,12 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.18.0
+  signature: ^5.2.1
+  pdf: ^3.10.0
+  printing: ^5.10.0
+  path_provider: ^2.1.1
+  google_fonts: ^4.0.4
+  
 
 
 
@@ -92,6 +98,11 @@ flutter:
     - family: BrandonGrotesque
       fonts:
         - asset: assets/fonts/brandon-grotesque-regular.ttf
+          weight: 700
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans-Regular.ttf
+        - asset: assets/fonts/NotoSans-Bold.ttf
           weight: 700
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic

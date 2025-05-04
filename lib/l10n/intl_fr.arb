@@ -69,7 +69,12 @@
   "started": "Commencé",
   "finished": "Terminé",
   "unknown": "Inconnu",
-  "subProcesses": "Sous-processus"
+  "subProcesses": "Sous-processus",
+  "signReport": "Signer le rapport",
+"clear": "Effacer",
+"confirm": "Confirmer",
+"provideSignature": "Veuillez fournir une signature"
+
 
 
 
