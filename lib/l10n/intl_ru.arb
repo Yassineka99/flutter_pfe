@@ -41,7 +41,11 @@
   "byMaxFinished": "по макс. завершенным",
   "errorLoadingProcesses": "Ошибка при загрузке подпроцессов",
   "assignedSubProcess": "Назначенные подпроцессы",
-  "noAssignedSubProcesses": "Нет назначенных подпроцессов"
+  "noAssignedSubProcesses": "Нет назначенных подпроцессов",
+  "userAddedSuccess": "Пользователь успешно добавлен!",
+  "usersList": "Список пользователей"
+
+
 
 
 

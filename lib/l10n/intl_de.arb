@@ -41,7 +41,11 @@
   "byMaxFinished": "nach max. abgeschlossen",
   "errorLoadingProcesses": "Fehler beim Laden der Unterprozesse",
   "assignedSubProcess": "Zugewiesene Unterprozesse",
-"noAssignedSubProcesses": "Keine zugewiesenen Unterprozesse"
+"noAssignedSubProcesses": "Keine zugewiesenen Unterprozesse",
+"userAddedSuccess": "Benutzer erfolgreich hinzugefügt!",
+"usersList": "Benutzerliste"
+
+
 
 
 

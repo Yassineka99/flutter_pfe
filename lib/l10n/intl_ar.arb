@@ -41,7 +41,11 @@
   "byMaxFinished": "حسب الحد الأقصى للمنجز",
   "errorLoadingProcesses": "حدث خطأ أثناء تحميل العمليات الفرعية",
   "assignedSubProcess": "العمليات الفرعية المخصصة",
-  "noAssignedSubProcesses": "لا توجد عمليات فرعية مخصصة"
+  "noAssignedSubProcesses": "لا توجد عمليات فرعية مخصصة",
+  "userAddedSuccess": "تمت إضافة المستخدم بنجاح!",
+  "usersList": "قائمة المستخدمين"
+
+
 
 
 

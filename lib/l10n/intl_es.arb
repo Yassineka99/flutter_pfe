@@ -41,7 +41,11 @@
   "byMaxFinished": "por máximo finalizado",
   "errorLoadingProcesses": "Error al cargar los subprocesos",
   "assignedSubProcess": "Subprocesos asignados",
-  "noAssignedSubProcesses": "No hay subprocesos asignados"
+  "noAssignedSubProcesses": "No hay subprocesos asignados",
+  "userAddedSuccess": "¡Usuario agregado con éxito!",
+  "usersList": "Lista de usuarios"
+
+
 
 
 

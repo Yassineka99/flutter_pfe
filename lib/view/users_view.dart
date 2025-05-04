@@ -237,19 +237,19 @@ void _showAddUserDialog() {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        try {
-                          await _userViewModel.createClient(name, email, phone, password, role);
-                          _loadUsers();
-                          Navigator.pop(context);
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(intl.errorCreatingUser)),
-                          );
-                        }
-                      }
-                    },
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
+    try {
+      await _userViewModel.createClient(name, email, phone, password, role);
+      _loadUsers();
+      Navigator.pop(context);
+      _showResultPopup(true); // Show success popup
+    } catch (e) {
+      Navigator.pop(context); // Close dialog first
+      _showResultPopup(false); // Show error popup
+    }
+  }
+},
                     child: Text(
                       intl.save,
                       style: const TextStyle(
@@ -269,7 +269,30 @@ void _showAddUserDialog() {
     },
   );
 }
-
+void _showResultPopup(bool success) {
+  final intl = AppLocalizations.of(context)!;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: success ? const Color(0xFF78A190) : Colors.redAccent,
+      content: Row(
+        children: [
+          Icon(success ? Icons.check_circle : Icons.error, color: Colors.white),
+          const SizedBox(width: 12),
+          Text(
+            success ? intl.userAddedSuccess : intl.errorCreatingUser,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ],
+      ),
+      duration: const Duration(seconds: 3),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      margin: const EdgeInsets.all(20),
+    ),
+  );
+}
 Widget _buildFormField({
   required String label,
   required IconData icon,
@@ -296,6 +319,8 @@ Widget _buildFormField({
     onSaved: onSaved,
   );
 }
+
+
 Widget _buildFilterChip(SortCriteria criteria, String label) {
   return ChoiceChip(
     label: Text(label),
@@ -325,7 +350,18 @@ Widget _buildFilterChip(SortCriteria criteria, String label) {
     return Scaffold(
   appBar: AppBar(
     backgroundColor: const Color(0xFF78A190),
-    title: Text(intl.users),
+    title: Padding(
+      padding: const EdgeInsets.only(left: 120),
+      child: Text(
+      intl.usersList,
+      style:const TextStyle(
+        fontWeight: FontWeight.bold,
+        color:  Color(0xFF28445C),
+        fontFamily: 'BrandonGrotesque'
+      )
+      
+      )
+    ),
     iconTheme: IconThemeData(
       color: const Color(0xFF28445C).withOpacity(.40),
     ),
