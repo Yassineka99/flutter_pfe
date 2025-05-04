@@ -47,71 +47,66 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 const SizedBox(height: 50),
-                TextInput(
-                  hint: "Email", controller: emailcontroller
-                ),
+                TextInput(hint: "Email", controller: emailcontroller),
                 const SizedBox(height: 10),
-                PasswordInput(
-                  hint: "Password", controller: passwordcontroller
-                ),
+                PasswordInput(hint: "Password", controller: passwordcontroller),
                 Container(
                   width: 327,
                   height: 56,
                   margin: const EdgeInsets.only(top: 30),
                   child: ElevatedButton(
-                  onPressed: () async {
-                  User? client = await userViewModel
-                                .getClientbyEmail(emailcontroller.text.trim());
-                            if (client != null) {
-                              print("Stored password: ${client.password}");
-                              print("Entered password: ${passwordcontroller.text}");
-                              if (client.password == passwordcontroller.text) {
-                                
+                    onPressed: () async {
+                      User? client = await userViewModel
+                          .getClientbyEmail(emailcontroller.text.trim());
+                      if (client != null) {
+                        print("Stored password: ${client.password}");
+                        print("Entered password: ${passwordcontroller.text}");
+                        if (client.password == passwordcontroller.text) {
+                          // ignore: use_build_context_synchronously
+                          await Provider.of<UserSession>(context, listen: false)
+                              .logIn(client);
+
+                          if (client.role == 1) {
+                            // ignore: use_build_context_synchronously
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const AdminHome()),
+                            );
+                          } else if (client.role == 2) {
+                            // ignore: use_build_context_synchronously
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ManagerHome()),
+                            );
+                          } else if (client.role == 3) {
+                            print(
+                                "Worker trying to login"); 
                                 // ignore: use_build_context_synchronously
-                               await Provider.of<UserSession>(context, listen: false).logIn(client);
-                                    
-                                    if (client.role==1) 
-                                    { 
-                                      // ignore: use_build_context_synchronously
-                                     Navigator.pushReplacement(
-                                     context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const AdminHome()),
-                                  );
-                                  }else if (client.role==2)
-                                  {
-                                      // ignore: use_build_context_synchronously
-                                     Navigator.pushReplacement(
-                                     context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const ManagerHome()),
-                                  );
-                                  }else {
-                                                                          // ignore: use_build_context_synchronously
-                                     Navigator.pushReplacement(
-                                     context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const WorkerHome()),
-                                  );
-                                  }
-                              } else {
-                                // ignore: use_build_context_synchronously
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Invalid Password'),
-                                  ),
-                                );
-                              }
-                            }
-                            else {
-                              // ignore: use_build_context_synchronously
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Invalid Email'),
-                                  ),
-                                );
-                            }
-                          },
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const WorkerHome()),
+                            );
+                          }
+                        } else {
+                          // ignore: use_build_context_synchronously
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Invalid Password'),
+                            ),
+                          );
+                        }
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Invalid Email'),
+                          ),
+                        );
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFbdc6d9),
                       shape: RoundedRectangleBorder(

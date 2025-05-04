@@ -19,20 +19,11 @@ class WorkerHome extends StatefulWidget {
 }
 
 class _WorkerHomeState extends State<WorkerHome> {
-  User? user;
+
   int _selectedIndex = 0;
   SubProcessViewModel sub = SubProcessViewModel();
   ProcessViewModel pro = ProcessViewModel();
   late List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      AssignedSubProcesses(userId: user!.id!,),
-      const SettingsView(),
-    ];
-  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -46,10 +37,14 @@ class _WorkerHomeState extends State<WorkerHome> {
     if (!session.isLoggedIn) {
       return const Login();
     }
-    final intl = AppLocalizations.of(context)!;
-    user = session.user!;
+    final user = session.user!;
     print("Welcome user :${user!.name}");
+    final intl = AppLocalizations.of(context)!;
 
+    final _pages = [
+      AssignedSubProcesses(userId: user.id!),
+      const SettingsView(),
+    ];
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -61,14 +56,14 @@ class _WorkerHomeState extends State<WorkerHome> {
         selectedFontSize: 14,
         unselectedFontSize: 14,
         onTap: _onItemTapped,
-        items:  [
+        items: [
           BottomNavigationBarItem(
             label: intl.assignedSubProcess,
             icon: const Icon(Icons.task),
           ),
           BottomNavigationBarItem(
             label: intl.settings,
-            icon:const Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
           ),
         ],
       ),

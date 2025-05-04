@@ -7,7 +7,7 @@ import '../viewmodel/sub_process_view_model.dart';
 
 class AssignedSubProcesses extends StatefulWidget {
   final int userId;
-  
+
   const AssignedSubProcesses({super.key, required this.userId});
 
   @override
@@ -22,6 +22,7 @@ class _AssignedSubProcessesState extends State<AssignedSubProcesses> {
 
   @override
   void initState() {
+    print("user id : ${widget.userId}");
     super.initState();
     _loadProcesses();
   }
@@ -37,17 +38,18 @@ class _AssignedSubProcessesState extends State<AssignedSubProcesses> {
       setState(() => _isLoading = false);
     }
   }
-    Future<void> _updateProcessStatus(Process process, List<SubProcess> subProcesses) async {
+
+  Future<void> _updateProcessStatus(
+      Process process, List<SubProcess> subProcesses) async {
     try {
       // Update subprocesses
-      await Future.wait(subProcesses.map((sp) => 
-        _subProcessViewModel.update(sp)
-      ));
+      await Future.wait(
+          subProcesses.map((sp) => _subProcessViewModel.update(sp)));
 
       // Calculate new process status
       final allCompleted = subProcesses.every((sp) => sp.statusId == 3);
       process.statusId = allCompleted ? 3 : 2;
-      
+
       if (allCompleted) {
         process.finishedAt = DateTime.now();
       }
@@ -59,11 +61,12 @@ class _AssignedSubProcessesState extends State<AssignedSubProcesses> {
     }
   }
 
-  Widget _buildSubProcessItem(SubProcess subProcess, Function(bool?) onChanged) {
+  Widget _buildSubProcessItem(
+      SubProcess subProcess, Function(bool?) onChanged) {
     return CheckboxListTile(
       title: Text(subProcess.name ?? ''),
-      subtitle: subProcess.message?.isNotEmpty ?? false 
-          ? Text(subProcess.message!) 
+      subtitle: subProcess.message?.isNotEmpty ?? false
+          ? Text(subProcess.message!)
           : null,
       value: subProcess.statusId == 3,
       onChanged: onChanged,
@@ -76,28 +79,37 @@ class _AssignedSubProcessesState extends State<AssignedSubProcesses> {
 
   IconData _getStatusIcon(int? status) {
     switch (status) {
-      case 3: return Icons.check_circle;
-      case 2: return Icons.timelapse;
-      default: return Icons.pending;
+      case 3:
+        return Icons.check_circle;
+      case 2:
+        return Icons.timelapse;
+      default:
+        return Icons.pending;
     }
   }
 
   Color _getStatusColor(int? status) {
     switch (status) {
-      case 3: return Colors.green;
-      case 2: return Colors.blue;
-      default: return Colors.orange;
+      case 3:
+        return Colors.green;
+      case 2:
+        return Colors.blue;
+      default:
+        return Colors.orange;
     }
   }
-    Widget _buildProcessCard(Process process) {
+
+  Widget _buildProcessCard(Process process) {
     return FutureBuilder<List<SubProcess>>(
-      future: _subProcessViewModel.getByUserAndProcess(widget.userId, process.id!),
+      future:
+          _subProcessViewModel.getByUserAndProcess(widget.userId, process.id!),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox.shrink();
-        
+
         final subProcesses = snapshot.data!;
-        final checkedCount = subProcesses.where((sp) => sp.statusId == 3).length;
-        
+        final checkedCount =
+            subProcesses.where((sp) => sp.statusId == 3).length;
+
         return Card(
           margin: const EdgeInsets.all(8),
           child: Padding(
@@ -109,15 +121,19 @@ class _AssignedSubProcessesState extends State<AssignedSubProcesses> {
                     process.name ?? '',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: Text('$checkedCount/${subProcesses.length} completed'),
+                  subtitle:
+                      Text('$checkedCount/${subProcesses.length} completed'),
                   trailing: IconButton(
                     icon: const Icon(Icons.save),
-                    onPressed: () => _updateProcessStatus(process, subProcesses),
+                    onPressed: () =>
+                        _updateProcessStatus(process, subProcesses),
                   ),
                 ),
-                ...subProcesses.map((sp) => _buildSubProcessItem(sp, (value) {
-                  setState(() => sp.statusId = value == true ? 3 : 1);
-                })).toList(),
+                ...subProcesses
+                    .map((sp) => _buildSubProcessItem(sp, (value) {
+                          setState(() => sp.statusId = value == true ? 3 : 1);
+                        }))
+                    .toList(),
               ],
             ),
           ),
@@ -125,7 +141,8 @@ class _AssignedSubProcessesState extends State<AssignedSubProcesses> {
       },
     );
   }
-    @override
+
+  @override
   Widget build(BuildContext context) {
     final intl = AppLocalizations.of(context)!;
 
@@ -141,8 +158,8 @@ class _AssignedSubProcessesState extends State<AssignedSubProcesses> {
                   onRefresh: _loadProcesses,
                   child: ListView.builder(
                     itemCount: _processes.length,
-                    itemBuilder: (context, index) => 
-                      _buildProcessCard(_processes[index]),
+                    itemBuilder: (context, index) =>
+                        _buildProcessCard(_processes[index]),
                   ),
                 ),
     );
