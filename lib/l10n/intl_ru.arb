@@ -38,6 +38,11 @@
   "save": "Сохранить",
   "byName": "по имени",
   "byRole": "по роли",
-  "byMaxFinished": "по макс. завершенным"
+  "byMaxFinished": "по макс. завершенным",
+  "errorLoadingProcesses": "Ошибка при загрузке подпроцессов",
+  "assignedSubProcess": "Назначенные подпроцессы",
+  "noAssignedSubProcesses": "Нет назначенных подпроцессов"
+
+
 
 }

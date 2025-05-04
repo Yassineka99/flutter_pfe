@@ -38,6 +38,11 @@
   "save": "Guardar",
   "byName": "por nombre",
   "byRole": "por rol",
-  "byMaxFinished": "por máximo finalizado"
+  "byMaxFinished": "por máximo finalizado",
+  "errorLoadingProcesses": "Error al cargar los subprocesos",
+  "assignedSubProcess": "Subprocesos asignados",
+  "noAssignedSubProcesses": "No hay subprocesos asignados"
+
+
 
 }

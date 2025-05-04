@@ -38,6 +38,11 @@
   "save": "Speichern",
   "byName": "nach Name",
   "byRole": "nach Rolle",
-  "byMaxFinished": "nach max. abgeschlossen"
+  "byMaxFinished": "nach max. abgeschlossen",
+  "errorLoadingProcesses": "Fehler beim Laden der Unterprozesse",
+  "assignedSubProcess": "Zugewiesene Unterprozesse",
+"noAssignedSubProcesses": "Keine zugewiesenen Unterprozesse"
+
+
 
 }

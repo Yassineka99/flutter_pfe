@@ -124,7 +124,7 @@ Future<List<SubProcess>> getByStatusAndUserId(int status, int userid) async {
     List<dynamic> data = jsonDecode(response.body);
     return data.map((item) => SubProcess.fromJson(item)).toList();
   } else {
-    throw Exception('Failed to load by user and process ID');
+    throw Exception('Failed to load by status and user ID');
   }
 }
 

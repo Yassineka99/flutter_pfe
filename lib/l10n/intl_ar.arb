@@ -38,6 +38,11 @@
   "save": "حفظ",
   "byName": "حسب الاسم",
   "byRole": "حسب الدور",
-  "byMaxFinished": "حسب الحد الأقصى للمنجز"
+  "byMaxFinished": "حسب الحد الأقصى للمنجز",
+  "errorLoadingProcesses": "حدث خطأ أثناء تحميل العمليات الفرعية",
+  "assignedSubProcess": "العمليات الفرعية المخصصة",
+  "noAssignedSubProcesses": "لا توجد عمليات فرعية مخصصة"
+
+
 
 }

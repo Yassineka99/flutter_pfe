@@ -38,6 +38,11 @@
   "save": "Enregistrer",
   "byName": "par nom",
   "byRole": "par rôle",
-  "byMaxFinished": "Par maximum terminé"
+  "byMaxFinished": "Par maximum terminé",
+  "errorLoadingProcesses": "Erreur lors du chargement des sous-processus",
+  "assignedSubProcess": "Sous-processus assignés",
+"noAssignedSubProcesses": "Aucun sous-processus assigné"
+
+
 
 }

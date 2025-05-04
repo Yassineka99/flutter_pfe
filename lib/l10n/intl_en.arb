@@ -19,7 +19,7 @@
   "users":"Users",
   "workflows":"Workflows",
   "settings":"Settings",
-    "errorLoadingUsers": "Error loading users",
+  "errorLoadingUsers": "Error loading users",
   "assignedProcesses": "Assigned Processes",
   "noAssignedProcesses": "No assigned processes",
   "noUsersFound": "No users found",
@@ -38,5 +38,8 @@
   "save":"Save",
   "byName":"by Name",
   "byRole":"by Role",
-  "byMaxFinished":"By Max Finished"
+  "byMaxFinished":"By Max Finished",
+  "errorLoadingProcesses":"Error loading Sub Processes",
+  "assignedSubProcess":"Assigned Sub Processes",
+  "noAssignedSubProcesses": "No Assigned Sub Processes"
 }
