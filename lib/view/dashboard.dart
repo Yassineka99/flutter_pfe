@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import '../model/workflow.dart';
 import '../model/process.dart';
@@ -215,14 +216,22 @@ Future<pw.Document> _buildPdf(
   final image = pw.MemoryImage(signature);
   final font = await PdfGoogleFonts.notoSansRegular();
   final boldFont = await PdfGoogleFonts.notoSansBold();
-
+  DateTime now = DateTime.now();
+  String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
   pdf.addPage(
     pw.MultiPage(
       theme: pw.ThemeData.withFont(base: font, bold: boldFont),
       header: (pw.Context context) => pw.Column(
         children: [
-          pw.Text('Workflow Report', 
+
+
+            pw.Text('Workflow Report', 
             style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 20),
+            pw.Text(formattedDate)
+            
+          ,
+          
           pw.Divider(),
         ],
       ),
