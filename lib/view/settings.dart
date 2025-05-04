@@ -8,8 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/user_session.dart';
 import '../services/locale_provider.dart';
+import '../viewmodel/notification_view_model.dart';
 import '../viewmodel/user_view_model.dart';
-
+import '../model/notification.dart' as model;
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
 
@@ -117,76 +118,126 @@ class _SettingsViewState extends State<SettingsView> {
         child: Column(
           children: [
             // PROFILE CARD
-            Expanded(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF81ABBC),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: _loadingImage ? null : _pickAndUpload,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            CircleAvatar(
-                              radius: 40,
-                              backgroundImage: imageBytes != null
-                                  ? MemoryImage(imageBytes)
-                                  : const AssetImage('assets/images/user.png')
-                                      as ImageProvider,
-                            ),
-                            if (_loadingImage)
-                              const CircularProgressIndicator(),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(user.name ?? '',
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontFamily: 'BrandonGrotesque',
-                                  fontWeight: FontWeight.bold,
-                                )),
-                            Text(user.email ?? '',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontFamily: 'BrandonGrotesque',
-                                )),
-                            Text(
-                              user.role == 1
-                                  ? intl.admin
-                                  : user.role == 2
-                                      ? intl.manager
-                                      : intl.worker,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontFamily: 'BrandonGrotesque',
-                              ),
-                            ),
-                            Text(user.phone ?? '',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontFamily: 'BrandonGrotesque',
-                                )),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+Expanded(
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF81ABBC),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Stack(
+        children: [
+          Row(
+            children: [
+              GestureDetector(
+                onTap: _loadingImage ? null : _pickAndUpload,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundImage: imageBytes != null
+                          ? MemoryImage(imageBytes)
+                          : const AssetImage('assets/images/user.png')
+                              as ImageProvider,
+                    ),
+                    if (_loadingImage)
+                      const CircularProgressIndicator(),
+                  ],
                 ),
               ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(user.name ?? '',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontFamily: 'BrandonGrotesque',
+                          fontWeight: FontWeight.bold,
+                        )),
+                    Text(user.email ?? '',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'BrandonGrotesque',
+                        )),
+                    Text(
+                      user.role == 1
+                          ? intl.admin
+                          : user.role == 2
+                              ? intl.manager
+                              : intl.worker,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'BrandonGrotesque',
+                      ),
+                    ),
+                    Text(user.phone ?? '',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'BrandonGrotesque',
+                        )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: FutureBuilder<List<model.Notification>>(
+              future: NotificationViewModel().getUserId(user.id!),
+              builder: (context, snapshot) {
+                final count = snapshot.hasData ? snapshot.data!.length : 0;
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications_outlined,
+                          size: 30, color: Colors.white),
+                      onPressed: () {
+                        // Add navigation to notifications screen
+                      },
+                    ),
+                    if (count > 0)
+                      Positioned(
+                        top: 5,
+                        right: 5,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 20,
+                            minHeight: 20,
+                          ),
+                          child: Text(
+                            count.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                  ],
+                );
+              },
             ),
+          ),
+        ],
+      ),
+    ),
+  ),
+),
 
             // LANGUAGE CARD
             Expanded(

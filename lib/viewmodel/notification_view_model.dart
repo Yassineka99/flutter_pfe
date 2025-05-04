@@ -14,18 +14,20 @@ class NotificationViewModel {
     }
   }
 
-    Future<Notification?> getbyuserid(String id) async {
-    try {
-      notification = await notificationRepository.getNotificationByUserId(id);
-      if (notification != null) {
-        return notification!;
-      } else {
-        return null;
-      }
-      // You can also notifyListeners() if you're using Provider or State Management
-    } catch (e) {
-      print('Error fetching client: $e');
-    }
+  Future<List<Notification>>? getUserId(int userid) async {
+  return await notificationRepository.getByUserId(userid);
+}
+Future<void> markAllAsRead(int userId) async {
+  try {
+    await notificationRepository.markAllAsRead(userId);
+    // Optionally notify UI or listeners
+  } catch (e) {
+    print('Error marking notifications as read: $e');
   }
+}
+
+  Future<List<Notification>>? getUnreadNotifications(int userid) async {
+  return await notificationRepository.getUnreadNotifications(userid);
+}
 
 }
