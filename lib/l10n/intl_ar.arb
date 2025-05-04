@@ -53,15 +53,22 @@
 "noNotifications": "لا توجد إشعارات",
 "status": "الحالة",
 "close": "إغلاق",
-"markAllRead": "تمييز الكل كمقروء"
-
-
-
-
-
-
-
-
+"markAllRead": "تمييز الكل كمقروء",
+  "addWorkflow": "إضافة سير عمل",
+  "editWorkflow": "تعديل سير العمل",
+  "deleteWorkflow": "حذف سير العمل",
+  "deleteWorkflowConfirmation": "تأكيد حذف سير العمل",
+  "delete": "حذف",
+  "success": "نجاح",
+  "error": "خطأ",
+  "noWorkflows": "لا توجد سير عمل",
+  "associatedProcesses": "العمليات المرتبطة",
+  "processes": "العمليات",
+  "status": "الحالة",
+    "created": "تم الإنشاء",
+  "started": "بدأ",
+  "finished": "انتهى",
+  "unknown": "غير معروف"
 
 
 }

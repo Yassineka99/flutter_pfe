@@ -53,6 +53,21 @@
   "noNotifications":"No Notifications",
   "status":"Status",
   "close":"Close",
-  "markAllRead":"Mark All Read"
+  "markAllRead":"Mark All Read",
+  "addWorkflow":"Add Workflow",
+  "editWorkflow":"Edit Workflow",
+  "deleteWorkflow":"Delete Workflow",
+  "deleteWorkflowConfirmation":"Confirm Deleting Workflow",
+  "delete":"Delete",
+  "success":"Success",
+  "error":"Error",
+  "noWorkflows":"No Workflows",
+  "associatedProcesses":"Associated Processes",
+  "processes":"Processes",
+  "status":"Status",
+  "created":"Created",
+  "started":"Started",
+  "finished":"Finished",
+  "unknown":"Unknown"
 
 }

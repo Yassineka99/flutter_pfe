@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:front/model/user_session.dart';
+import 'package:front/view/settings.dart';
+import 'package:front/view/workflows_view.dart';
 import 'package:front/viewmodel/process_view_model.dart';
 import 'package:front/viewmodel/sub_process_view_model.dart';
 import 'package:front/viewmodel/user_view_model.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/user.dart';
 import 'dashboard.dart';
 import 'login.dart';
@@ -27,10 +29,8 @@ class _ManagerHomeState extends State<ManagerHome> {
   void initState() {
     super.initState();
     _pages = [
-      DashboardWidget(processVM: pro, subProcessVM: sub)
-      // UsersView(),
-      // WorkflowsView(),
-      // SettingsView(),
+      const WorkflowView(),
+      const SettingsView(),
     ];
   }
 
@@ -43,9 +43,11 @@ class _ManagerHomeState extends State<ManagerHome> {
   @override
   Widget build(BuildContext context) {
     final session = context.watch<UserSession>();
+
     if (!session.isLoggedIn) {
       return const Login();
     }
+    final intl = AppLocalizations.of(context)!;
     user = session.user!;
     print("Welcome user :${user!.name}");
 
@@ -60,22 +62,14 @@ class _ManagerHomeState extends State<ManagerHome> {
         selectedFontSize: 14,
         unselectedFontSize: 14,
         onTap: _onItemTapped,
-        items: const [
+        items:  [
           BottomNavigationBarItem(
-            label: 'Dashboard',
-            icon: Icon(Icons.dashboard),
+            label: intl.workflows,
+            icon: const Icon(Icons.polyline_rounded),
           ),
           BottomNavigationBarItem(
-            label: 'Users',
-            icon: Icon(Icons.person),
-          ),
-          BottomNavigationBarItem(
-            label: 'Workflows',
-            icon: Icon(Icons.polyline_rounded),
-          ),
-          BottomNavigationBarItem(
-            label: 'Settings',
-            icon: Icon(Icons.settings),
+            label: intl.settings,
+            icon: const Icon(Icons.settings),
           ),
         ],
       ),

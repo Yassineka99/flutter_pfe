@@ -53,7 +53,22 @@
 "noNotifications": "Keine Benachrichtigungen",
 "status": "Status",
 "close": "Schließen",
-"markAllRead": "Alle als gelesen markieren"
+"markAllRead": "Alle als gelesen markieren",
+  "addWorkflow": "Workflow hinzufügen",
+  "editWorkflow": "Workflow bearbeiten",
+  "deleteWorkflow": "Workflow löschen",
+  "deleteWorkflowConfirmation": "Löschen des Workflows bestätigen",
+  "delete": "Löschen",
+  "success": "Erfolg",
+  "error": "Fehler",
+  "noWorkflows": "Keine Workflows vorhanden",
+  "associatedProcesses": "Zugehörige Prozesse",
+  "processes": "Prozesse",
+  "status": "Status",
+    "created": "Erstellt",
+  "started": "Gestartet",
+  "finished": "Beendet",
+  "unknown": "Unbekannt"
 
 
 

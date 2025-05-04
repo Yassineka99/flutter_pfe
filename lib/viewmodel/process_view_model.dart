@@ -42,5 +42,12 @@ class ProcessViewModel {
   Future<List<Process>> getByWorkflowId(int id) async {
   return await processRepository.getByWorkflowId(id);
 }
-
+  Future<void> update(Process updatedProcess) async {
+    try {
+      process = await processRepository.updateProcess(updatedProcess);
+      print('Process updated successfully');
+    } catch (e) {
+      print('Error updating process: $e');
+    }
+  }
 }

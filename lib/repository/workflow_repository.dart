@@ -67,7 +67,7 @@ Future<List<Workflow>> getAllWorkflows() async {
     throw Exception('Failed to load workflows.');
   }
 }
-Future<Workflow> updateSubProcess(Workflow subProcess) async {
+Future<Workflow> updateWorkflow(Workflow subProcess) async {
   final response = await http.post(
     Uri.parse('$apiUrl1/update'),
     headers: {'Content-Type': 'application/json; charset=UTF-8'},
@@ -81,7 +81,7 @@ Future<Workflow> updateSubProcess(Workflow subProcess) async {
 }
 
 // Delete
-Future<void> deleteSubProcess(int id) async {
+Future<void> deleteWorkflow(int id) async {
   final response = await http.post(Uri.parse('$apiUrl1/delete/$id'));
   if (response.statusCode != 200) {
     throw Exception('Failed to delete subprocess');

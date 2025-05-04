@@ -53,7 +53,22 @@
 "noNotifications": "Aucune notification",
 "status": "Statut",
 "close": "Fermer",
-"markAllRead": "Tout marquer comme lu"
+"markAllRead": "Tout marquer comme lu",
+  "addWorkflow": "Ajouter un flux de travail",
+  "editWorkflow": "Modifier le flux de travail",
+  "deleteWorkflow": "Supprimer le flux de travail",
+  "deleteWorkflowConfirmation": "Confirmer la suppression du flux de travail",
+  "delete": "Supprimer",
+  "success": "Succès",
+  "error": "Erreur",
+  "noWorkflows": "Aucun flux de travail",
+  "associatedProcesses": "Processus associés",
+  "processes": "Processus",
+  "status": "Statut",
+    "created": "Créé",
+  "started": "Commencé",
+  "finished": "Terminé",
+  "unknown": "Inconnu"
 
 
 

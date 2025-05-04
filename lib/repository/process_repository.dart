@@ -77,4 +77,20 @@ class ProcessRepoitory {
   }
 }
 
+Future<Process> updateProcess(Process process) async {
+  final response = await http.post(
+    Uri.parse('$apiUrl1/update'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(process.toJson()),
+  );
+
+  if (response.statusCode == 200) {
+    return Process.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Failed to update process');
+  }
+}
+
 }

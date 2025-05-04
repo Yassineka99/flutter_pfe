@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:front/model/user_session.dart';
 import 'package:front/view/settings.dart';
 import 'package:front/view/users_view.dart';
+import 'package:front/view/workflows_view.dart';
 import 'package:front/viewmodel/process_view_model.dart';
 import 'package:front/viewmodel/sub_process_view_model.dart';
 import 'package:front/viewmodel/user_view_model.dart';
@@ -29,10 +30,10 @@ class _AdminHomeState extends State<AdminHome> {
   void initState() {
     super.initState();
     _pages = [
-      DashboardWidget(processVM: pro, subProcessVM: sub),
-      UsersView(),
-      SettingsView(),
-       SettingsView(),
+      const DashboardView(),
+      const UsersView(),
+      const WorkflowView(),
+      const SettingsView(),
     ];
   }
 

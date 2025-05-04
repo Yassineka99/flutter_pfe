@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:front/model/user_session.dart';
+import 'package:front/view/settings.dart';
 import 'package:front/viewmodel/process_view_model.dart';
 import 'package:front/viewmodel/sub_process_view_model.dart';
 import 'package:front/viewmodel/user_view_model.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/user.dart';
+import 'assigned_sub_processes.dart';
 import 'dashboard.dart';
 import 'login.dart';
 
@@ -27,9 +29,8 @@ class _WorkerHomeState extends State<WorkerHome> {
   void initState() {
     super.initState();
     _pages = [
-      // UsersView(),
-      // WorkflowsView(),
-      // SettingsView(),
+      AssignedSubProcesses(userId: user!.id!,),
+      const SettingsView(),
     ];
   }
 
@@ -45,6 +46,7 @@ class _WorkerHomeState extends State<WorkerHome> {
     if (!session.isLoggedIn) {
       return const Login();
     }
+    final intl = AppLocalizations.of(context)!;
     user = session.user!;
     print("Welcome user :${user!.name}");
 
@@ -59,14 +61,14 @@ class _WorkerHomeState extends State<WorkerHome> {
         selectedFontSize: 14,
         unselectedFontSize: 14,
         onTap: _onItemTapped,
-        items: const [
+        items:  [
           BottomNavigationBarItem(
-            label: 'Sub Processes',
-            icon: Icon(Icons.polyline_rounded),
+            label: intl.assignedSubProcess,
+            icon: const Icon(Icons.task),
           ),
           BottomNavigationBarItem(
-            label: 'Settings',
-            icon: Icon(Icons.settings),
+            label: intl.settings,
+            icon:const Icon(Icons.settings),
           ),
         ],
       ),

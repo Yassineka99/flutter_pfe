@@ -53,7 +53,22 @@
 "noNotifications": "Sin notificaciones",
 "status": "Estado",
 "close": "Cerrar",
-"markAllRead": "Marcar todo como leído"
+"markAllRead": "Marcar todo como leído",
+  "addWorkflow": "Agregar flujo de trabajo",
+  "editWorkflow": "Editar flujo de trabajo",
+  "deleteWorkflow": "Eliminar flujo de trabajo",
+  "deleteWorkflowConfirmation": "Confirmar eliminación del flujo de trabajo",
+  "delete": "Eliminar",
+  "success": "Éxito",
+  "error": "Error",
+  "noWorkflows": "No hay flujos de trabajo",
+  "associatedProcesses": "Procesos asociados",
+  "processes": "Procesos",
+  "status": "Estado",
+    "created": "Creado",
+  "started": "Iniciado",
+  "finished": "Finalizado",
+  "unknown": "Desconocido"
 
 
 

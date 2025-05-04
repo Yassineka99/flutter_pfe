@@ -53,7 +53,22 @@
 "noNotifications": "Нет уведомлений",
 "status": "Статус",
 "close": "Закрыть",
-"markAllRead": "Отметить всё как прочитанное"
+"markAllRead": "Отметить всё как прочитанное",
+  "addWorkflow": "Добавить рабочий процесс",
+  "editWorkflow": "Редактировать рабочий процесс",
+  "deleteWorkflow": "Удалить рабочий процесс",
+  "deleteWorkflowConfirmation": "Подтвердите удаление рабочего процесса",
+  "delete": "Удалить",
+  "success": "Успех",
+  "error": "Ошибка",
+  "noWorkflows": "Нет рабочих процессов",
+  "associatedProcesses": "Связанные процессы",
+  "processes": "Процессы",
+  "status": "Статус",
+    "created": "Создано",
+  "started": "Запущено",
+  "finished": "Завершено",
+  "unknown": "Неизвестно"
 
 
 
