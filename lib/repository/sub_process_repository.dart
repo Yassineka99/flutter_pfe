@@ -24,7 +24,7 @@ class SubProcessRepoitory {
       body: jsonEncode(<String, String>{
         'name': name!,
         'process_id': processId!.toString(),
-        'status_id': statusId!.toString(),
+        'status': statusId!.toString(),
         'created_by': createdBy!.toString(),
         'message': message!,
         'assigned_to': assignedTo!.toString(),

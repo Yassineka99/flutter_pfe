@@ -23,7 +23,7 @@ class SubProcess {
         id: json['id'] as int?,
         name: json['name'] as String?,
         processId: json['process_id'] as int?,
-        statusId: json['status_id'] as int?,
+        statusId: json['status'] as int?,
         createdAt: json['created_at'] != null
             ? DateTime.tryParse(json['created_at'] as String)
             : null,

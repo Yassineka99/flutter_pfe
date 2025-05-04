@@ -68,7 +68,9 @@
     "created": "Erstellt",
   "started": "Gestartet",
   "finished": "Beendet",
-  "unknown": "Unbekannt"
+  "unknown": "Unbekannt",
+  "subProcesses": "Teilprozesse"
+
 
 
 

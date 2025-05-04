@@ -39,8 +39,16 @@ class ProcessViewModel {
   return await processRepository.getByStatusId(id);
 }
 
-  Future<List<Process>> getByWorkflowId(int id) async {
-  return await processRepository.getByWorkflowId(id);
+Future<List<Process>> getByWorkflowId(int id) async {
+  try {
+    final processes = await processRepository.getByWorkflowId(id);
+    print('Fetched ${processes.length} processes for workflow $id');
+    processes.forEach((p) => print(p.toJson()));
+    return processes;
+  } catch (e, stack) {
+    print('Error fetching processes: $e\n$stack');
+    return [];
+  }
 }
   Future<void> update(Process updatedProcess) async {
     try {

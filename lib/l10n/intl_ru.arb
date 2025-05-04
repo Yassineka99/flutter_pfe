@@ -68,7 +68,9 @@
     "created": "Создано",
   "started": "Запущено",
   "finished": "Завершено",
-  "unknown": "Неизвестно"
+  "unknown": "Неизвестно",
+  "subProcesses": "Подпроцессы"
+
 
 
 

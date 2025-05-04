@@ -68,7 +68,9 @@
     "created": "تم الإنشاء",
   "started": "بدأ",
   "finished": "انتهى",
-  "unknown": "غير معروف"
+  "unknown": "غير معروف",
+  "subProcesses": "العمليات الفرعية"
+
 
 
 }

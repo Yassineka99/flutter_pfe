@@ -20,39 +20,66 @@ class _DashboardViewState extends State<DashboardView> {
   final ProcessViewModel _processVM = ProcessViewModel();
   final SubProcessViewModel _subProcessVM = SubProcessViewModel();
   List<Workflow> _workflows = [];
+  bool _isPieChart = true;
   bool _isLoading = true;
-
+  
   @override
   void initState() {
     super.initState();
     _loadData();
   }
 
-  Future<void> _loadData() async {
+    void _toggleChartType() {
+    setState(() {
+      _isPieChart = !_isPieChart;
+    });
+  }
+  Future<Map<String, Map<int, int>>> _loadWorkflowData(Workflow workflow) async {
     try {
-      _workflows = await _workflowVM.fetchAllWorkflows();
-      setState(() => _isLoading = false);
+      // 1. Get processes for this workflow
+      final processes = await _processVM.getByWorkflowId(workflow.id!);
+      
+      // 2. Get sub-processes for each process
+      final allSubs = await Future.wait(
+        processes.map((p) => _subProcessVM.getByProcessId(p.id!))
+      );
+
+      // 3. Combine sub-processes
+    final subProcesses = allSubs.expand((s) => s).toList();
+
+
+    return {
+      'process': _getStatusCounts(processes, (p) => p.statusId),
+      'subProcess': _getStatusCounts(subProcesses, (sp) => sp.statusId),
+    };
     } catch (e) {
-      setState(() => _isLoading = false);
+      print('Error loading workflow data: $e');
+      return {'process': {}, 'subProcess': {}};
     }
   }
-
-  Map<int, int> _getProcessStatusCounts(List<Process> processes) {
+    Map<int, int> _getStatusCounts<T>(List<T> items, int? Function(T) getStatus) {
     return {
-      1: processes.where((p) => p.statusId == 1).length,
-      2: processes.where((p) => p.statusId == 2).length,
-      3: processes.where((p) => p.statusId == 3).length,
+      1: items.where((i) => getStatus(i) == 1).length,
+      2: items.where((i) => getStatus(i) == 2).length,
+      3: items.where((i) => getStatus(i) == 3).length,
     };
   }
-
-  Map<int, int> _getSubProcessStatusCounts(List<SubProcess> subProcesses) {
-    return {
-      1: subProcesses.where((sp) => sp.statusId == 1).length,
-      2: subProcesses.where((sp) => sp.statusId == 2).length,
-      3: subProcesses.where((sp) => sp.statusId == 3).length,
-    };
+  Future<void> _loadData() async {
+    try {
+      final workflows = await _workflowVM.fetchAllWorkflows();
+      if (mounted) {
+        setState(() {
+          _workflows = workflows;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+      print('Error loading data: $e');
+    }
   }
-
   Color _getStatusColor(int status) {
     switch (status) {
       case 1: return Colors.blue;
@@ -71,146 +98,281 @@ class _DashboardViewState extends State<DashboardView> {
       default: return intl.unknown;
     }
   }
-    Widget _buildProcessPieChart(Map<int, int> statusCounts, BuildContext context) {
-    final List<PieChartSectionData> sections = statusCounts.entries.map((entry) {
+
+  Widget _buildChart(Map<int, int> statusCounts, String title, BuildContext context) {
+    if (_isPieChart) {
+      return _buildPieChart(statusCounts, title, context);
+    } else {
+      return _buildBarChart(statusCounts, title, context);
+    }
+  }
+  
+  Widget _buildPieChart(Map<int, int> statusCounts, String title, BuildContext context) {
+    final hasData = statusCounts.values.any((v) => v > 0);
+    final sections = statusCounts.entries.map((entry) {
       return PieChartSectionData(
         color: _getStatusColor(entry.key),
         value: entry.value.toDouble(),
-        title: '${entry.value}',
-        radius: 60,
+        title: hasData ? '${entry.value}' : '',
+        radius: 30,
         titleStyle: const TextStyle(
           color: Colors.white,
+          fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
       );
     }).toList();
 
-    return SizedBox(
-      height: 200,
-      child: PieChart(
-        PieChartData(
-          sections: sections,
-          centerSpaceRadius: 40,
-          sectionsSpace: 2,
+    return Column(
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 200,
+          child: hasData 
+              ? PieChart(
+                  PieChartData(
+                    sections: sections,
+                    centerSpaceRadius: 40,
+                    sectionsSpace: 0,
+                    startDegreeOffset: 180,
+                  ),
+                )
+              : Center(child: Text(AppLocalizations.of(context)!.error)),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildSubProcessBarChart(Map<int, int> statusCounts, BuildContext context) {
-    final List<BarChartGroupData> barGroups = [
-      BarChartGroupData(
-        x: 0,
-        barRods: [
-          BarChartRodData(
-            toY: statusCounts[1]?.toDouble() ?? 0,
-            color: _getStatusColor(1),
-            width: 20,
+Widget _buildBarChart(Map<int, int> statusCounts, String title, BuildContext context) {
+  // Create separate bars for each status
+  final List<BarChartGroupData> barGroups = [
+    BarChartGroupData(
+      x: 0,
+      barsSpace: 4,
+      barRods: [
+        BarChartRodData(
+          toY: statusCounts[1]?.toDouble() ?? 0,
+          color: _getStatusColor(1),
+          width: 20,
+          backDrawRodData: BackgroundBarChartRodData(
+            show: true,
+            toY: statusCounts.values.fold(0, (a, b) => a > b ? a : b).toDouble(),
+            color: Colors.grey[200],
           ),
-          BarChartRodData(
-            toY: statusCounts[2]?.toDouble() ?? 0,
-            color: _getStatusColor(2),
-            width: 20,
-          ),
-          BarChartRodData(
-            toY: statusCounts[3]?.toDouble() ?? 0,
-            color: _getStatusColor(3),
-            width: 20,
-          ),
-        ],
-        showingTooltipIndicators: [0, 1, 2],
-      ),
-    ];
+        ),
+      ],
+    ),
+    BarChartGroupData(
+      x: 1,
+      barsSpace: 4,
+      barRods: [
+        BarChartRodData(
+          toY: statusCounts[2]?.toDouble() ?? 0,
+          color: _getStatusColor(2),
+          width: 20,
+        ),
+      ],
+    ),
+    BarChartGroupData(
+      x: 2,
+      barsSpace: 4,
+      barRods: [
+        BarChartRodData(
+          toY: statusCounts[3]?.toDouble() ?? 0,
+          color: _getStatusColor(3),
+          width: 20,
+        ),
+      ],
+    ),
+  ];
 
-    return SizedBox(
-      height: 200,
-      child: BarChart(
-        BarChartData(
-          barGroups: barGroups,
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) => Text(
-                  _getStatusLabel(value.toInt(), context),
+  return Column(
+    children: [
+      Text(title, style: const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
+      )),
+      const SizedBox(height: 8),
+      SizedBox(
+        height: 200,
+        child: BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            maxY: statusCounts.values.fold(0, (a, b) => a > b ? a : b).toDouble(),
+            barTouchData: BarTouchData(enabled: false),
+            titlesData: FlTitlesData(
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, meta) {
+                    final status = value.toInt() + 1;
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        _getStatusLabel(status, context),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    );
+                  },
+                  reservedSize: 30,
+                ),
+              ),
+              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            ),
+            gridData: FlGridData(show: false),
+            borderData: FlBorderData(show: false),
+            barGroups: barGroups,
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      _buildValueLabels(statusCounts, context),
+    ],
+  );
+}
+
+Widget _buildValueLabels(Map<int, int> counts, BuildContext context) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    children: [1, 2, 3].map((status) {
+      final value = counts[status] ?? 0;
+      return Column(
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: _getStatusColor(status),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                '$value',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
-          gridData: FlGridData(show: false),
+          const SizedBox(height: 4),
+          Text(
+            _getStatusLabel(status, context),
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
+      );
+    }).toList(),
+  );
+}
+
+// 1. Update the _buildWorkflowCharts method
+Widget _buildWorkflowCharts(Workflow workflow, BuildContext context) {
+  final intl = AppLocalizations.of(context)!;
+  
+  return FutureBuilder(
+    future: _loadWorkflowData(workflow),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      
+      if (snapshot.hasError) {
+        return Text(intl.error);
+      }
+
+      // Get the pre-calculated counts from the future
+      final processCounts = snapshot.data?['process'] ?? {};
+      final subProcessCounts = snapshot.data?['subProcess'] ?? {};
+      return Card(
+        margin: const EdgeInsets.all(8),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Text(workflow.name ?? '', 
+                  style: Theme.of(context).textTheme.titleLarge),
+              ),
+              const SizedBox(height: 16),
+  Row(
+    children: [
+      Expanded(
+        child: _buildChart(
+          processCounts, 
+          intl.processes, 
+          context
         ),
       ),
-    );
-  }
-    Widget _buildWorkflowCharts(Workflow workflow, BuildContext context) {
-    return FutureBuilder(
-      future: Future.wait([
-        _processVM.getByWorkflowId(workflow.id!),
-        _subProcessVM.getByProcessId(workflow.id!),
-      ]),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const CircularProgressIndicator();
-        
-        final processes = snapshot.data![0] as List<Process>;
-        final subProcesses = snapshot.data![1] as List<SubProcess>;
-        
-        final processStatusCounts = _getProcessStatusCounts(processes);
-        final subProcessStatusCounts = _getSubProcessStatusCounts(subProcesses);
-
-        return Card(
-          margin: const EdgeInsets.all(8),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(workflow.name ?? '',
-                  style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 16),
-                Row(
+      Expanded(
+        child: _buildChart(
+          subProcessCounts,
+          intl.subProcesses,
+          context
+        ),
+      ),
+    ],
+  ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [1, 2, 3].map((status) => Row(
                   children: [
-                    Expanded(child: _buildProcessPieChart(processStatusCounts, context)),
-                    Expanded(child: _buildSubProcessBarChart(subProcessStatusCounts, context)),
+                    Container(
+                      width: 12,
+                      height: 12,
+                      color: _getStatusColor(status)),
+                    const SizedBox(width: 4),
+                    Text(_getStatusLabel(status, context)),
                   ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [1, 2, 3].map((status) => Row(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        color: _getStatusColor(status)),
-                      const SizedBox(width: 4),
-                      Text(_getStatusLabel(status, context)),
-                    ],
-                  )).toList(),
-                ),
-              ],
-            ),
+                )).toList(),
+              ),
+            ],
           ),
-        );
-      },
-    );
-  }
-    @override
+        ),
+      );
+    },
+  );
+}
+
+  @override
   Widget build(BuildContext context) {
     final intl = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(intl.dashboard)),
+      appBar: AppBar(
+        title: Padding(
+          padding:EdgeInsets.only(left: 50),
+          child: Text(
+          intl.dashboard
+          )
+          ),
+          actions: [
+            IconButton(
+            icon: Icon(_isPieChart ? Icons.bar_chart : Icons.pie_chart),
+            onPressed: _toggleChartType,
+          ),
+          ],
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _loadData,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: _workflows.length,
-                itemBuilder: (context, index) => 
-                  _buildWorkflowCharts(_workflows[index], context),
-              ),
+              child: _workflows.isEmpty
+                  ? Center(child: Text(intl.noWorkflows))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(8),
+                      itemCount: _workflows.length,
+                      itemBuilder: (context, index) => 
+                        _buildWorkflowCharts(_workflows[index], context),
+                    ),
             ),
     );
   }

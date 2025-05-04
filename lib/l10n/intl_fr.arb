@@ -68,7 +68,9 @@
     "created": "Créé",
   "started": "Commencé",
   "finished": "Terminé",
-  "unknown": "Inconnu"
+  "unknown": "Inconnu",
+  "subProcesses": "Sous-processus"
+
 
 
 
