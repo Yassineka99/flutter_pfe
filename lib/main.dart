@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:front/model/user_session.dart';
 import 'package:front/services/locale_provider.dart';
+import 'package:front/services/theme_provider.dart';
 import 'package:front/view/home.dart';
 import 'package:front/view/manager_home.dart';
 import 'package:front/view/spash_screen.dart';
@@ -20,6 +21,7 @@ runApp(
     providers: [
       ChangeNotifierProvider.value(value: session),
       ChangeNotifierProvider(create: (_) => LocaleProvider()),
+      ChangeNotifierProvider(create: (_) => ThemeProvider()),
     ],
     child: const MyApp(),
   ),
@@ -32,6 +34,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
+    final themeProvider = context.watch<ThemeProvider>();
     return MaterialApp(
         supportedLocales: L10n.all,
         locale: localeProvider.locale,
@@ -42,7 +45,55 @@ class MyApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate
         ],
         debugShowCheckedModeBanner: false,
+        themeMode: themeProvider.themeMode,
+        theme: ThemeData(
+        colorScheme: ColorScheme.light(
+          primary: const Color(0xFF78A190),
+          secondary: const Color(0xFF28445C),
+          surface: Colors.white,
+          background: Colors.grey[100]!,
+          error: const Color(0xFFB00020),
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onSurface: Colors.black,
+          onBackground: Colors.black,
+          onError: Colors.white,
+          brightness: Brightness.light,
+        ),
+        appBarTheme: const AppBarTheme(
+          color: Color(0xFF78A190)),
+        cardTheme: CardTheme(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+        ),
+
+      ),),
+      darkTheme: ThemeData(
+        colorScheme:const ColorScheme.dark(
+          primary:  Color(0xFF507567),
+          secondary:  Color(0xFF8BA7B5),
+          surface:  Color(0xFF121212),
+          background:  Color(0xFF121212),
+          error:  Color(0xFFCF6679),
+          onPrimary: Colors.black,
+          onSecondary: Colors.black,
+          onSurface: Colors.white,
+          onBackground: Colors.white,
+          onError: Colors.black,
+          brightness: Brightness.dark,
+        ),
+        appBarTheme: const AppBarTheme(
+          color: Color(0xFF507567)),
+        cardTheme: CardTheme(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+        ),
+
+      )),
         home: roleDetector(context));
+      
   }
 }
 

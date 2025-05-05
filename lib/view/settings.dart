@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/user_session.dart';
 import '../services/locale_provider.dart';
+import '../services/theme_provider.dart';
 import '../viewmodel/notification_view_model.dart';
 import '../viewmodel/user_view_model.dart';
 import '../model/notification.dart' as model;
@@ -33,7 +34,7 @@ class _SettingsViewState extends State<SettingsView> {
     'ru': 'assets/flags/ru.png',
     'ar': 'assets/flags/ar.png',
   };
-/*-----------------------------------------Build Methodes --------------------------------------*/ 
+/*-----------------------------------------Build Methodes --------------------------------------*/
   @override
   void initState() {
     super.initState();
@@ -43,232 +44,163 @@ class _SettingsViewState extends State<SettingsView> {
   void _refreshNotifications() {
     final session = context.read<UserSession>();
     setState(() {
-      _notificationsFuture = _notificationVM.getUnreadNotifications(session.user!.id!);
+      _notificationsFuture =
+          _notificationVM.getUnreadNotifications(session.user!.id!);
     });
   }
 
-void _showNotificationsPopup(List<model.Notification> notifications) {
-  final intl = AppLocalizations.of(context)!;
-  final theme = Theme.of(context);
+  void _showNotificationsPopup(List<model.Notification> notifications) {
+    final intl = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
-  showDialog(
-    context: context,
-    builder: (context) => Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(20),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF28445C).withOpacity(0.4),
-              blurRadius: 20,
-              spreadRadius: 2,
-            )
-          ],
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              const Color(0xFF78A190).withOpacity(0.95),
-              const Color(0xFF28445C).withOpacity(0.97),
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: _dialogShape,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              _buildDialogHeader(
+                  intl.notifications, Icons.notifications_none_rounded),
+
+              // Notifications Body
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: 16),
+                    notifications.isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(
+                              intl.noNotifications,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'BrandonGrotesque',
+                                color: Color(0xFF28445C).withOpacity(0.6),
+                              ),
+                            ),
+                          )
+                        : ConstrainedBox(
+                            constraints: BoxConstraints(
+                                maxHeight:
+                                    MediaQuery.of(context).size.height * 0.4),
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: notifications.length,
+                              separatorBuilder: (_, __) => Divider(
+                                  height: 16, color: Colors.transparent),
+                              itemBuilder: (context, index) {
+                                final notification = notifications[index];
+                                return Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF78A190).withOpacity(0.05),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                        color:
+                                            Color(0xFF78A190).withOpacity(0.1)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        margin: const EdgeInsets.only(top: 4),
+                                        child: Icon(Icons.circle,
+                                            size: 12, color: Color(0xFF78A190)),
+                                      ),
+                                      SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              notification.message ?? '',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontFamily: 'BrandonGrotesque',
+                                                color: Color(0xFF28445C),
+                                                height: 1.4,
+                                              ),
+                                            ),
+                                            if (notification.visibility != null)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 8),
+                                                child: Text(
+                                                  'Status: ${notification.visibility}',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontFamily:
+                                                        'BrandonGrotesque',
+                                                    color: Color(0xFF78A190)
+                                                        .withOpacity(0.8),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                    SizedBox(height: 24),
+                  ],
+                ),
+              ),
+
+              // Footer
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
+                child: _buildDialogActionButtons(
+                  onCancel: () => Navigator.pop(context),
+                  onConfirm: () {
+                    Navigator.pop(context);
+                    final session = context.read<UserSession>();
+                    _notificationVM
+                        .markAllAsRead(session.user!.id!)
+                        .then((_) => _refreshNotifications());
+                  },
+                  confirmColor: Color(0xFF78A190),
+                  confirmText: intl.markAllRead,
+                ),
+              ),
             ],
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header (Fixed)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-              decoration: BoxDecoration(
-                color: const Color(0xFF28445C).withOpacity(0.9),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF78A190).withOpacity(0.3),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.notifications_none_rounded, 
-                      color: Color(0xFFD8E6E3),
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    intl.notifications,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      fontFamily: 'BrandonGrotesque',
-                      color: const Color(0xFFE0F0ED),
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: Icon(
-                      Icons.close, 
-                      color: const Color(0xFFD8E6E3).withOpacity(0.8)
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-
-            // Notifications Body
-            Padding(
-              padding: const EdgeInsets.only(top: 16, bottom: 8),
-              child: notifications.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        intl.noNotifications,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: 'BrandonGrotesque',
-                          color: const Color(0xFFE0F0ED).withOpacity(0.7),
-                        ),
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        children: notifications.map((notification) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 6, horizontal: 16
-                          ),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF28445C).withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              color: const Color(0xFF78A190).withOpacity(0.3),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                margin: const EdgeInsets.only(top: 6),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFC3D7C2),
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF78A190).withOpacity(0.5),
-                                      blurRadius: 4,
-                                      spreadRadius: 1,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      notification.message ?? '',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontFamily: 'BrandonGrotesque',
-                                        fontWeight: FontWeight.w600,
-                                        color: const Color(0xFFE0F0ED),
-                                        height: 1.4,
-                                      ),
-                                    ),
-                                    if (notification.visibility != null)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 8),
-                                        child: Text(
-                                          'Status: ${notification.visibility}',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontFamily: 'BrandonGrotesque',
-                                            color: const Color(0xFFA8C0B5),
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )).toList(),
-                      ),
-                    ),
-            ),
-
-            // Footer (Fixed)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              decoration: BoxDecoration(
-                color: const Color(0xFF28445C).withOpacity(0.8),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${notifications.length} ${intl.notifications.toLowerCase()}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'BrandonGrotesque',
-                      color: const Color(0xFF78A190).withOpacity(0.9),
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                  TextButton.icon(
-                    icon: Icon(
-                      Icons.check_circle_outline,
-                      color: const Color(0xFFC3D7C2).withOpacity(0.9),
-                      size: 18,
-                    ),
-                    label: Text(
-                      intl.markAllRead,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'BrandonGrotesque',
-                        color: const Color(0xFFC3D7C2),
-                      ),
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
-    ),
-  ).then((_) {
-    final session = context.read<UserSession>();
-    _notificationVM.markAllAsRead(session.user!.id!).then((_) => _refreshNotifications());
-  });
-}
+    );
+  }
 
   String _getLanguageName(String localeCode, AppLocalizations intl) {
     switch (localeCode) {
-      case 'en': return intl.english;
-      case 'fr': return intl.french;
-      case 'de': return intl.german;
-      case 'es': return intl.spanish;
-      case 'ru': return intl.russian;
-      case 'ar': return intl.arabic;
-      default: return intl.english;
+      case 'en':
+        return intl.english;
+      case 'fr':
+        return intl.french;
+      case 'de':
+        return intl.german;
+      case 'es':
+        return intl.spanish;
+      case 'ru':
+        return intl.russian;
+      case 'ar':
+        return intl.arabic;
+      default:
+        return intl.english;
     }
   }
 
@@ -318,7 +250,56 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
       setState(() => _loadingImage = false);
     }
   }
-/*-----------------------------------------Build Widgets --------------------------------------*/ 
+/*-----------------------------------------Build Widgets --------------------------------------*/
+
+  /* ---------------------------Notification popup design  -----------------------*/
+  Widget _buildDialogHeader(String title, IconData icon) {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Color(0xFF78A190).withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 32, color: Color(0xFF28445C)),
+        ),
+        SizedBox(height: 16),
+        Text(title, style: _headerStyle),
+      ],
+    );
+  }
+
+  Widget _buildDialogActionButtons({
+    required VoidCallback onCancel,
+    required VoidCallback onConfirm,
+    Color confirmColor = const Color(0xFF78A190),
+    String confirmText = 'Save',
+  }) {
+    final intl = AppLocalizations.of(context)!;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton(
+          onPressed: onCancel,
+          child: Text(intl.cancel,
+              style: TextStyle(
+                  color: Color(0xFF28445C), fontFamily: 'BrandonGrotesque')),
+        ),
+        SizedBox(width: 12),
+        ElevatedButton(
+          style: _buttonStyle.copyWith(
+              backgroundColor: MaterialStatePropertyAll(confirmColor)),
+          onPressed: onConfirm,
+          child: Text(confirmText,
+              style: TextStyle(fontFamily: 'BrandonGrotesque')),
+        ),
+      ],
+    );
+  }
+
+  /* ---------------------------Notification popup design --------------------- */
   @override
   Widget build(BuildContext context) {
     final session = context.watch<UserSession>();
@@ -341,10 +322,11 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
             // PROFILE CARD
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF81ABBC),
+                    color: Color(0xFF78A190),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.all(12),
@@ -361,7 +343,8 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
                                   radius: 40,
                                   backgroundImage: imageBytes != null
                                       ? MemoryImage(imageBytes)
-                                      : const AssetImage('assets/images/user.png')
+                                      : const AssetImage(
+                                              'assets/images/user.png')
                                           as ImageProvider,
                                 ),
                                 if (_loadingImage)
@@ -413,7 +396,8 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
                         child: FutureBuilder<List<model.Notification>>(
                           future: _notificationsFuture,
                           builder: (context, snapshot) {
-                            final count = snapshot.hasData ? snapshot.data!.length : 0;
+                            final count =
+                                snapshot.hasData ? snapshot.data!.length : 0;
                             return Stack(
                               alignment: Alignment.center,
                               children: [
@@ -465,9 +449,10 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
             // LANGUAGE CARD (UNCHANGED)
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Card(
-                  color: const Color(0xFFFBD2C9),
+                  color: Color(0xFF78A190).withOpacity(0.8),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   child: InkWell(
@@ -482,17 +467,18 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
                               .map((localeCode) => SimpleDialogOption(
                                     child: Container(
                                       height: 40,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(10)),
-                                          color: Color.fromARGB(255, 228, 228, 228)),
+                                          color: Color(0xFF78A190)),
                                       child: Center(
                                         child: Text(
                                             _getLanguageName(localeCode, intl),
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(
                                                 fontSize: 20,
-                                                fontFamily: 'BrandonGrotesque')),
+                                                fontFamily:
+                                                    'BrandonGrotesque')),
                                       ),
                                     ),
                                     onPressed: () =>
@@ -531,9 +517,10 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
             // THEME CARD (UNCHANGED)
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Card(
-                  color: const Color(0xFF774A62),
+                  color: Color(0xFF78A190).withOpacity(0.6),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   child: Center(
@@ -542,22 +529,25 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
                       children: [
                         Icon(
                           _darkMode ? Icons.dark_mode : Icons.light_mode,
-                          color: Colors.white,
+                         
                           size: 50,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           _darkMode ? intl.darkTheme : intl.lightTheme,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 25,
                             fontFamily: 'BrandonGrotesque',
-                            color: Colors.white,
+                            
                           ),
                         ),
                         const SizedBox(width: 8),
                         Switch(
-                          value: _darkMode,
-                          onChanged: (v) => setState(() => _darkMode = v),
+                          value: context.watch<ThemeProvider>().isDarkMode,
+                          onChanged: (value) => {
+                            context.read<ThemeProvider>().toggleTheme(value),
+                            _darkMode = value
+                          },
                           activeColor: Colors.white,
                         ),
                       ],
@@ -570,9 +560,10 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
             // LOGOUT CARD (UNCHANGED)
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Card(
-                  color: const Color(0xFFF83C31),
+                  color: Color(0xFF78A190).withOpacity(0.5),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   child: InkWell(
@@ -585,14 +576,14 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.logout,
-                              color: Colors.white, size: 50),
+                          Icon(Icons.logout,
+                              size: 50),
                           const SizedBox(width: 8),
                           Text(intl.logout,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 25,
                                 fontFamily: 'BrandonGrotesque',
-                                color: Colors.white,
+                               
                               )),
                         ],
                       ),
@@ -607,3 +598,25 @@ void _showNotificationsPopup(List<model.Notification> notifications) {
     );
   }
 }
+
+const _dialogShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+);
+
+const _headerStyle = TextStyle(
+  fontSize: 22,
+  fontWeight: FontWeight.w600,
+  color: Color(0xFF28445C),
+  fontFamily: 'BrandonGrotesque',
+);
+
+const _inputBorder = OutlineInputBorder(
+  borderRadius: BorderRadius.all(Radius.circular(12)),
+  borderSide: BorderSide(color: Color(0xFF78A190)),
+);
+
+final _buttonStyle = ElevatedButton.styleFrom(
+  backgroundColor: Color(0xFF78A190),
+  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+);
