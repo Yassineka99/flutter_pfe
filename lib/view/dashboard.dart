@@ -1,18 +1,14 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import '../model/workflow.dart';
-import '../model/process.dart';
-import '../model/sub_process.dart';
 import '../viewmodel/workflow_view_model.dart';
 import '../viewmodel/process_view_model.dart';
 import '../viewmodel/sub_process_view_model.dart';
 import 'package:signature/signature.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'dart:typed_data';
@@ -122,36 +118,134 @@ class _DashboardViewState extends State<DashboardView> {
  void _showSignatureDialog() async {
   final Uint8List? signature = await showDialog<Uint8List>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text(AppLocalizations.of(context)!.signReport),
-      content: SizedBox(
-        width: double.maxFinite,
-        height: 200,
-        child: Signature(
-          controller: _signatureController,
-          backgroundColor: Colors.white,
+    builder: (context) => Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      elevation: 10,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blue.shade50, Colors.white],
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                    const  Icon(Icons.brush, color: Colors.white),
+                      const SizedBox(width: 10),
+                      Text(
+                        AppLocalizations.of(context)!.signReport,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Signature Area
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2)),
+                    ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Stack(
+                    children: [
+                      Signature(
+                        controller: _signatureController,
+                        backgroundColor: Colors.white,
+                        height: 200,
+                        width: MediaQuery.of(context).size.width,
+                      ),
+                      if (_signatureController.isEmpty)
+                        const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  OutlinedButton.icon(
+                    icon: Icon(Icons.delete, color: Colors.red.shade700),
+                    label: Text(
+                      AppLocalizations.of(context)!.clear,
+                      style: TextStyle(color: Colors.red.shade700),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.red.shade700),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                    ),
+                    onPressed: _signatureController.clear,
+                  ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.check, color: Colors.white),
+                    label: Text(AppLocalizations.of(context)!.confirm),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 25, vertical: 12),
+                    ),
+                    onPressed: () async {
+                      if (_signatureController.isNotEmpty) {
+                        final signatureImage = await _signatureController
+                            .toPngBytes(height: 200, width: 400);
+                        if (signatureImage != null) {
+                          Navigator.pop(context, signatureImage);
+                        }
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _signatureController.clear,
-          child: Text(AppLocalizations.of(context)!.clear),
-        ),
-        TextButton(
-onPressed: () async {
-  if (_signatureController.isNotEmpty) {
-    final signatureImage = await _signatureController.toPngBytes(
-      height: 200,  // Explicit dimensions
-      width: 400,
-    );
-    if (signatureImage != null && signatureImage.isNotEmpty) {
-      Navigator.pop(context, signatureImage);
-    }
-  }
-},
-          child: Text(AppLocalizations.of(context)!.confirm),
-        ),
-      ],
     ),
   );
 
@@ -160,6 +254,8 @@ onPressed: () async {
   }
   _signatureController.clear();
 }
+
+
 Future<void> _generateReport(Uint8List signatureImage) async {
   // Remove this line: final context = context;
   final currentContext = context; // Rename the context reference
