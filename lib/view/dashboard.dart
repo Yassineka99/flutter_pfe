@@ -693,7 +693,7 @@ Widget _buildWorkflowCharts(Workflow workflow, BuildContext context) {
           actions: [
               IconButton(
                 color: Color(0xFF28445C).withOpacity(.40),
-    icon: const Icon(Icons.report),
+    icon: const Icon(Icons.picture_as_pdf),
     onPressed: _showSignatureDialog,
   ),
             IconButton(
