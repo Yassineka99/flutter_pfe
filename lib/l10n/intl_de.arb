@@ -82,7 +82,16 @@
 "saveAllProcesses": "Alle Prozesse speichern",
 "addProcessesQuestion": "Prozessfrage hinzufügen",
 "addProcessesToWorkflow": "Prozess zum Workflow hinzufügen",
-"yes": "Ja"
+"yes": "Ja",
+"selectAtLeastOneUser": "Wählen Sie mindestens einen Benutzer aus",
+"subProcessCreated": "Teilprozess erstellt",
+"errorOccurred": "Ein Fehler ist aufgetreten",
+"addSubProcess": "Teilprozess hinzufügen",
+"subProcessName": "Name des Teilprozesses",
+"selectUsers": "Benutzer auswählen",
+"doYouwantToAddAProcess": "Möchten Sie einen Prozess hinzufügen?"
+
+
 
 
 

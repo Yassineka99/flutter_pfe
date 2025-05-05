@@ -82,6 +82,13 @@
 "saveAllProcesses":"Save all Processes",
 "addProcessesQuestion":"Add Process Question",
 "addProcessesToWorkflow":"Add Process to workflow",
-"yes":"Yes"
+"yes":"Yes",
+"selectAtLeastOneUser":"Select At Least One User",
+"subProcessCreated":"Sub Process Created",
+"errorOccurred":"errorOccured",
+"addSubProcess":"Add Sub Process",
+"subProcessName":"Sub Process Name",
+"selectUsers":"Select Users",
+"doYouwantToAddAProcess":"Do You Want To Add a Process ?"
 
 }

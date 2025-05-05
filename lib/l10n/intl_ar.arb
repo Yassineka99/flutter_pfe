@@ -82,7 +82,16 @@
 "saveAllProcesses": "حفظ جميع العمليات",
 "addProcessesQuestion": "إضافة سؤال العملية",
 "addProcessesToWorkflow": "إضافة عملية إلى سير العمل",
-"yes": "نعم"
+"yes": "نعم",
+"selectAtLeastOneUser": "يرجى اختيار مستخدم واحد على الأقل",
+"subProcessCreated": "تم إنشاء العملية الفرعية",
+"errorOccurred": "حدث خطأ",
+"addSubProcess": "إضافة عملية فرعية",
+"subProcessName": "اسم العملية الفرعية",
+"selectUsers": "اختر المستخدمين",
+"doYouwantToAddAProcess": "هل تريد إضافة عملية؟"
+
+
 
 
 

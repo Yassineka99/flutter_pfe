@@ -82,7 +82,16 @@
 "saveAllProcesses": "Сохранить все процессы",
 "addProcessesQuestion": "Добавить вопрос процесса",
 "addProcessesToWorkflow": "Добавить процесс в рабочий процесс",
-"yes": "Да"
+"yes": "Да",
+"selectAtLeastOneUser": "Выберите хотя бы одного пользователя",
+"subProcessCreated": "Подпроцесс создан",
+"errorOccurred": "Произошла ошибка",
+"addSubProcess": "Добавить подпроцесс",
+"subProcessName": "Имя подпроцесса",
+"selectUsers": "Выбрать пользователей",
+"doYouwantToAddAProcess": "Вы хотите добавить процесс?"
+
+
 
 
 

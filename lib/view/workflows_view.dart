@@ -2,11 +2,39 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../model/user.dart';
 import '../model/workflow.dart';
 import '../model/process.dart';
+import '../viewmodel/notification_view_model.dart';
+import '../viewmodel/sub_process_view_model.dart';
+import '../viewmodel/user_view_model.dart';
 import '../viewmodel/workflow_view_model.dart';
 import '../viewmodel/process_view_model.dart';
 
+
+const _dialogShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+);
+
+const _headerStyle = TextStyle(
+  fontSize: 22,
+  fontWeight: FontWeight.w600,
+  color: Color(0xFF28445C),
+  fontFamily: 'BrandonGrotesque',
+);
+
+const _inputBorder = OutlineInputBorder(
+  borderRadius: BorderRadius.all(Radius.circular(12)),
+  borderSide: BorderSide(color: Color(0xFF78A190)),
+);
+
+final _buttonStyle = ElevatedButton.styleFrom(
+  backgroundColor: Color(0xFF78A190),
+  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12)),
+  )
+;
 class WorkflowView extends StatefulWidget {
   const WorkflowView({super.key});
 
@@ -39,28 +67,33 @@ class _WorkflowViewState extends State<WorkflowView> {
   }
 
   void _handleWorkflowTap(int workflowId) {
-    final intl = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(intl.addProcessesQuestion),
-        content: Text(intl.addProcessesToWorkflow),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(intl.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _showAddProcessesDialog(workflowId);
-            },
-            child: Text(intl.yes),
-          ),
-        ],
+  final intl = AppLocalizations.of(context)!;
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      shape: _dialogShape,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDialogHeader(intl.doYouwantToAddAProcess, Icons.help_outline),
+            const SizedBox(height: 24),
+
+            _buildDialogActionButtons(
+              onCancel: () => Navigator.pop(context),
+              onConfirm: () {
+                Navigator.pop(context);
+                _showAddProcessesDialog(workflowId);
+              },
+              confirmText: intl.yes,
+            ),
+          ],
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showAddProcessesDialog(int workflowId) {
     showDialog(
@@ -73,136 +106,208 @@ class _WorkflowViewState extends State<WorkflowView> {
     );
   }
 
-  void _showAddWorkflowDialog() {
-    final intl = AppLocalizations.of(context)!;
-    final _formKey = GlobalKey<FormState>();
-    String name = '';
+ void _showAddWorkflowDialog() {
+  final intl = AppLocalizations.of(context)!;
+  final _formKey = GlobalKey<FormState>();
+  String name = '';
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Center(child: Text(intl.addWorkflow)),
-        content: Form(
-          key: _formKey,
-          child: TextFormField(
-            decoration: InputDecoration(
-              labelText: intl.name,
-              border: OutlineInputBorder(),
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      shape: _dialogShape,
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDialogHeader(intl.addWorkflow, Icons.work_outline),
+            SizedBox(height: 24),
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                style: TextStyle(fontFamily: 'BrandonGrotesque'),
+                decoration: InputDecoration(
+                  labelText: intl.name,
+                  labelStyle: TextStyle(color: Color(0xFF28445C)),
+                  border: _inputBorder,
+                  focusedBorder: _inputBorder,
+                  contentPadding: EdgeInsets.all(16),
+                ),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? intl.requiredField : null,
+                onSaved: (value) => name = value!,
+              ),
             ),
-            validator: (value) =>
-                value?.isEmpty ?? true ? intl.requiredField : null,
-            onSaved: (value) => name = value!,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(intl.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                try {
-                  await _workflowViewModel.create(
-                      name, 1); // Assuming user ID 1
-                  _loadWorkflows();
-                  Navigator.pop(context);
-                  _showResultPopup(true);
-                } catch (e) {
-                  _showResultPopup(false);
+            SizedBox(height: 24),
+            _buildDialogActionButtons(
+              onCancel: () => Navigator.pop(context),
+              onConfirm: () async {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  try {
+                    await _workflowViewModel.create(name, 1);
+                    _loadWorkflows();
+                    Navigator.pop(context);
+                    _showResultPopup(true);
+                  } catch (e) {
+                    _showResultPopup(false);
+                  }
                 }
-              }
-            },
-            child: Text(intl.save),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showEditWorkflowDialog(Workflow workflow) {
-    final intl = AppLocalizations.of(context)!;
-    final _formKey = GlobalKey<FormState>();
-    String newName = workflow.name ?? '';
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Center(child: Text(intl.editWorkflow)),
-        content: Form(
-          key: _formKey,
-          child: TextFormField(
-            initialValue: workflow.name,
-            decoration: InputDecoration(
-              labelText: intl.name,
-              border: OutlineInputBorder(),
+              },
             ),
-            validator: (value) =>
-                value?.isEmpty ?? true ? intl.requiredField : null,
-            onSaved: (value) => newName = value!,
-          ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(intl.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                try {
-                  await _workflowViewModel.update(Workflow(
-                    id: workflow.id,
-                    name: newName,
-                    createdBy: workflow.createdBy,
-                  ));
-                  _loadWorkflows();
-                  Navigator.pop(context);
-                  _showResultPopup(true);
-                } catch (e) {
-                  _showResultPopup(false);
-                }
-              }
-            },
-            child: Text(intl.save),
-          ),
-        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
+ void _showEditWorkflowDialog(Workflow workflow) {
+  final intl = AppLocalizations.of(context)!;
+  final _formKey = GlobalKey<FormState>();
+  String newName = workflow.name ?? '';
+
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      shape: _dialogShape,
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDialogHeader(intl.editWorkflow, Icons.edit_note),
+            SizedBox(height: 24),
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                initialValue: workflow.name,
+                style: TextStyle(fontFamily: 'BrandonGrotesque'),
+                decoration: InputDecoration(
+                  labelText: intl.name,
+                  labelStyle: TextStyle(color: Color(0xFF28445C)),
+                  border: _inputBorder,
+                  focusedBorder: _inputBorder,
+                  contentPadding: EdgeInsets.all(16),
+                ),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? intl.requiredField : null,
+                onSaved: (value) => newName = value!,
+              ),
+            ),
+            SizedBox(height: 24),
+            _buildDialogActionButtons(
+              onCancel: () => Navigator.pop(context),
+              onConfirm: () async {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  try {
+                    await _workflowViewModel.update(Workflow(
+                      id: workflow.id,
+                      name: newName,
+                      createdBy: workflow.createdBy,
+                    ));
+                    _loadWorkflows();
+                    Navigator.pop(context);
+                    _showResultPopup(true);
+                  } catch (e) {
+                    _showResultPopup(false);
+                  }
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+Widget _buildDialogHeader(String title, IconData icon) {
+  return Column(
+    children: [
+      Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Color(0xFF78A190).withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 32, color: Color(0xFF28445C)),
+      ),
+      SizedBox(height: 16),
+      Text(title, style: _headerStyle),
+    ],
+  );
+}
+
+Widget _buildDialogActionButtons({
+  required VoidCallback onCancel,
+  required VoidCallback onConfirm,
+  Color confirmColor = const Color(0xFF78A190),
+  String confirmText = 'Save',
+}) {
+  final intl = AppLocalizations.of(context)!;
+  
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      TextButton(
+        onPressed: onCancel,
+        child: Text(intl.cancel,
+            style: TextStyle(
+                color: Color(0xFF28445C),
+                fontFamily: 'BrandonGrotesque')),
+      ),
+      SizedBox(width: 12),
+      ElevatedButton(
+        style: _buttonStyle.copyWith(
+          backgroundColor: MaterialStatePropertyAll(confirmColor)),
+        onPressed: onConfirm,
+        child: Text(confirmText,
+            style: TextStyle(fontFamily: 'BrandonGrotesque')),
+      ),
+    ],
+  );
+}
   void _showDeleteConfirmation(int workflowId) {
-    final intl = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(intl.deleteWorkflow),
-        content: Text(intl.deleteWorkflowConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(intl.cancel),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () async {
-              try {
-                await _workflowViewModel.delete(workflowId);
-                _loadWorkflows();
-                Navigator.pop(context);
-                _showResultPopup(true);
-              } catch (e) {
-                _showResultPopup(false);
-              }
-            },
-            child: Text(intl.delete),
-          ),
-        ],
+  final intl = AppLocalizations.of(context)!;
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      shape: _dialogShape,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDialogHeader(intl.deleteWorkflow, Icons.warning_amber_rounded),
+            const SizedBox(height: 16),
+            Text(
+              intl.deleteWorkflowConfirmation,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 24),
+            _buildDialogActionButtons(
+              onCancel: () => Navigator.pop(context),
+              onConfirm: () async {
+                try {
+                  await _workflowViewModel.delete(workflowId);
+                  _loadWorkflows();
+                  Navigator.pop(context);
+                  _showResultPopup(true);
+                } catch (e) {
+                  _showResultPopup(false);
+                }
+              },
+              confirmColor: Colors.red,
+              confirmText: intl.delete,
+            ),
+          ],
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showResultPopup(bool success) {
     final intl = AppLocalizations.of(context)!;
@@ -289,43 +394,56 @@ class __WorkflowCardState extends State<_WorkflowCard> {
     _processesFuture =
         widget.processViewModel.getByWorkflowId(widget.workflow.id!);
   }
-
+void _showAddSubProcessDialog(int processId) {
+  showDialog(
+    context: context,
+    builder: (context) => AddSubProcessesDialog(
+      processId: processId,
+      subProcessViewModel: SubProcessViewModel(),
+      userViewModel: UserViewModel(),
+      notificationViewModel: NotificationViewModel(),
+    ),
+  );
+}
   @override
   Widget build(BuildContext context) {
     final intl = AppLocalizations.of(context)!;
 
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Card(
+    return 
+      
+      Card(
         margin: const EdgeInsets.only(bottom: 16),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.workflow.name ?? '',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: widget.onTap,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      widget.workflow.name ?? '',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: widget.onEdit,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: widget.onDelete,
-                      ),
-                    ],
-                  ),
-                ],
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: widget.onEdit,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: widget.onDelete,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               FutureBuilder<List<Process>>(
                 future: _processesFuture,
@@ -354,6 +472,7 @@ class __WorkflowCardState extends State<_WorkflowCard> {
                         ...(_isExpanded ? processes : processes.take(2))
                             .map((process) => ListTile(
                                   title: Text(process.name ?? ''),
+                                  onTap: () => _showAddSubProcessDialog(process.id!),
                                 ))
                             .toList(),
                         if (processes.length > 2)
@@ -372,9 +491,10 @@ class __WorkflowCardState extends State<_WorkflowCard> {
             ],
           ),
         ),
-      ),
-    );
+      );
+    
   }
+  
 }
 
 class AddProcessesDialog extends StatefulWidget {
@@ -448,47 +568,101 @@ class _AddProcessesDialogState extends State<AddProcessesDialog> {
       );
     }
   }
+Widget _buildDialogHeader(String title, IconData icon) {
+  return Column(
+    children: [
+      Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Color(0xFF78A190).withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 32, color: Color(0xFF28445C)),
+      ),
+      SizedBox(height: 16),
+      Text(title, style: _headerStyle),
+    ],
+  );
+}
 
+Widget _buildDialogActionButtons({
+  required VoidCallback onCancel,
+  required VoidCallback onConfirm,
+  Color confirmColor = const Color(0xFF78A190),
+  String confirmText = 'Save',
+}) {
+  final intl = AppLocalizations.of(context)!;
+  
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      TextButton(
+        onPressed: onCancel,
+        child: Text(intl.cancel,
+            style: TextStyle(
+                color: Color(0xFF28445C),
+                fontFamily: 'BrandonGrotesque')),
+      ),
+      SizedBox(width: 12),
+      ElevatedButton(
+        style: _buttonStyle.copyWith(
+          backgroundColor: MaterialStatePropertyAll(confirmColor)),
+        onPressed: onConfirm,
+        child: Text(confirmText,
+            style: TextStyle(fontFamily: 'BrandonGrotesque')),
+      ),
+    ],
+  );
+}
   @override
   Widget build(BuildContext context) {
     final intl = AppLocalizations.of(context)!;
 
-    return AlertDialog(
-      title: Center(child: Text(intl.addProcesses)),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              ..._controllers.map((controller) => Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: TextFormField(
-                      controller: controller,
-                      decoration: InputDecoration(
-                        labelText: intl.processName,
-                        border: OutlineInputBorder(),
+    return Dialog(
+      shape: _dialogShape,
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDialogHeader(intl.addProcesses, Icons.add_task),
+            SizedBox(height: 16),
+            Container(
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    ..._controllers.map((controller) => Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: TextFormField(
+                        controller: controller,
+                        style: TextStyle(fontFamily: 'BrandonGrotesque'),
+                        decoration: InputDecoration(
+                          labelText: intl.processName,
+                          labelStyle: TextStyle(color: Color(0xFF28445C)),
+                          border: _inputBorder,
+                          contentPadding: EdgeInsets.all(16),
+                        ),
                       ),
+                    )),
+                    IconButton(
+                      icon: Icon(Icons.add_circle,
+                          color: Color(0xFF78A190)),
+                      onPressed: _addProcessField,
+                      tooltip: intl.addAnotherProcess,
                     ),
-                  )),
-              IconButton(
-                icon: Icon(Icons.add),
-                onPressed: _addProcessField,
-                tooltip: intl.addAnotherProcess,
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+            _buildDialogActionButtons(
+              onCancel: () => Navigator.pop(context),
+              onConfirm: _saveProcesses,
+              confirmText: intl.saveAllProcesses,
+            ),
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(intl.cancel),
-        ),
-        ElevatedButton(
-          onPressed: _saveProcesses,
-          child: Text(intl.saveAllProcesses),
-        ),
-      ],
     );
   }
 
@@ -500,3 +674,258 @@ class _AddProcessesDialogState extends State<AddProcessesDialog> {
     super.dispose();
   }
 }
+class AddSubProcessesDialog extends StatefulWidget {
+  final int processId;
+  final SubProcessViewModel subProcessViewModel;
+  final UserViewModel userViewModel;
+  final NotificationViewModel notificationViewModel;
+
+  const AddSubProcessesDialog({
+    required this.processId,
+    required this.subProcessViewModel,
+    required this.userViewModel,
+    required this.notificationViewModel,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _AddSubProcessesDialogState createState() => _AddSubProcessesDialogState();
+}
+
+class _AddSubProcessesDialogState extends State<AddSubProcessesDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+  List<User> _users = [];
+  Map<int, bool> _selectedUsers = {};
+  bool _loadingUsers = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+  }
+
+  Future<void> _loadUsers() async {
+    try {
+      final users = await widget.userViewModel.getUsersByRoleId(3);
+      setState(() {
+        _users = users;
+        _selectedUsers = {for (var user in users) user.id!: false};
+        _loadingUsers = false;
+      });
+    } catch (e) {
+      setState(() => _loadingUsers = false);
+    }
+  }
+
+  Future<void> _saveSubProcess() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final intl = AppLocalizations.of(context)!;
+    final selectedUserIds = _selectedUsers.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .toList();
+
+    if (selectedUserIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(intl.selectAtLeastOneUser)),
+      );
+      return;
+    }
+
+    try {
+      // Create sub-process
+      await widget.subProcessViewModel.create(
+        _nameController.text,
+        widget.processId,
+        1, // Default status
+        _messageController.text,
+        selectedUserIds.first, // Assuming single selection
+        1, // Created by admin
+      );
+
+      // Send notifications to all selected users
+      for (final userId in selectedUserIds) {
+        await widget.notificationViewModel.create(
+          _messageController.text,
+          userId,
+        );
+      }
+
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(intl.subProcessCreated),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(intl.errorOccurred),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+  Widget _buildDialogHeader(String title, IconData icon) {
+  return Column(
+    children: [
+      Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Color(0xFF78A190).withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 32, color: Color(0xFF28445C)),
+      ),
+      SizedBox(height: 16),
+      Text(title, style: _headerStyle),
+    ],
+  );
+}
+
+Widget _buildDialogActionButtons({
+  required VoidCallback onCancel,
+  required VoidCallback onConfirm,
+  Color confirmColor = const Color(0xFF78A190),
+  String confirmText = 'Save',
+}) {
+  final intl = AppLocalizations.of(context)!;
+  
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      TextButton(
+        onPressed: onCancel,
+        child: Text(intl.cancel,
+            style: TextStyle(
+                color: Color(0xFF28445C),
+                fontFamily: 'BrandonGrotesque')),
+      ),
+      SizedBox(width: 12),
+      ElevatedButton(
+        style: _buttonStyle.copyWith(
+          backgroundColor: MaterialStatePropertyAll(confirmColor)),
+        onPressed: onConfirm,
+        child: Text(confirmText,
+            style: TextStyle(fontFamily: 'BrandonGrotesque')),
+      ),
+    ],
+  );
+}
+  @override
+  Widget build(BuildContext context) {
+    final intl = AppLocalizations.of(context)!;
+
+    return Dialog(
+      shape: _dialogShape,
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDialogHeader(intl.addSubProcess, Icons.grain),
+            SizedBox(height: 16),
+            Container(
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        style: TextStyle(fontFamily: 'BrandonGrotesque'),
+                        decoration: InputDecoration(
+                          labelText: intl.subProcessName,
+                          labelStyle: TextStyle(color: Color(0xFF28445C)),
+                          border: _inputBorder,
+                          contentPadding: EdgeInsets.all(16),
+                        ),
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? intl.requiredField : null,
+                      ),
+                      SizedBox(height: 16),
+                      TextFormField(
+                        controller: _messageController,
+                        style: TextStyle(fontFamily: 'BrandonGrotesque'),
+                        decoration: InputDecoration(
+                          labelText: intl.message,
+                          labelStyle: TextStyle(color: Color(0xFF28445C)),
+                          border: _inputBorder,
+                          contentPadding: EdgeInsets.all(16),
+                        ),
+                        maxLines: 3,
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? intl.requiredField : null,
+                      ),
+                      SizedBox(height: 16),
+                      _buildUserSelectionList(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            _buildDialogActionButtons(
+              onCancel: () => Navigator.pop(context),
+              onConfirm: _saveSubProcess,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserSelectionList() {
+    final intl = AppLocalizations.of(context)!;
+    
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Color(0xFF78A190).withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(intl.selectUsers,
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF28445C),
+                  fontFamily: 'BrandonGrotesque')),
+          SizedBox(height: 8),
+          Container(
+            constraints: BoxConstraints(maxHeight: 200),
+            child: Scrollbar(
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: AlwaysScrollableScrollPhysics(),
+                itemCount: _users.length,
+                itemBuilder: (context, index) {
+                  final user = _users[index];
+                  return CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                    title: Text(user.name ?? '',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'BrandonGrotesque')),
+                    value: _selectedUsers[user.id] ?? false,
+                    onChanged: (value) => setState(() {
+                      _selectedUsers[user.id!] = value ?? false;
+                    }),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+}
+

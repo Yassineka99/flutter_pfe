@@ -82,20 +82,30 @@
 "saveAllProcesses": "Enregistrer tous les processus",
 "addProcessesQuestion": "Ajouter une question de processus",
 "addProcessesToWorkflow": "Ajouter un processus au flux de travail",
-"yes": "Oui"
-
-
-
-
-
-
-
-
-
-
-
-
-
+"yes": "Oui",
+"selectAtLeastOneUser": "Sélectionnez au moins un utilisateur",
+"subProcessCreated": "Sous-processus créé",
+"errorOccurred": "Une erreur s'est produite",
+"addSubProcess": "Ajouter un sous-processus",
+"subProcessName": "Nom du sous-processus",
+"selectUsers": "Sélectionner des utilisateurs",
+"doYouwantToAddAProcess": "Voulez-vous ajouter un processus ?"
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
