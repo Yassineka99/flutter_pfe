@@ -89,6 +89,9 @@
 "addSubProcess":"Add Sub Process",
 "subProcessName":"Sub Process Name",
 "selectUsers":"Select Users",
-"doYouwantToAddAProcess":"Do You Want To Add a Process ?"
+"doYouwantToAddAProcess":"Do You Want To Add a Process ?",
+"generatingReport":"Generating Report",
+"pleaseWaitpdf":"Please wait while we prepare your document",
+"errorGeneratingReport":"Error generating report"
 
 }

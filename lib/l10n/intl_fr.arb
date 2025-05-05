@@ -89,7 +89,11 @@
 "addSubProcess": "Ajouter un sous-processus",
 "subProcessName": "Nom du sous-processus",
 "selectUsers": "Sélectionner des utilisateurs",
-"doYouwantToAddAProcess": "Voulez-vous ajouter un processus ?"
+"doYouwantToAddAProcess": "Voulez-vous ajouter un processus ?",
+"generatingReport": "Génération du rapport",
+"pleaseWaitpdf": "Veuillez patienter pendant la préparation de votre document",
+"errorGeneratingReport": "Erreur lors de la génération du rapport"
+
 
 
 }

@@ -89,7 +89,11 @@
 "addSubProcess": "Agregar subproceso",
 "subProcessName": "Nombre del subproceso",
 "selectUsers": "Seleccionar usuarios",
-"doYouwantToAddAProcess": "¿Desea agregar un proceso?"
+"doYouwantToAddAProcess": "¿Desea agregar un proceso?",
+"generatingReport": "Generando informe",
+"pleaseWaitpdf": "Por favor espere mientras preparamos su documento",
+"errorGeneratingReport": "Error al generar el informe"
+
 
 
 

@@ -89,7 +89,11 @@
 "addSubProcess": "إضافة عملية فرعية",
 "subProcessName": "اسم العملية الفرعية",
 "selectUsers": "اختر المستخدمين",
-"doYouwantToAddAProcess": "هل تريد إضافة عملية؟"
+"doYouwantToAddAProcess": "هل تريد إضافة عملية؟",
+"generatingReport": "جارٍ إنشاء التقرير",
+"pleaseWaitpdf": "يرجى الانتظار أثناء إعداد المستند الخاص بك",
+"errorGeneratingReport": "حدث خطأ أثناء إنشاء التقرير"
+
 
 
 

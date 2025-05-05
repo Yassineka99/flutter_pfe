@@ -42,8 +42,8 @@ class Process {
         'order': order,
         'workflow_id': workflowId,
         'status_id': statusId,
-        'finished_at': finishedAt,
-        'updated_at': updatedAt,
-        'created_at': createdAt,
+        'finished_at': finishedAt?.toIso8601String(),
+        'updated_at': updatedAt?.toIso8601String(),
+        'created_at': createdAt?.toIso8601String(),
       };
 }

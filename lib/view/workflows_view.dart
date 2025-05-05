@@ -33,8 +33,7 @@ final _buttonStyle = ElevatedButton.styleFrom(
   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(12)),
-  )
-;
+  );
 class WorkflowView extends StatefulWidget {
   const WorkflowView({super.key});
 

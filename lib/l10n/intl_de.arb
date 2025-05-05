@@ -89,7 +89,11 @@
 "addSubProcess": "Teilprozess hinzufügen",
 "subProcessName": "Name des Teilprozesses",
 "selectUsers": "Benutzer auswählen",
-"doYouwantToAddAProcess": "Möchten Sie einen Prozess hinzufügen?"
+"doYouwantToAddAProcess": "Möchten Sie einen Prozess hinzufügen?",
+"generatingReport": "Bericht wird erstellt",
+"pleaseWaitpdf": "Bitte warten Sie, während wir Ihr Dokument vorbereiten",
+"errorGeneratingReport": "Fehler bei der Berichtserstellung"
+
 
 
 

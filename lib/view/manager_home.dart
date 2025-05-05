@@ -56,9 +56,9 @@ class _ManagerHomeState extends State<ManagerHome> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFF6200EE),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white.withOpacity(.60),
+        backgroundColor: const Color(0xFF78A190),
+        selectedItemColor: Color(0xFF28445C),
+        unselectedItemColor: Color(0xFF28445C).withOpacity(.40),
         selectedFontSize: 14,
         unselectedFontSize: 14,
         onTap: _onItemTapped,

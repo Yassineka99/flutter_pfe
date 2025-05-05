@@ -89,7 +89,11 @@
 "addSubProcess": "Добавить подпроцесс",
 "subProcessName": "Имя подпроцесса",
 "selectUsers": "Выбрать пользователей",
-"doYouwantToAddAProcess": "Вы хотите добавить процесс?"
+"doYouwantToAddAProcess": "Вы хотите добавить процесс?",
+"generatingReport": "Генерация отчета",
+"pleaseWaitpdf": "Пожалуйста, подождите, пока мы готовим ваш документ",
+"errorGeneratingReport": "Ошибка при генерации отчета"
+
 
 
 
