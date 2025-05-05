@@ -257,11 +257,11 @@ class _DashboardViewState extends State<DashboardView> {
 
 
 Future<void> _generateReport(Uint8List signatureImage) async {
-  // Remove this line: final context = context;
-  final currentContext = context; // Rename the context reference
+ 
+  final currentContext = context; 
 
   showDialog(
-    context: currentContext, // Use renamed context
+    context: currentContext, 
     barrierDismissible: false,
     builder: (context) => const AlertDialog(
       content: Column(
@@ -288,7 +288,7 @@ Future<void> _generateReport(Uint8List signatureImage) async {
     await file.writeAsBytes(bytes);
 
     if (mounted) {
-      Navigator.of(currentContext).pop(); // Use renamed context
+      Navigator.of(currentContext).pop(); 
       await Printing.sharePdf(
         bytes: bytes,
         filename: 'workflow_report.pdf',
@@ -296,7 +296,7 @@ Future<void> _generateReport(Uint8List signatureImage) async {
     }
   } catch (e) {
     if (mounted) {
-      Navigator.of(currentContext).pop(); // Use renamed context
+      Navigator.of(currentContext).pop(); 
       ScaffoldMessenger.of(currentContext).showSnackBar(
         SnackBar(content: Text('Error generating report: $e')),
       );
@@ -604,7 +604,7 @@ Widget _buildValueLabels(Map<int, int> counts, BuildContext context) {
   );
 }
 
-// 1. Update the _buildWorkflowCharts method
+
 Widget _buildWorkflowCharts(Workflow workflow, BuildContext context) {
   final intl = AppLocalizations.of(context)!;
   
