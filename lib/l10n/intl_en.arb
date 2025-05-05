@@ -73,6 +73,15 @@
   "signReport": "Sign Report",
 "clear": "Clear",
 "confirm": "Confirm",
-"provideSignature": "Please provide a signature"
+"provideSignature": "Please provide a signature",
+"processNameRequired":"Process Name Required",
+"processesAddedSuccess":"Process added Successfully",
+"addProcesses":"Add Processes",
+"processName":"Process Name",
+"addAnotherProcess":"Add Another Process",
+"saveAllProcesses":"Save all Processes",
+"addProcessesQuestion":"Add Process Question",
+"addProcessesToWorkflow":"Add Process to workflow",
+"yes":"Yes"
 
 }

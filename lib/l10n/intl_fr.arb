@@ -73,7 +73,19 @@
   "signReport": "Signer le rapport",
 "clear": "Effacer",
 "confirm": "Confirmer",
-"provideSignature": "Veuillez fournir une signature"
+"provideSignature": "Veuillez fournir une signature",
+"processNameRequired": "Nom du processus requis",
+"processesAddedSuccess": "Processus ajouté avec succès",
+"addProcesses": "Ajouter des processus",
+"processName": "Nom du processus",
+"addAnotherProcess": "Ajouter un autre processus",
+"saveAllProcesses": "Enregistrer tous les processus",
+"addProcessesQuestion": "Ajouter une question de processus",
+"addProcessesToWorkflow": "Ajouter un processus au flux de travail",
+"yes": "Oui"
+
+
+
 
 
 

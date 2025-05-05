@@ -73,7 +73,19 @@
   "signReport": "Bericht unterschreiben",
 "clear": "Löschen",
 "confirm": "Bestätigen",
-"provideSignature": "Bitte eine Unterschrift leisten"
+"provideSignature": "Bitte eine Unterschrift leisten",
+"processNameRequired": "Prozessname erforderlich",
+"processesAddedSuccess": "Prozess erfolgreich hinzugefügt",
+"addProcesses": "Prozesse hinzufügen",
+"processName": "Prozessname",
+"addAnotherProcess": "Weiteren Prozess hinzufügen",
+"saveAllProcesses": "Alle Prozesse speichern",
+"addProcessesQuestion": "Prozessfrage hinzufügen",
+"addProcessesToWorkflow": "Prozess zum Workflow hinzufügen",
+"yes": "Ja"
+
+
+
 
 
 

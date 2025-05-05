@@ -73,7 +73,19 @@
   "signReport": "توقيع التقرير",
 "clear": "مسح",
 "confirm": "تأكيد",
-"provideSignature": "يرجى تقديم توقيع"
+"provideSignature": "يرجى تقديم توقيع",
+"processNameRequired": "اسم العملية مطلوب",
+"processesAddedSuccess": "تمت إضافة العملية بنجاح",
+"addProcesses": "إضافة عمليات",
+"processName": "اسم العملية",
+"addAnotherProcess": "إضافة عملية أخرى",
+"saveAllProcesses": "حفظ جميع العمليات",
+"addProcessesQuestion": "إضافة سؤال العملية",
+"addProcessesToWorkflow": "إضافة عملية إلى سير العمل",
+"yes": "نعم"
+
+
+
 
 
 

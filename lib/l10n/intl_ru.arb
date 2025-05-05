@@ -73,7 +73,19 @@
   "signReport": "Подписать отчет",
 "clear": "Очистить",
 "confirm": "Подтвердить",
-"provideSignature": "Пожалуйста, предоставьте подпись"
+"provideSignature": "Пожалуйста, предоставьте подпись",
+"processNameRequired": "Требуется имя процесса",
+"processesAddedSuccess": "Процесс успешно добавлен",
+"addProcesses": "Добавить процессы",
+"processName": "Имя процесса",
+"addAnotherProcess": "Добавить другой процесс",
+"saveAllProcesses": "Сохранить все процессы",
+"addProcessesQuestion": "Добавить вопрос процесса",
+"addProcessesToWorkflow": "Добавить процесс в рабочий процесс",
+"yes": "Да"
+
+
+
 
 
 
