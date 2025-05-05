@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
 import '../model/workflow.dart';
 import '../viewmodel/workflow_view_model.dart';
 import '../viewmodel/process_view_model.dart';
@@ -257,11 +258,10 @@ class _DashboardViewState extends State<DashboardView> {
 
 
 Future<void> _generateReport(Uint8List signatureImage) async {
- 
-  final currentContext = context; 
+  final currentContext = context;
 
   showDialog(
-    context: currentContext, 
+    context: currentContext,
     barrierDismissible: false,
     builder: (context) => const AlertDialog(
       content: Column(
@@ -283,20 +283,17 @@ Future<void> _generateReport(Uint8List signatureImage) async {
     final pdf = await _buildPdf(allData, signatureImage);
     final bytes = await pdf.save();
 
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/report.pdf');
-    await file.writeAsBytes(bytes);
-
     if (mounted) {
-      Navigator.of(currentContext).pop(); 
-      await Printing.sharePdf(
-        bytes: bytes,
-        filename: 'workflow_report.pdf',
+      Navigator.of(currentContext).pop();
+      
+      // Show PDF preview dialog
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => bytes,
       );
     }
   } catch (e) {
     if (mounted) {
-      Navigator.of(currentContext).pop(); 
+      Navigator.of(currentContext).pop();
       ScaffoldMessenger.of(currentContext).showSnackBar(
         SnackBar(content: Text('Error generating report: $e')),
       );
