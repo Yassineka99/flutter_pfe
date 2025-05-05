@@ -65,5 +65,3 @@ class DBHelper {
   }
 }
 
-class CustomDatabase {
-}
