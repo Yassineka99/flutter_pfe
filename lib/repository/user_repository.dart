@@ -11,24 +11,57 @@ class UserRepoitory {
   final DBHelper _dbHelper = DBHelper();
   Future<User> createUser(String? name, String? email, String? phone,
       String? password, int? role) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl1/create'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'name': name!,
-        'email': email!,
-        'phone': phone!,
-        'password': password!,
-        'role': role!.toString(),
-      }),
-    );
-    if (response.statusCode == 201) {
-      return User.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to create client.');
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$apiUrl1/create'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode(<String, String>{
+              'name': name!,
+              'email': email!.toString(),
+              'phone': phone!.toString(),
+              'password': password!.toString(),
+              'role': role!.toString(),
+            }),
+          )
+          .timeout(Duration(seconds: 5));
+      if (response.statusCode == 201) {
+        final serverWf = User.fromJson(jsonDecode(response.body));
+        // Mirror in SQLite as synced…
+        await _dbHelper.insertData('''
+        INSERT OR REPLACE INTO user
+          (id, name, email ,phone, password , role , is_synced, is_deleted, needs_update)
+        VALUES
+          (?, ?, ?, ?,?,?, 1, 0, 0)
+      ''', [
+          serverWf.id,
+          serverWf.name,
+          serverWf.email,
+          serverWf.phone,
+          serverWf.password,
+          serverWf.role
+        ]);
+        return serverWf;
+      }
+    } catch (e) {
+      final localId = await _dbHelper.insertData('''
+    INSERT INTO user
+      (name, email ,phone, password , role,is_synced, is_deleted, needs_update)
+    VALUES
+      (?, ?,?,?,?,0, 0, 0)
+  ''', [name, email, phone, password, role]);
+      print('Offline user created with local ID: $localId');
+      return User(
+          id: localId,
+          name: name,
+          email: email,
+          phone: phone,
+          password: password,
+          role: role);
     }
+    throw Exception('failed to create');
   }
 
   Future<User> getUser(String id) async {
@@ -151,45 +184,37 @@ Future<bool> _isConnected() async {
     }
   }
 
-  Future<void> syncUser() async {
-  if (!await _isConnected()) return;
-
-  final currentUser = await _dbHelper.getUser();
-
-  final unsynced = await _dbHelper.readData('''
-    SELECT * FROM user
-    WHERE is_synced = 0
-    AND (created_locally != 1 OR id != ${currentUser?.id ?? -1})
-  ''');
-
-  for (var wf in unsynced) {
-    try {
-      final response = await http.post(
-        Uri.parse('$apiUrl1/create'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': wf['name'],
-          'email': wf['email'],
-          'phone': wf['phone'],
-          'password': wf['password'],
-          'role': wf['role'],
-          'image': wf['image'],
-          'imageType': wf['imageType'],
-        }),
-      );
-
-      if (response.statusCode == 201) {
-        final serverWf = User.fromJson(jsonDecode(response.body));
-        await _dbHelper.updateData('''
-          UPDATE user SET id = ${serverWf.id}, is_synced = 1, created_locally = 0
-          WHERE id = ${wf['id']}
-        ''');
-      }
-    } catch (e) {
-      print('Sync error: $e');
+   Future<void> syncUser() async {
+    if (!await _isConnected()) return;
+    final db = await _dbHelper.database;
+    //create
+    final newRows = await _dbHelper.readData(
+        "SELECT * FROM user WHERE is_synced =0 AND needs_update = 0 AND is_deleted =0");
+    for (var row in newRows) {
+      try {
+        final response = await http.post(
+          Uri.parse('$apiUrl1/create'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'name': row['name'],
+            'email': row['email'],
+            'phone': row['phone'],
+            'password': row['password'],
+            'role': row['role'],
+          }),
+        );
+        if (response.statusCode == 201) {
+          final servWf = User.fromJson(jsonDecode(response.body));
+          await _dbHelper.updateData('''
+          Update user
+          SET id= ${servWf.id},
+          is_synced = 1 ,
+          WHERE id = ${row['id']}
+          ''');
+        }
+      } catch (e) {}
     }
   }
-}
 
 
 }

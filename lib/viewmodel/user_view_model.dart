@@ -10,6 +10,7 @@ class UserViewModel {
     try {
       _client = await _clientRepository.createUser(
           name, email, phone, password, role);
+      await _clientRepository.syncUser();
       // You can also notifyListeners() if you're using Provider or State Management
     } catch (e) {
       print('Error creating client: $e');
