@@ -120,8 +120,8 @@ class SubProcessRepoitory {
           "failed to get data , trying to get local sub process data (get process by id methode ) :$e");
     }
 
-    final List<Map<String, dynamic>> raw =
-        await _dbHelper.readData("SELECT * FROM subprocess");
+    final List<Map<String, dynamic>> raw = await _dbHelper
+        .readData("SELECT * FROM subprocess WHERE process_id=$processId");
     return raw.map<SubProcess>((row) => SubProcess.fromJson(row)).toList();
   }
 
@@ -156,8 +156,8 @@ class SubProcessRepoitory {
           "error fetching data , will fetch subprocess locally (get by user id  ) : $e");
     }
 
-    final List<Map<String, dynamic>> raw =
-        await _dbHelper.readData("SELECT * FROM subprocess");
+    final List<Map<String, dynamic>> raw = await _dbHelper
+        .readData("SELECT * FROM subprocess WHERE assigned_to=$userId");
     return raw.map<SubProcess>((row) => SubProcess.fromJson(row)).toList();
   }
 
@@ -193,8 +193,8 @@ class SubProcessRepoitory {
       print(
           "fetching data from subprocess locally (gyby user and process id) : $e");
     }
-    final List<Map<String, dynamic>> raw =
-        await _dbHelper.readData("SELECT * FROM subprocess");
+    final List<Map<String, dynamic>> raw = await _dbHelper.readData(
+        "SELECT * FROM subprocess WHERE assigned_to=$userId AND process_id=$processId");
     return raw.map<SubProcess>((row) => SubProcess.fromJson(row)).toList();
   }
 
@@ -221,14 +221,36 @@ class SubProcessRepoitory {
   }
 
   Future<List<SubProcess>> getByStatusAndUserId(int status, int userid) async {
-    final response = await http.get(
-        Uri.parse('$apiUrl1/get-all-by-status-and-user-id/$status/$userid'));
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      return data.map((item) => SubProcess.fromJson(item)).toList();
-    } else {
-      throw Exception('Failed to load by status and user ID');
-    }
+    try {
+      final response = await http
+          .get(Uri.parse(
+              '$apiUrl1/get-all-by-status-and-user-id/$status/$userid'))
+          .timeout(Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        final db = await _dbHelper.database;
+        await db!.transaction((txn) async {
+          for (var xx in data) {
+            await txn.rawInsert('''
+          INSERT OR REPLACE INTO subprocess
+          (id,name,process_id,status,assigned_to,is_synced)
+          VALUES(?,?,?,?,?,1)
+          ''', [
+              xx['id'],
+              xx['name'],
+              xx['process_id'],
+              xx['status'],
+              xx['assigned_to']
+            ]);
+          }
+        });
+
+        return data.map((item) => SubProcess.fromJson(item)).toList();
+      }
+    } catch (e) {}
+    final List<Map<String, dynamic>> raw = await _dbHelper.readData(
+        "SELECT * FROM subprocess WHERE status=$status AND assigned_to=$userid");
+    return raw.map<SubProcess>((row) => SubProcess.fromJson(row)).toList();
   }
 
   Future<bool> _isConnected() async {

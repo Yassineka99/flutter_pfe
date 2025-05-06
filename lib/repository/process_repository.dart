@@ -66,7 +66,7 @@ class ProcessRepoitory {
             INSERT OR REPLACE INTO process
             (id,name,workflow_id,status_id,created_by,is_synced)
             VALUES(?,?,?,?,?,1)
-            ''', [xx['id'], xx['name'], xx['workflow_id'], xx['created_by']]);
+            ''', [xx['id'], xx['name'], xx['workflow_id'],xx['status_id'], xx['created_by']]);
           }
         });
         return data.map((item) => Process.fromJson(item)).toList();
@@ -75,7 +75,7 @@ class ProcessRepoitory {
       // TODO
     }
         final List<Map<String, dynamic>> raw =
-        await _dbHelper.readData("SELECT * FROM process");
+        await _dbHelper.readData("SELECT * FROM process WHERE created_by=$userId");
     return raw.map<Process>((row) => Process.fromJson(row)).toList();
   }
 
@@ -93,7 +93,7 @@ class ProcessRepoitory {
             INSERT OR REPLACE INTO process
             (id,name,workflow_id,status_id,created_by,is_synced)
             VALUES(?,?,?,?,?,1)
-            ''', [xx['id'], xx['name'], xx['workflow_id'], xx['created_by']]);
+            ''', [xx['id'], xx['name'], xx['workflow_id'],xx['status_id'], xx['created_by']]);
           }
         });
         return data.map((item) => Process.fromJson(item)).toList();
@@ -102,7 +102,7 @@ class ProcessRepoitory {
       // TODO
     }
     final List<Map<String, dynamic>> raw =
-        await _dbHelper.readData("SELECT * FROM process");
+        await _dbHelper.readData("SELECT * FROM process WHERE status_id=$userId");
     return raw.map<Process>((row) => Process.fromJson(row)).toList();
   }
 
@@ -121,7 +121,7 @@ class ProcessRepoitory {
               INSERT OR REPLACE INTO process
               (id,name,workflow_id,status_id,created_by,is_synced)
               VALUES(?,?,?,?,?,1)
-              ''', [wf['id'], wf['name'], wf['workflow_id'], wf['created_by']]);
+              ''', [wf['id'], wf['name'], wf['workflow_id'],wf['status_id'] ,wf['created_by']]);
           }
         });
         return data.map((item) => Process.fromJson(item)).toList();
@@ -131,7 +131,7 @@ class ProcessRepoitory {
           'Server fetch failed process , will use local process table data :$e');
     }
     final List<Map<String, dynamic>> raw =
-        await _dbHelper.readData("SELECT * FROM process");
+        await _dbHelper.readData("SELECT * FROM process WHERE workflow_id=$workflowId");
     return raw.map<Process>((row) => Process.fromJson(row)).toList();
   }
 
