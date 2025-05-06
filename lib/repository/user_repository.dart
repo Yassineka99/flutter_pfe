@@ -110,10 +110,16 @@ class UserRepoitory {
         final db = await _dbHelper.database;
         await db!.transaction((txn) async {
           for (var wf in data) {
+           final existing = await txn.rawQuery(
+              'SELECT connected FROM user WHERE id = ?',
+              [wf['id']],
+            );
+            final connected = existing.isNotEmpty && existing.first['connected'] == 1 ? 1 : 0;
+
             await txn.rawInsert('''
-            INSERT OR REPLACE INTO user
-            (id,name,email,phone,password,role,image,imageType,is_synced)
-            VALUES(?,?,?,?,?,?,?,?,1)
+              INSERT OR REPLACE INTO user
+              (id,name,email,phone,password,role,image,imageType,is_synced,connected)
+              VALUES(?,?,?,?,?,?,?,?,1,?)
             ''', [
               wf['id'],
               wf['name'],
@@ -123,7 +129,9 @@ class UserRepoitory {
               wf['role'],
               wf['image'],
               wf['imageType'],
+              connected,
             ]);
+
           }
         });
         return data.map((json) => User.fromJson(json)).toList();
@@ -144,36 +152,44 @@ Future<bool> _isConnected() async {
   }
 
   Future<void> syncUser() async {
-    if (!await _isConnected()) return;
+  if (!await _isConnected()) return;
 
-    final unsynced = await _dbHelper
-        .readData("SELECT * FROM user WHERE is_synced = 0");
+  final currentUser = await _dbHelper.getUser();
 
-    for (var wf in unsynced) {
-      try {
-        final response = await http.post(
-          Uri.parse('$apiUrl1/create'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-             'name' :wf['name'],
-             'email' : wf['email'],
-             'phone' : wf['phone'],
-             'password' : wf['password'],
-             'role' : wf['role'],
-             'image' : wf['image'],
-             'imageType' : wf['imageType'],
-          }),
-        );
-        if (response.statusCode == 201) {
-          final serverWf = User.fromJson(jsonDecode(response.body));
-          // Update local ID and mark as synced
-          await _dbHelper.updateData(
-              "UPDATE user SET id = ${serverWf.id}, is_synced = 1 "
-              "WHERE id = ${wf['id']}");
-        }
-      } catch (e) {
-        print('Sync error: $e');
+  final unsynced = await _dbHelper.readData('''
+    SELECT * FROM user
+    WHERE is_synced = 0
+    AND (created_locally != 1 OR id != ${currentUser?.id ?? -1})
+  ''');
+
+  for (var wf in unsynced) {
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl1/create'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': wf['name'],
+          'email': wf['email'],
+          'phone': wf['phone'],
+          'password': wf['password'],
+          'role': wf['role'],
+          'image': wf['image'],
+          'imageType': wf['imageType'],
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final serverWf = User.fromJson(jsonDecode(response.body));
+        await _dbHelper.updateData('''
+          UPDATE user SET id = ${serverWf.id}, is_synced = 1, created_locally = 0
+          WHERE id = ${wf['id']}
+        ''');
       }
+    } catch (e) {
+      print('Sync error: $e');
     }
   }
+}
+
+
 }

@@ -19,20 +19,21 @@ class DBHelper {
     final path = join(dbPath, 'app.db');
     return openDatabase(
       path,
-      version: 3, // bumped from 1 → 2
+      version: 4, // bumped from 1 → 2
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE user (
             id             INTEGER PRIMARY KEY,
             name           TEXT,
-            email          TEXT,
+            email          TEXT UNIQUE,
             phone          TEXT,
             password       TEXT,
             role           INTEGER,
             image        TEXT,
             imageType    TEXT,
             connected      INTEGER DEFAULT 0,
-            is_synced INTEGER DEFAULT 0
+            is_synced INTEGER DEFAULT 0,
+            created_locally INTEGER DEFAULT 0
           )
         ''');
         await db.execute('''
@@ -98,6 +99,13 @@ class DBHelper {
         if (oldVersion < 3) {
           await db.execute('ALTER TABLE user ADD COLUMN image TEXT');
           await db.execute('ALTER TABLE user ADD COLUMN imageType TEXT');
+        }
+        if(oldVersion<4)
+        {
+          await db.execute('''
+            ALTER TABLE user ADD COLUMN created_locally INTEGER DEFAULT 0
+          ''');
+
         }
       },
     );
