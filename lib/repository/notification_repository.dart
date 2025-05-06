@@ -10,21 +10,40 @@ class NotificationRepository {
   final DBHelper _dbHelper = DBHelper();
   Future<Notification> createNotification(
       String? message, int? userToNotify) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl/create'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'message': message!,
-        'user_to_notify': userToNotify!.toString(),
-      }),
-    );
+  try {
+    // Attempt the server call with a timeout:
+    final response = await http
+      .post(
+        Uri.parse('$apiUrl/create'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'message': message, 'user_to_notify': userToNotify}),
+      )
+      .timeout(const Duration(seconds: 5));
+
     if (response.statusCode == 201) {
-      return Notification.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to create client.');
+      final serverWf = Notification.fromJson(jsonDecode(response.body));
+      // Mirror in SQLite as synced…
+      await _dbHelper.insertData('''
+        INSERT OR REPLACE INTO notification
+          (id, message, user_to_notify, is_synced, is_deleted, needs_update)
+        VALUES
+          (?, ?, ?, 1, 0, 0)
+      ''', [serverWf.id, serverWf.message, serverWf.userToNotify]);
+      return serverWf;
     }
+    // Non-201 status is treated like an offline failure:
+    throw Exception('Server returned ${response.statusCode}');
+  } catch (e) {
+  print('create notification : server failed, falling back offline: $e');
+  final localId = await _dbHelper.insertData('''
+    INSERT INTO notification
+      (message, user_to_notify, is_synced, is_deleted, needs_update)
+    VALUES
+      (?, ?, 0, 0, 0)
+  ''', [message, userToNotify]);
+  print('Offline notification created with local ID: $localId');
+  return Notification(id: localId, message: message, userToNotify: userToNotify);
+}
   }
 
   Future<List<Notification>> getByUserId(int userid) async {
@@ -112,35 +131,32 @@ class NotificationRepository {
     }
   }
 
-  Future<void> syncNotification() async {
+ Future<void> syncNotification() async {
     if (!await _isConnected()) return;
-
-    final unsynced = await _dbHelper
-        .readData("SELECT * FROM notification WHERE is_synced = 0");
-
-    for (var wf in unsynced) {
+    final db = await _dbHelper.database;
+    //create
+    final newRows = await _dbHelper.readData(
+        "SELECT * FROM notification WHERE is_synced =0 AND needs_update = 0 AND is_deleted =0");
+    for (var row in newRows) {
       try {
         final response = await http.post(
           Uri.parse('$apiUrl/create'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
-            'name': wf['name'],
-            'user_to_notify': wf['user_to_notify'],
-            'message': wf['message'],
-            'visiblity': wf['visiblity']
+            'name': row['name'],
+            'user_to_notify': row['user_to_notify'],
           }),
         );
-
         if (response.statusCode == 201) {
-          final serverWf = Notification.fromJson(jsonDecode(response.body));
-          // Update local ID and mark as synced
-          await _dbHelper.updateData(
-              "UPDATE notification SET id = ${serverWf.id}, is_synced = 1 "
-              "WHERE id = ${wf['id']}");
+          final servWf = Notification.fromJson(jsonDecode(response.body));
+          await _dbHelper.updateData('''
+          Update notification
+          SET id= ${servWf.id},
+          is_synced = 1 ,
+          WHERE id = ${row['id']}
+          ''');
         }
-      } catch (e) {
-        print('Sync error: $e');
-      }
+      } catch (e) {}
     }
   }
 }

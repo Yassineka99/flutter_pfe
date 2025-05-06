@@ -8,6 +8,7 @@ class NotificationViewModel {
     try {
       notification = await notificationRepository.createNotification(
           message, usertonotify);
+        await  notificationRepository.syncNotification();
       // You can also notifyListeners() if you're using Provider or State Management
     } catch (e) {
       print('Error creating client: $e');
