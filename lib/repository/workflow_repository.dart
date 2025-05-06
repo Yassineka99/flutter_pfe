@@ -207,7 +207,32 @@ Future<void> syncWorkflows() async {
   final newRows = await _dbHelper.readData(
     "SELECT * FROM workflow WHERE is_synced = 0 AND needs_update = 0 AND is_deleted = 0"
   );
-  // ... your POST-create logic, then mark is_synced = 1 ...
+
+  for (var row in newRows) {
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl1/create'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': row['name'],
+          'createdBy': row['created_by'],
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final serverWf = Workflow.fromJson(jsonDecode(response.body));
+
+        await _dbHelper.updateData('''
+          UPDATE workflow
+          SET id = ${serverWf.id},
+              is_synced = 1
+          WHERE id = ${row['id']}
+        ''');
+      }
+    } catch (e) {
+      print('Workflow sync (create) error: $e');
+    }
+  }
 
   // ── 2) Updated rows (needs_update = 1 && is_deleted = 0)
   final updatedRows = await _dbHelper.readData(
@@ -239,5 +264,6 @@ Future<void> syncWorkflows() async {
     }
   }
 }
+
 
 }
