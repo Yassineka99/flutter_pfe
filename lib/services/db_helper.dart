@@ -83,7 +83,9 @@ class DBHelper {
           id INTEGER PRIMARY KEY,
           name TEXT,
           created_by INTEGER,
-          is_synced INTEGER DEFAULT 0
+          is_synced INTEGER DEFAULT 0,
+          is_deleted INTEGER DEFAULT 0,
+          needs_update INTEGER DEFAULT 0
         )
       ''');
 
@@ -127,9 +129,9 @@ class DBHelper {
     return await db!.rawQuery(sql, args);
   }
 
-  insertData(String sql) async {
+  insertData(String sql,[List<dynamic>? args]) async {
     Database? mydb = await database;
-    int response = await mydb!.rawInsert(sql);
+    int response = await mydb!.rawInsert(sql,args);
     return response;
   }
 
