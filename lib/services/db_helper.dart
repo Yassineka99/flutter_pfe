@@ -141,9 +141,9 @@ class DBHelper {
     return response;
   }
 
-  deleteData(String sql) async {
+  deleteData(String sql,[List<dynamic>? args]) async {
     Database? mydb = await database;
-    int response = await mydb!.rawDelete(sql);
+    int response = await mydb!.rawDelete(sql,args);
     return response;
   }
 }

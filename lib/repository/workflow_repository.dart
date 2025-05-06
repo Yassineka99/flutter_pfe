@@ -158,12 +158,36 @@ Future<List<Workflow>> getAllWorkflows() async {
 
 
 // Delete
-  Future<void> deleteWorkflow(int id) async {
-    final response = await http.post(Uri.parse('$apiUrl1/delete/$id'));
-    if (response.statusCode != 200) {
-      throw Exception('Failed to delete subprocess');
+Future<void> deleteWorkflow(int id) async {
+  try {
+    // Try the server, with a timeout
+    final response = await http
+      .post(Uri.parse('$apiUrl1/delete/$id'))
+      .timeout(const Duration(seconds: 5));
+
+    if (response.statusCode == 200) {
+      // Remove locally immediately
+      await _dbHelper.deleteData(
+        'DELETE FROM workflow WHERE id = ?',
+        [id],
+      );
+      return;
     }
+    throw Exception('Server returned ${response.statusCode}');
+  } catch (e) {
+    // Offline or server error → flag for deletion
+    print('deleteWorkflow: server failed, flagging offline: $e');
+    await _dbHelper.updateData(
+      '''
+      UPDATE workflow
+      SET is_deleted = 1
+      WHERE id = ?
+      ''',
+      [id],
+    );
   }
+}
+
 
 Future<bool> _isConnected() async {
   try {
