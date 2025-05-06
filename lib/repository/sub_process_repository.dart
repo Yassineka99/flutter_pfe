@@ -46,7 +46,7 @@ class SubProcessRepoitory {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-    ).timeout(Duration(seconds: 5));
+    ).timeout(Duration(seconds: 3));
     if (response.statusCode == 200) {
       return SubProcess.fromJson(jsonDecode(response.body));
     } else {
@@ -59,7 +59,7 @@ class SubProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all'))
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(seconds:3));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -94,7 +94,7 @@ class SubProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-process-id/$processId'))
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(seconds: 3));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -130,7 +130,7 @@ class SubProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-user-id/$userId'))
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(seconds: 3));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -168,7 +168,7 @@ class SubProcessRepoitory {
       final response = await http
           .get(Uri.parse(
               '$apiUrl1/get-all-by-user-process-id/$userId/$processId'))
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(seconds: 3));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -225,7 +225,7 @@ class SubProcessRepoitory {
       final response = await http
           .get(Uri.parse(
               '$apiUrl1/get-all-by-status-and-user-id/$status/$userid'))
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(seconds: 3));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;

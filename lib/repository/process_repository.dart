@@ -55,7 +55,7 @@ class ProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-user-id/$userId'))
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(seconds: 3));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -83,7 +83,7 @@ class ProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-status-id/$userId'))
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(seconds: 3));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -110,7 +110,7 @@ class ProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-workflow-id/$workflowId'))
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(seconds: 3));
 
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
