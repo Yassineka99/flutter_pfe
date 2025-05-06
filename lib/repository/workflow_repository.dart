@@ -116,18 +116,46 @@ Future<List<Workflow>> getAllWorkflows() async {
     .toList();
 }
 
-  Future<Workflow> updateWorkflow(Workflow subProcess) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl1/update'),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode(subProcess.toJson()),
-    );
+  Future<Workflow> updateWorkflow(Workflow wf) async {
+  try {
+    // Try the server, with a timeout
+    final response = await http
+      .post(
+        Uri.parse('$apiUrl1/update'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(wf.toJson()),
+      )
+      .timeout(const Duration(seconds: 5));
+
     if (response.statusCode == 200) {
-      return Workflow.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to update subprocess');
+      final updated = Workflow.fromJson(jsonDecode(response.body));
+      // Mirror in SQLite as synced
+      await _dbHelper.updateData(
+        '''
+        UPDATE workflow
+        SET name = ?, created_by = ?, is_synced = 1, needs_update = 0
+        WHERE id = ?
+        ''',
+        [updated.name, updated.createdBy, updated.id],
+      );
+      return updated;
     }
+    throw Exception('Server returned ${response.statusCode}');
+  } catch (e) {
+    // Offline or server error → queue for later sync
+    print('updateWorkflow: server failed, queuing offline: $e');
+    await _dbHelper.updateData(
+      '''
+      UPDATE workflow
+      SET name = ?, created_by = ?, needs_update = 1
+      WHERE id = ?
+      ''',
+      [wf.name, wf.createdBy, wf.id],
+    );
+    return wf;
   }
+}
+
 
 // Delete
   Future<void> deleteWorkflow(int id) async {

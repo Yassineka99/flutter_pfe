@@ -135,9 +135,9 @@ class DBHelper {
     return response;
   }
 
-  updateData(String sql) async {
+  updateData(String sql,[List<dynamic>? args]) async {
     Database? mydb = await database;
-    int response = await mydb!.rawUpdate(sql);
+    int response = await mydb!.rawUpdate(sql,args);
     return response;
   }
 
