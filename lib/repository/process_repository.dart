@@ -17,24 +17,57 @@ class ProcessRepoitory {
     int? order,
     int? createdBy,
   ) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl1/create'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'name': name!,
-        'workflow_id': workflowId!.toString(),
-        'status_id': statusId!.toString(),
-        'order': order!.toString(),
-        'created_by': createdBy!.toString(),
-      }),
-    );
-    if (response.statusCode == 201) {
-      return Process.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to create client.');
+try {
+      final response = await http
+          .post(
+            Uri.parse('$apiUrl1/create'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode(<String, String>{
+              'name': name!,
+              'workflow_id': workflowId!.toString(),
+              'status_id': statusId!.toString(),
+              'order': order!.toString(),
+              'created_by': createdBy!.toString()
+            }),
+          )
+          .timeout(Duration(seconds: 5));
+      if (response.statusCode == 201) {
+        final serverWf = Process.fromJson(jsonDecode(response.body));
+        // Mirror in SQLite as synced…
+        await _dbHelper.insertData('''
+        INSERT OR REPLACE INTO process
+          (id, name, workflow_id ,status_id, order , created_by , is_synced, is_deleted, needs_update)
+        VALUES
+          (?, ?, ?, ?,?,?, 1, 0, 0)
+      ''', [
+          serverWf.id,
+          serverWf.name,
+          serverWf.workflowId,
+          serverWf.statusId,
+          serverWf.order,
+          serverWf.createdBy
+        ]);
+        return serverWf;
+      }
+    } catch (e) {
+      final localId = await _dbHelper.insertData('''
+    INSERT INTO process
+      (name, workflow_id ,status_id, order , created_by,is_synced, is_deleted, needs_update)
+    VALUES
+      (?, ?,?,?,?,0, 0, 0)
+  ''', [name, workflowId, statusId, order, createdBy]);
+      print('Offline process created with local ID: $localId');
+      return Process(
+          id: localId,
+          name: name,
+          createdBy: createdBy,
+          workflowId: workflowId,
+          statusId: statusId,
+          order: order);
     }
+    throw Exception('failed to create');
   }
 
   Future<Process> getProcessById(String id) async {
@@ -135,19 +168,57 @@ class ProcessRepoitory {
     return raw.map<Process>((row) => Process.fromJson(row)).toList();
   }
 
-  Future<Process> updateProcess(Process process) async {
-    final response = await http.post(
-      Uri.parse('$apiUrl1/update'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(process.toJson()),
-    );
+  Future<Process> updateProcess(Process subProcess) async {
+    try {
+      // Try the server, with a timeout
+      final response = await http
+          .post(
+            Uri.parse('$apiUrl1/update'),
+            headers: {'Content-Type': 'application/json; charset=UTF-8'},
+            body: jsonEncode(subProcess.toJson()),
+          )
+          .timeout(const Duration(seconds: 5));
 
-    if (response.statusCode == 200) {
-      return Process.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to update process');
+      if (response.statusCode == 200) {
+        final updated = Process.fromJson(jsonDecode(response.body));
+        // Mirror in SQLite as synced
+        await _dbHelper.updateData(
+          '''
+        UPDATE process
+        SET name = ?, workflow_id = ?,status_id= ? ,order=?,created_by=?,is_synced = 1, needs_update = 0
+        WHERE id = ?
+        ''',
+          [
+            updated.name,
+            updated.workflowId,
+            updated.statusId,
+            updated.order,
+            updated.createdBy,
+            updated.id
+          ],
+        );
+        return updated;
+      }
+      throw Exception('Server returned ${response.statusCode}');
+    } catch (e) {
+      // Offline or server error → queue for later sync
+      print('updateWorkflow: server failed, queuing offline: $e');
+      await _dbHelper.updateData(
+        '''
+      UPDATE process
+      SET name = ?, workflow_id = ?,status_id= ? ,order=?,created_by=? , needs_update = 1
+      WHERE id = ?
+      ''',
+          [
+            subProcess.name,
+            subProcess.workflowId,
+            subProcess.statusId,
+            subProcess.order,
+            subProcess.createdBy,
+            subProcess.id
+          ],
+      );
+      return subProcess;
     }
   }
 
@@ -160,34 +231,59 @@ class ProcessRepoitory {
     }
   }
 
-  Future<void> syncProcess() async {
+   Future<void> syncProcess() async {
     if (!await _isConnected()) return;
-
-    final unsynced =
-        await _dbHelper.readData("SELECT * FROM process WHERE is_synced = 0");
-
-    for (var wf in unsynced) {
+    final db = await _dbHelper.database;
+    //create
+    final newRows = await _dbHelper.readData(
+        "SELECT * FROM process WHERE is_synced =0 AND needs_update = 0 AND is_deleted =0");
+    for (var row in newRows) {
       try {
         final response = await http.post(
           Uri.parse('$apiUrl1/create'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
-            'name': wf['name'],
-            'workflow_id': wf['workflow_id'],
-            'status_id': wf['status_id'],
-            'created_by': wf['created_by']
+            'name': row['name'],
+            'workflow_id': row['workflow_id'],
+            'status_id': row['status_id'],
+            'order': row['order'],
+            'created_by': row['created_by'],
           }),
         );
-
         if (response.statusCode == 201) {
-          final serverWf = Process.fromJson(jsonDecode(response.body));
-          // Update local ID and mark as synced
-          await _dbHelper.updateData(
-              "UPDATE process SET id = ${serverWf.id}, is_synced = 1 "
-              "WHERE id = ${wf['id']}");
+          final servWf = Process.fromJson(jsonDecode(response.body));
+          await _dbHelper.updateData('''
+          Update process
+          SET id= ${servWf.id},
+          is_synced = 1 ,
+          WHERE id = ${row['id']}
+          ''');
         }
-      } catch (e) {
-        print('Sync error: $e');
+      } catch (e) {}
+    }
+    //update
+    final updatedRows = await _dbHelper.readData('''
+    SELECT * FROM process WHERE needs_update = 1 AND is_deleted = 0
+    ''');
+    for (var row in updatedRows) {
+      final wf = Process.fromJson(row);
+      final response = await http.post(Uri.parse('$apiUrl1/update'),
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode(wf.toJson()));
+      if (response.statusCode == 200) {
+        await _dbHelper.updateData('''
+          UPDATE process SET is_synced = 1 , need_update=0 WHERE id = ${wf.id}
+        ''');
+      }
+    }
+    // delete
+    final deletedRows = await _dbHelper
+        .readData("SELECT * FROM process WHERE is_deleted = 1");
+    for (var row in deletedRows) {
+      final id = row['id'];
+      final response = await http.post(Uri.parse('$apiUrl1/delete/$id'));
+      if (response.statusCode == 200) {
+        await _dbHelper.deleteData("DELETE FROM process WHERE id = $id");
       }
     }
   }

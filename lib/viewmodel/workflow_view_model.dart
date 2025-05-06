@@ -61,6 +61,7 @@ Future<List<Workflow>> fetchAllWorkflows() async {
   Future<void> update(Workflow subProcess) async {
     try {
       workflow = await workflowRepository.updateWorkflow(subProcess);
+      await workflowRepository.syncWorkflows();
     } catch (e) {
       print('Error updating subprocess: $e');
     }
@@ -69,6 +70,7 @@ Future<List<Workflow>> fetchAllWorkflows() async {
   Future<void> delete(int id) async {
     try {
       await workflowRepository.deleteWorkflow(id);
+      await workflowRepository.syncWorkflows();
     } catch (e) {
       print('Error deleting subprocess: $e');
     }

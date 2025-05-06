@@ -56,12 +56,12 @@ class SubProcessRepoitory {
       }
     } catch (e) {
       final localId = await _dbHelper.insertData('''
-    INSERT INTO workflow
+    INSERT INTO subprocess
       (name, process_id ,created_by, message , assigned_to,is_synced, is_deleted, needs_update)
     VALUES
       (?, ?,?,?,?,0, 0, 0)
   ''', [name, processId, createdBy, message, assignedTo]);
-      print('Offline workflow created with local ID: $localId');
+      print('Offline subprocess created with local ID: $localId');
       return SubProcess(
           id: localId,
           name: name,
@@ -360,6 +360,7 @@ class SubProcessRepoitory {
   Future<void> syncSubProcess() async {
     if (!await _isConnected()) return;
     final db = await _dbHelper.database;
+    //create
     final newRows = await _dbHelper.readData(
         "SELECT * FROM subprocess WHERE is_synced =0 AND needs_update = 0 AND is_deleted =0");
     for (var row in newRows) {
@@ -379,7 +380,7 @@ class SubProcessRepoitory {
         if (response.statusCode == 201) {
           final servWf = SubProcess.fromJson(jsonDecode(response.body));
           await _dbHelper.updateData('''
-          Update workflow
+          Update subprocess
           SET id= ${servWf.id},
           is_synced = 1 ,
           WHERE id = ${row['id']}
@@ -387,6 +388,7 @@ class SubProcessRepoitory {
         }
       } catch (e) {}
     }
+    //update
     final updatedRows = await _dbHelper.readData('''
     SELECT * FROM subprocess WHERE needs_update = 1 AND is_deleted = 0
     ''');
@@ -401,7 +403,7 @@ class SubProcessRepoitory {
         ''');
       }
     }
-    // ── 3) Deleted rows (is_deleted = 1)
+    // delete
     final deletedRows = await _dbHelper
         .readData("SELECT * FROM subprocess WHERE is_deleted = 1");
     for (var row in deletedRows) {
