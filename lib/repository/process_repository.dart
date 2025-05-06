@@ -52,25 +52,58 @@ class ProcessRepoitory {
   }
 
   Future<List<Process>> getByUserId(int userId) async {
-    final response =
-        await http.get(Uri.parse('$apiUrl1/get-all-by-user-id/$userId'));
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      return data.map((item) => Process.fromJson(item)).toList();
-    } else {
-      throw Exception('Failed to load by user ID');
+    try {
+      final response = await http
+          .get(Uri.parse('$apiUrl1/get-all-by-user-id/$userId'))
+          .timeout(Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        final db = await _dbHelper.database;
+        await db!.transaction((txn) async {
+          for (var xx in data)
+          {
+            await txn.rawInsert('''
+            INSERT OR REPLACE INTO process
+            (id,name,workflow_id,status_id,created_by,is_synced)
+            VALUES(?,?,?,?,?,1)
+            ''', [xx['id'], xx['name'], xx['workflow_id'], xx['created_by']]);
+          }
+        });
+        return data.map((item) => Process.fromJson(item)).toList();
+      }
+    } catch (e) {
+      // TODO
     }
+        final List<Map<String, dynamic>> raw =
+        await _dbHelper.readData("SELECT * FROM process");
+    return raw.map<Process>((row) => Process.fromJson(row)).toList();
   }
 
   Future<List<Process>> getByStatusId(int userId) async {
-    final response =
-        await http.get(Uri.parse('$apiUrl1/get-all-by-status-id/$userId'));
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      return data.map((item) => Process.fromJson(item)).toList();
-    } else {
-      throw Exception('Failed to load by user ID');
+    try {
+      final response = await http
+          .get(Uri.parse('$apiUrl1/get-all-by-status-id/$userId'))
+          .timeout(Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        final db = await _dbHelper.database;
+        await db!.transaction((txn) async {
+          for (var xx in data) {
+            await txn.rawInsert('''
+            INSERT OR REPLACE INTO process
+            (id,name,workflow_id,status_id,created_by,is_synced)
+            VALUES(?,?,?,?,?,1)
+            ''', [xx['id'], xx['name'], xx['workflow_id'], xx['created_by']]);
+          }
+        });
+        return data.map((item) => Process.fromJson(item)).toList();
+      }
+    } catch (e) {
+      // TODO
     }
+    final List<Map<String, dynamic>> raw =
+        await _dbHelper.readData("SELECT * FROM process");
+    return raw.map<Process>((row) => Process.fromJson(row)).toList();
   }
 
   Future<List<Process>> getByWorkflowId(int workflowId) async {
@@ -95,10 +128,11 @@ class ProcessRepoitory {
       }
     } catch (e) {
       print(
-          'Server fetch failed process , will use local process table data :$e');         
+          'Server fetch failed process , will use local process table data :$e');
     }
-    final List<Map<String,dynamic>> raw = await _dbHelper.readData("SELECT * FROM process");
-    return raw.map<Process>((row)=>Process.fromJson(row)).toList();
+    final List<Map<String, dynamic>> raw =
+        await _dbHelper.readData("SELECT * FROM process");
+    return raw.map<Process>((row) => Process.fromJson(row)).toList();
   }
 
   Future<Process> updateProcess(Process process) async {
