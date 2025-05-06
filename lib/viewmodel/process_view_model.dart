@@ -12,7 +12,7 @@ class ProcessViewModel {
     try {
       process =
           await processRepository.createProcess(name, workflowId,status,order,createdby);
-      // You can also notifyListeners() if you're using Provider or State Management
+     
     } catch (e) {
       print('Error creating client: $e');
     }
@@ -26,7 +26,6 @@ class ProcessViewModel {
       } else {
         return null;
       }
-      // You can also notifyListeners() if you're using Provider or State Management
     } catch (e) {
       print('Error fetching client: $e');
     }
@@ -42,8 +41,7 @@ class ProcessViewModel {
 Future<List<Process>> getByWorkflowId(int id) async {
   try {
     final processes = await processRepository.getByWorkflowId(id);
-    print('Fetched ${processes.length} processes for workflow $id');
-    processes.forEach((p) => print(p.toJson()));
+   
     return processes;
   } catch (e, stack) {
     print('Error fetching processes: $e\n$stack');

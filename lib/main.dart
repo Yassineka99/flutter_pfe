@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:front/model/user_session.dart';
+import 'package:front/repository/workflow_repository.dart';
 import 'package:front/services/locale_provider.dart';
 import 'package:front/services/theme_provider.dart';
 import 'package:front/view/home.dart';
@@ -26,7 +29,7 @@ runApp(
     child: const MyApp(),
   ),
 );
-
+  Timer.periodic(Duration(minutes: 5), (_) => WorkflowRepository().syncWorkflows());
 }
 
 class MyApp extends StatelessWidget {

@@ -72,14 +72,11 @@ Future<List<Process>> getByWorkflowId(int workflowId) async {
     Uri.parse('$apiUrl1/get-all-by-workflow-id/$workflowId')
   );
   
-  print('API Response for workflow $workflowId:');
-  print('Status Code: ${response.statusCode}');
-  print('Body: ${response.body}');
 
   if (response.statusCode == 200) {
     try {
       List<dynamic> data = jsonDecode(response.body);
-      print('Raw API data: $data');
+
       return data.map((item) => Process.fromJson(item)).toList();
     } catch (e) {
       print('JSON parsing error: $e');
