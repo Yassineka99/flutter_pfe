@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../env.dart';
 import '../model/user.dart';
+import '../services/db_helper.dart';
 
 class UserRepoitory {
   static const String apiUrl1 = '$baseUrl/api/user';
+  final DBHelper _dbHelper = DBHelper();
   Future<User> createUser(String? name, String? email, String? phone,
       String? password, int? role) async {
     final response = await http.post(
@@ -29,7 +32,6 @@ class UserRepoitory {
   }
 
   Future<User> getUser(String id) async {
-   
     final response = await http.get(
       Uri.parse('$apiUrl1/getUserById/$id'),
       headers: <String, String>{
@@ -44,7 +46,7 @@ class UserRepoitory {
   }
 
   Future<User> getUserbyEmail(String email) async {
-     print("email length :${email.length}");
+    print("email length :${email.length}");
     final response = await http.get(
       Uri.parse(('$apiUrl1/getUserByEmail/$email')),
       headers: <String, String>{
@@ -60,16 +62,6 @@ class UserRepoitory {
     }
   }
 
-  Future<List<User>> getByStatusId(int userId) async {
-    final response =
-        await http.get(Uri.parse('$apiUrl1/get-all-by-status-id/$userId'));
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      return data.map((item) => User.fromJson(item)).toList();
-    } else {
-      throw Exception('Failed to load by user ID');
-    }
-  }
 
   Future<User> updateUserProfilePicture(
       int userId, String newBase64Image, String mimeType) async {
@@ -105,21 +97,83 @@ class UserRepoitory {
   }
 
   Future<List<User>> getUsersByRoleId(int id) async {
-    final response = await http.get(
-      Uri.parse('$apiUrl1/get-all-by-role-id/$id'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('$apiUrl1/get-all-by-role-id/$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      ).timeout(Duration(seconds: 3));
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        final db = await _dbHelper.database;
+        await db!.transaction((txn) async {
+          for (var wf in data) {
+            await txn.rawInsert('''
+            INSERT OR REPLACE INTO user
+            (id,name,email,phone,password,role,image,imageType,is_synced)
+            VALUES(?,?,?,?,?,?,?,?,1)
+            ''', [
+              wf['id'],
+              wf['name'],
+              wf['email'],
+              wf['phone'],
+              wf['password'],
+              wf['role'],
+              wf['image'],
+              wf['imageType'],
+            ]);
+          }
+        });
+        return data.map((json) => User.fromJson(json)).toList();
+      }
+    } catch (e) {}
+        final List<Map<String, dynamic>> raw = await _dbHelper
+        .readData("SELECT * FROM user WHERE role=$id");
+    return raw.map<User>((row) => User.fromJson(row)).toList();
+  }
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => User.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load users by role id.');
+Future<bool> _isConnected() async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> syncUser() async {
+    if (!await _isConnected()) return;
+
+    final unsynced = await _dbHelper
+        .readData("SELECT * FROM user WHERE is_synced = 0");
+
+    for (var wf in unsynced) {
+      try {
+        final response = await http.post(
+          Uri.parse('$apiUrl1/create'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+             'name' :wf['name'],
+             'email' : wf['email'],
+             'phone' : wf['phone'],
+             'password' : wf['password'],
+             'role' : wf['role'],
+             'image' : wf['image'],
+             'imageType' : wf['imageType'],
+          }),
+        );
+        if (response.statusCode == 201) {
+          final serverWf = User.fromJson(jsonDecode(response.body));
+          // Update local ID and mark as synced
+          await _dbHelper.updateData(
+              "UPDATE user SET id = ${serverWf.id}, is_synced = 1 "
+              "WHERE id = ${wf['id']}");
+        }
+      } catch (e) {
+        print('Sync error: $e');
+      }
     }
   }
 }
