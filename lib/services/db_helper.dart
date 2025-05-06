@@ -19,7 +19,7 @@ class DBHelper {
     final path = join(dbPath, 'app.db');
     return openDatabase(
       path,
-      version: 4, // bumped from 1 → 2
+      version: 5, // bumped from 1 → 2
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE user (
@@ -33,7 +33,9 @@ class DBHelper {
             imageType    TEXT,
             connected      INTEGER DEFAULT 0,
             is_synced INTEGER DEFAULT 0,
-            created_locally INTEGER DEFAULT 0
+            created_locally INTEGER DEFAULT 0,
+            is_deleted INTEGER DEFAULT 0,
+            needs_update INTEGER DEFAULT 0
           )
         ''');
         await db.execute('''
@@ -43,7 +45,9 @@ class DBHelper {
           workflow_id INTEGER,
           status_id INTEGER,
           created_by INTEGER,
-          is_synced INTEGER DEFAULT 0
+          is_synced INTEGER DEFAULT 0,
+          is_deleted INTEGER DEFAULT 0,
+          needs_update INTEGER DEFAULT 0
         )
       ''');
         await db.execute('''
@@ -53,7 +57,9 @@ class DBHelper {
           process_id INTEGER,
           status INTEGER,
           assigned_to INTEGER,
-          is_synced INTEGER DEFAULT 0
+          is_synced INTEGER DEFAULT 0,
+          is_deleted INTEGER DEFAULT 0,
+          needs_update INTEGER DEFAULT 0
         )
       ''');
         await db.execute('''
@@ -62,21 +68,27 @@ class DBHelper {
           user_to_notify INTEGER,
           message TEXT,
           visiblity INTEGER,
-          is_synced INTEGER DEFAULT 0
+          is_synced INTEGER DEFAULT 0,
+          is_deleted INTEGER DEFAULT 0,
+          needs_update INTEGER DEFAULT 0
         )
       ''');
         await db.execute('''
         CREATE TABLE role (
           id INTEGER PRIMARY KEY,
           name TEXT,
-          is_synced INTEGER DEFAULT 0
+          is_synced INTEGER DEFAULT 0,
+          is_deleted INTEGER DEFAULT 0,
+          needs_update INTEGER DEFAULT 0
         )
       ''');
         await db.execute('''
         CREATE TABLE status (
           id INTEGER PRIMARY KEY,
           name TEXT,
-          is_synced INTEGER DEFAULT 0
+          is_synced INTEGER DEFAULT 0,
+          is_deleted INTEGER DEFAULT 0,
+          needs_update INTEGER DEFAULT 0
         )
       ''');
         await db.execute('''
@@ -106,6 +118,23 @@ class DBHelper {
             ALTER TABLE user ADD COLUMN created_locally INTEGER DEFAULT 0
           ''');
 
+        }
+        if(oldVersion<5)
+        {
+          await db.execute(' ALTER TABLE user ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute('ALTER TABLE user ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute('ALTER TABLE workflow ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute('ALTER TABLE workflow ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute(' ALTER TABLE process ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute('ALTER TABLE process ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute('ALTER TABLE subprocess ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute('ALTER TABLE subprocess ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute(' ALTER TABLE notification ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute('ALTER TABLE notification ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute('ALTER TABLE status ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute('ALTER TABLE status ADD COLUMN needs_update INTEGER DEFAULT 0');     
+          await db.execute('ALTER TABLE role ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute('ALTER TABLE role ADD COLUMN needs_update INTEGER DEFAULT 0');       
         }
       },
     );
