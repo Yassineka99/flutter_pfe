@@ -9,6 +9,7 @@ class SubProcessViewModel {
     try {
       subprocess = await subprocessRepository.createSubProcess(
           name, processId, status, message, assignedto, createdby);
+           await subprocessRepository.syncSubProcess();
     } catch (e) {
       print('Error creating client: $e');
     }
@@ -51,6 +52,7 @@ class SubProcessViewModel {
   Future<void> update(SubProcess subProcess) async {
     try {
       subprocess = await subprocessRepository.updateSubProcess(subProcess);
+       await subprocessRepository.syncSubProcess();
     } catch (e) {
       print('Error updating subprocess: $e');
     }
@@ -59,6 +61,7 @@ class SubProcessViewModel {
   Future<void> delete(int id) async {
     try {
       await subprocessRepository.deleteSubProcess(id);
+       await subprocessRepository.syncSubProcess();
     } catch (e) {
       print('Error deleting subprocess: $e');
     }
