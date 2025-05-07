@@ -1,5 +1,8 @@
 // workflowview.dart
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/user.dart';
@@ -53,6 +56,8 @@ class _WorkflowViewState extends State<WorkflowView> {
   String _aiCommand = '';
   String _aiResponse = '';
   bool _showAiAssistant = false;
+  bool _speechAvailable = false;
+  String _lastWords = '';
   @override
   void initState() {
     super.initState();
@@ -62,26 +67,82 @@ class _WorkflowViewState extends State<WorkflowView> {
       processViewModel: _processViewModel,
       subProcessViewModel: SubProcessViewModel(),
     );
+    _initSpeech();
   }
 
+  Future<bool> _checkMicrophonePermission() async {
+  if (Platform.isAndroid) {
+    final status = await Permission.microphone.request();
+    return status.isGranted;
+  } else if (Platform.isIOS) {
+    final status = await Permission.speech.request();
+    return status.isGranted;
+  }
+  return false;
+}
+Future<void> _initSpeech() async {
+  _speechAvailable = await _speechToText.initialize();
+  setState(() {});
+}
 // Add this method to handle voice input
-  void _listen() async {
-    if (!_isListening) {
-      bool available = await _speechToText.initialize();
-      if (available) {
-        setState(() => _isListening = true);
-        _speechToText.listen(
-          onResult: (result) => setState(() {
-            _aiCommand = result.recognizedWords;
-          }),
-        );
-      }
-    } else {
-      setState(() => _isListening = false);
-      _speechToText.stop();
-      _submitAiCommand();
+ void _listen() async {
+    final hasPermission = await _checkMicrophonePermission();
+  if (!hasPermission) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Microphone permission required')),
+    );
+    return;
+  }
+
+  if (!_speechAvailable) {
+    await _initSpeech();
+    if (!_speechAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Speech recognition not available')),
+      );
+      return;
     }
   }
+  if (!_speechAvailable) {
+    await _initSpeech();
+    if (!_speechAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Microphone access not available')),
+      );
+      return;
+    }
+  }
+
+  if (_isListening) {
+    _speechToText.stop();
+    setState(() {
+      _isListening = false;
+      _aiCommand = _lastWords;
+    });
+    _submitAiCommand();
+  } else {
+    setState(() {
+      _isListening = true;
+      _lastWords = '';
+      _aiCommand = '';
+    });
+    _speechToText.listen(
+      onResult: (result) {
+        setState(() {
+          _lastWords = result.recognizedWords;
+          _aiCommand = _lastWords;
+        });
+      },
+      listenFor: Duration(seconds: 30),
+      cancelOnError: true,
+      partialResults: true,
+      localeId: 'en', // Adjust based on your app's language
+      onSoundLevelChange: (level) {
+        // Optional: Add sound level visualization if desired
+      },
+    );
+  }
+}
 
 // Add this method to submit commands
   Future<void> _submitAiCommand() async {

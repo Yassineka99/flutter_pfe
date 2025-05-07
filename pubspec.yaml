@@ -48,6 +48,7 @@ dependencies:
   google_fonts: ^4.0.4
   connectivity_plus: ^3.0.2
   speech_to_text: ^6.1.1
+  permission_handler: ^10.4.0
   
 
 
