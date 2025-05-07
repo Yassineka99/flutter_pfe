@@ -9,7 +9,6 @@ class SubProcessViewModel {
     try {
       subprocess = await subprocessRepository.createSubProcess(
           name, processId, status, message, assignedto, createdby);
-           await subprocessRepository.syncSubProcess();
     } catch (e) {
       print('Error creating client: $e');
     }
@@ -29,30 +28,30 @@ class SubProcessViewModel {
   }
 
   Future<List<SubProcess>> getAll() async {
-    await subprocessRepository.syncSubProcess();
+   
     return await subprocessRepository.getAllSubProcesses();
   }
 
   Future<List<SubProcess>> getByProcessId(int id) async {
-    await subprocessRepository.syncSubProcess();
+   
     return await subprocessRepository.getByProcessId(id);
   }
 
   Future<List<SubProcess>> getByUserId(int id) async {
-    await subprocessRepository.syncSubProcess();
+    
     return await subprocessRepository.getByUserId(id);
   }
 
   Future<List<SubProcess>> getByUserAndProcess(
       int userId, int processId) async {
-        await subprocessRepository.syncSubProcess();
+        
     return await subprocessRepository.getByUserAndProcessId(userId, processId);
   }
 
   Future<void> update(SubProcess subProcess) async {
     try {
       subprocess = await subprocessRepository.updateSubProcess(subProcess);
-       await subprocessRepository.syncSubProcess();
+     
     } catch (e) {
       print('Error updating subprocess: $e');
     }
@@ -61,14 +60,14 @@ class SubProcessViewModel {
   Future<void> delete(int id) async {
     try {
       await subprocessRepository.deleteSubProcess(id);
-       await subprocessRepository.syncSubProcess();
+      
     } catch (e) {
       print('Error deleting subprocess: $e');
     }
   }
 
   Future<List<SubProcess>> getByStatusAndUserId(int status, int userid) async {
-    await subprocessRepository.syncSubProcess();
+    
     return await subprocessRepository.getByStatusAndUserId(status, userid);
   }
 }

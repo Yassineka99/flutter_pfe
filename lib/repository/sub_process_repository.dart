@@ -382,7 +382,7 @@ class SubProcessRepoitory {
           await _dbHelper.updateData('''
           Update subprocess
           SET id= ${servWf.id},
-          is_synced = 1 ,
+          is_synced = 1 
           WHERE id = ${row['id']}
           ''');
         }

@@ -8,7 +8,7 @@ class NotificationViewModel {
     try {
       notification = await notificationRepository.createNotification(
           message, usertonotify);
-        await  notificationRepository.syncNotification();
+       
       // You can also notifyListeners() if you're using Provider or State Management
     } catch (e) {
       print('Error creating client: $e');
@@ -16,7 +16,7 @@ class NotificationViewModel {
   }
 
   Future<List<Notification>> getUserId(int userid) async {
-    await notificationRepository.syncNotification();
+   
     return await notificationRepository.getByUserId(userid);
   }
 
@@ -30,7 +30,7 @@ class NotificationViewModel {
   }
 
   Future<List<Notification>> getUnreadNotifications(int userid) async {
-    await notificationRepository.syncNotification();
+   
     return await notificationRepository.getUnreadNotifications(userid);
   }
 }

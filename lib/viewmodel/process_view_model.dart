@@ -12,7 +12,7 @@ class ProcessViewModel {
     try {
       process = await processRepository.createProcess(
           name, workflowId, status, order, createdby);
-          await processRepository.syncProcess();
+        
     } catch (e) {
       print('Error creating client: $e');
     }
@@ -32,18 +32,18 @@ class ProcessViewModel {
   }
 
   Future<List<Process>> getByUserId(int id) async {
-    await processRepository.syncProcess();
+   
     return await processRepository.getByUserId(id);
   }
 
   Future<List<Process>> getByStatusId(int id) async {
-    await processRepository.syncProcess();
+    
     return await processRepository.getByStatusId(id);
   }
 
   Future<List<Process>> getByWorkflowId(int id) async {
     try {
-      await processRepository.syncProcess();
+    
       final processes = await processRepository.getByWorkflowId(id);
 
       return processes;
@@ -56,7 +56,7 @@ class ProcessViewModel {
   Future<void> update(Process updatedProcess) async {
     try {
       process = await processRepository.updateProcess(updatedProcess);
-      await processRepository.syncProcess();
+     
       print('Process updated successfully');
     } catch (e) {
       print('Error updating process: $e');

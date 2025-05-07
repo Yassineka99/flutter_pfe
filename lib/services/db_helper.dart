@@ -19,7 +19,7 @@ class DBHelper {
     final path = join(dbPath, 'app.db');
     return openDatabase(
       path,
-      version: 5, // bumped from 1 → 2
+      version: 6, 
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE user (
@@ -56,6 +56,8 @@ class DBHelper {
           name TEXT,
           process_id INTEGER,
           status INTEGER,
+          created_by INTEGER,
+          message TEXT ,
           assigned_to INTEGER,
           is_synced INTEGER DEFAULT 0,
           is_deleted INTEGER DEFAULT 0,
@@ -135,6 +137,11 @@ class DBHelper {
           await db.execute('ALTER TABLE status ADD COLUMN needs_update INTEGER DEFAULT 0');     
           await db.execute('ALTER TABLE role ADD COLUMN is_deleted INTEGER DEFAULT 0');
           await db.execute('ALTER TABLE role ADD COLUMN needs_update INTEGER DEFAULT 0');       
+        }
+        if(oldVersion < 6 )
+        {
+          await db.execute('ALTER TABLE subprocess ADD COLUMN message INTEGER');
+          await db.execute('ALTER TABLE subprocess ADD COLUMN created_by TEXT');
         }
       },
     );

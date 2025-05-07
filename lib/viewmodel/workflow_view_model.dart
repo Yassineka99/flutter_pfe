@@ -7,7 +7,6 @@ class WorkflowViewModel {
   Future<void> create(String name, int createdBy) async {
     try {
       await workflowRepository.createWorkflow(name, createdBy);
-      await workflowRepository.syncWorkflows(); // Trigger sync after creation
     } catch (e) {
       print('Error creating workflow: $e');
     }
@@ -43,8 +42,6 @@ class WorkflowViewModel {
 
 Future<List<Workflow>> fetchAllWorkflows() async {
   try {
-    // first push any local-only rows up to server
-    await workflowRepository.syncWorkflows();
 
     // then pull either remote or cached (depending on connectivity)
     final List<Workflow> workflows = 
@@ -61,7 +58,7 @@ Future<List<Workflow>> fetchAllWorkflows() async {
   Future<void> update(Workflow subProcess) async {
     try {
       workflow = await workflowRepository.updateWorkflow(subProcess);
-      await workflowRepository.syncWorkflows();
+    
     } catch (e) {
       print('Error updating subprocess: $e');
     }
@@ -70,7 +67,7 @@ Future<List<Workflow>> fetchAllWorkflows() async {
   Future<void> delete(int id) async {
     try {
       await workflowRepository.deleteWorkflow(id);
-      await workflowRepository.syncWorkflows();
+   
     } catch (e) {
       print('Error deleting subprocess: $e');
     }

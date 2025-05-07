@@ -152,7 +152,7 @@ class NotificationRepository {
           await _dbHelper.updateData('''
           Update notification
           SET id= ${servWf.id},
-          is_synced = 1 ,
+          is_synced = 1 
           WHERE id = ${row['id']}
           ''');
         }
