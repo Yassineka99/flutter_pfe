@@ -92,7 +92,237 @@
 "doYouwantToAddAProcess": "Вы хотите добавить процесс?",
 "generatingReport": "Генерация отчета",
 "pleaseWaitpdf": "Пожалуйста, подождите, пока мы готовим ваш документ",
-"errorGeneratingReport": "Ошибка при генерации отчета"
+"errorGeneratingReport": "Ошибка при генерации отчета",
+
+  "showAllWorkflows": "показать все рабочие процессы",
+  "listWorkflows": "список рабочих процессов",
+  "whatWorkflows": "какие рабочие процессы",
+  "viewWorkflows": "просмотреть рабочие процессы",
+  "displayWorkflows": "отобразить рабочие процессы",
+  "seeWorkflows": "увидеть рабочие процессы",
+  "existingWorkflows": "существующие рабочие процессы",
+  
+  "hi": "привет",
+  "hello": "здравствуйте",
+  "hey": "эй",
+  "goodMorning": "доброе утро",
+  "goodAfternoon": "добрый день",
+  "goodEvening": "добрый вечер",
+  
+  "howCanIassistWithYourWorflowsToday": "Как я могу помочь вам с рабочими процессами сегодня?",
+  "hellowThereWhatWorkflowTasksShallWeTackleTogether": "Здравствуйте! Какие задачи рабочих процессов мы должны решить вместе?",
+  "hiReadytostreamlineyourprocessesWhatsonyourmind": "Привет! Готов оптимизировать ваши процессы. О чем вы думаете?",
+  "imheretohelpwithyourworkflowneeds": "Я здесь, чтобы помочь с вашими потребностями в рабочих процессах.",
+  
+  "thanks": "спасибо",
+  "thankyou": "благодарю",
+  "appreciate": "ценю",
+  "grateful": "благодарен",
+  
+  "yourareverywelcome": "Всегда пожалуйста! Всегда рад помочь с вашими рабочими процессами.",
+  "myPlesure": "С удовольствием! Дайте знать, если вам что-то еще понадобится.",
+  "noProblem": "Без проблем! Я здесь, когда вам нужна помощь с рабочими процессами.",
+  "gladicouldhelp": "Рад, что смог помочь! Не стесняйтесь спрашивать, если возникнут еще вопросы.",
+  
+  "create": "создать",
+  "edit": "редактировать",
+  "remove": "удалить",
+  "update": "обновить",
+  "rename": "переименовать",
+  "add": "добавить",
+  
+  "workflow": "рабочий процесс",
+  "process": "процесс",
+  "subprocess": "подпроцесс",
+  "step": "шаг",
+  "task": "задача",
+  
+  "createWorkflowPrompt": "Я буду рад создать новый рабочий процесс. Как вы хотите его назвать?",
+  "workflowCreated": "Готово! Я создал рабочий процесс {name} для вас. Хотите добавить процессы сейчас?",
+  
+  "renameWorkflowPrompt": "Я могу переименовать рабочий процесс. Какой процесс обновить и какое новое имя дать?",
+  "workflowNotFound": "Я не нашел рабочий процесс с именем {oldName}. Можете проверить название?",
+  "workflowRenamed": "Понял! Я переименовал рабочий процесс с {oldName} на {newName}. Что вы хотите сделать дальше?",
+  
+  "deleteWorkflowPrompt": "Я могу помочь удалить рабочий процесс. Какой процесс удалить?",
+  "workflowDeleteNotFound": "Я не нашел рабочий процесс с именем {name}. Можете проверить название и попробовать снова?",
+  "workflowDeleted": "Готово! Я удалил рабочий процесс {name}. Дайте знать, если хотите создать новый.",
+  
+  "workflowTaskComplete": "Я выполнил эту задачу рабочего процесса для вас. Что-то еще?",
+  "workflowError": "Упс! У меня проблема: {error}. Можете повторить или дать больше деталей?",
+  
+  "addProcessPrompt": "Я могу добавить новый процесс. Как вы хотите его назвать?",
+  "whichWorkflowPrompt": "К какому рабочему процессу добавить этот процесс?",
+  "workflowMatchNotFound": "Я не нашел рабочий процесс, соответствующий {workflowName}. Вот ваши существующие процессы: ",
+  "multipleWorkflowsFound": "Я нашел несколько рабочих процессов, соответствующих {workflowName}. Уточните, пожалуйста. ",
+  "matchingWorkflows": "Соответствующие рабочие процессы: {workflows}",
+  
+  "processExists": "Процесс {processName} уже существует в рабочем процессе {workflowName}. Хотите добавить подпроцесс вместо этого?",
+  "processAdded": "Готово! Я добавил процесс {processName} в рабочий процесс {workflowName}. Хотите добавить подпроцессы сейчас?",
+  "processTaskComplete": "Я выполнил эту задачу процесса для вас. Что вы хотите сделать дальше?",
+  "processError": "Я не смог выполнить эту задачу процесса. Ошибка: {error}",
+  
+  "named": "названный",
+  "called": "называемый",
+  "withname": "с именем",
+  "fora": "для",
+  "and": "и",
+  
+  "howAreYou": "как дела",
+  "yourname": "твое имя",
+  "howAreYouResponse": "Я просто цифровой помощник, но работаю на 100%! Готов помочь с рабочими процессами.",
+  "assistantName": "Я ваш помощник по рабочим процессам, но можете звать меня Флоу!",
+  
+  "whomadeyou": "кто тебя создал",
+  "whocreatedyou": "кто тебя создал",
+  "creatorResponse": "Я был создан Яссином Кадри, чтобы помочь вам управлять рабочими процессами эффективнее. Моя цель - облегчить вашу работу!",
+  
+  "help": "помощь",
+  "whatcanyoudo": "что ты умеешь",
+  "capabilitiesResponse": "Я могу помочь создавать, редактировать и управлять рабочими процессами и процессами. Хотите, чтобы я объяснил как?",
+  
+  "imnotintierlysure": "Я не совсем уверен, что понял, но рад помочь с управлением рабочими процессами!",
+  "thatsinteresting": "Это интересно! Но я лучше помогаю с рабочими процессами и процессами.",
+  "imstilllearningcasualconversation": "Я все еще учусь обычному общению. Можете спросить меня о рабочих процессах?",
+  "letmethinkaboutthat": "Дай подумать... А пока я могу помочь создать или управлять рабочими процессами!",
+  "imnotcertainiunderstood": "Я не уверен, что понял. Можете перефразировать или спросить о рабочих процессах?",
+  
+  "helpMessage": "Вот как я могу помочь с рабочими процессами:\n\n*Управление рабочими процессами*\n- \"Создать новый рабочий процесс для обработки заказов\"\n- \"Изменить рабочий процесс 'Обработка заказов' на 'Управление заказами'\"\n- \"Удалить старый тестовый рабочий процесс\"\n- \"Показать все рабочие процессы\"\n\n*Управление процессами*\n- \"Добавить процесс оплаты в рабочий процесс заказа\"\n- \"Создать подпроцесс для проверки кредита\"\n- \"Удалить тестовый процесс из демонстрационного рабочего процесса\"\n\n*Общая помощь*\n- \"Что ты умеешь?\"\n- \"Как это работает?\"\n- \"Объясни рабочие процессы\"\n\nМожете спрашивать естественно - я постараюсь понять!",
+  
+  "noWorkflowsYet": "У вас пока нет рабочих процессов. Хотите, чтобы я создал один для вас?",
+  "workflowsListHeader": "Вот ваши",
+  "workflowsListPrompt": "Хотите работать с любым из них?",
+  "fetchWorkflowsError": "Извините, я не смог получить ваши рабочие процессы. Ошибка: {error}",
+  
+  "as": "как",
+  "typing": "Печатает...",
+  "thinking": "Думает",
+  "helloImAssitant": "Здравствуйте! Я ваш помощник по рабочим процессам. Как я могу помочь вам сегодня?",
+  "microphonePermissionRequired": "Требуется разрешение на использование микрофона",
+  "speechRecognitionNotAvailable": "Распознавание речи недоступно",
+  "workflowassistant": "Помощник по рабочим процессам",
+  "howCanIHelp": "Как я могу помочь",
+  "listening": "Слушает",
+  "typeYourMessage": "Введите ваше сообщение",
+    "@workflowCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "@workflowNotFound": {
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowRenamed": {
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      },
+      "newName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@workflowDeleteNotFound": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@workflowError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowMatchNotFound": {
+    "placeholders": {
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+      "@multipleWorkflowsFound": {
+    "placeholders": {
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+    "@matchingWorkflows": {
+    "placeholders": {
+      "workflows": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@processExists": {
+    "placeholders": {
+      "processName": {
+        "type": "String"
+      },
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@processAdded": {
+    "placeholders": {
+      "processName": {
+        "type": "String"
+      },
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@processError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@fetchWorkflowsError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tor": "к",
+  "news": "новый",
+"dispalyWorkflows": "Показать рабочие процессы"
+
+
 
 
 

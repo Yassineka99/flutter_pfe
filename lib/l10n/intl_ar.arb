@@ -92,7 +92,235 @@
 "doYouwantToAddAProcess": "هل تريد إضافة عملية؟",
 "generatingReport": "جارٍ إنشاء التقرير",
 "pleaseWaitpdf": "يرجى الانتظار أثناء إعداد المستند الخاص بك",
-"errorGeneratingReport": "حدث خطأ أثناء إنشاء التقرير"
+"errorGeneratingReport": "حدث خطأ أثناء إنشاء التقرير",
+
+  "showAllWorkflows": "أرني جميع سير العمل",
+  "listWorkflows": "سرد سير العمل",
+  "whatWorkflows": "ما هي سير العمل",
+  "viewWorkflows": "عرض سير العمل",
+  "displayWorkflows": "عرض سير العمل",
+  "seeWorkflows": "رؤية سير العمل",
+  "existingWorkflows": "سير العمل الموجودة",
+  
+  "hi": "مرحبًا",
+  "hello": "أهلاً",
+  "hey": "سلام",
+  "goodMorning": "صباح الخير",
+  "goodAfternoon": "مساء الخير",
+  "goodEvening": "مساء النور",
+  
+  "howCanIassistWithYourWorflowsToday": "كيف يمكنني مساعدتك في سير العمل اليوم؟",
+  "hellowThereWhatWorkflowTasksShallWeTackleTogether": "مرحبًا! ما هي مهام سير العمل التي يجب أن نتعامل معها معًا؟",
+  "hiReadytostreamlineyourprocessesWhatsonyourmind": "أهلاً! مستعد لتبسيط عملياتك. ما الذي يدور في ذهنك؟",
+  "imheretohelpwithyourworkflowneeds": "أنا هنا لمساعدتك في احتياجات سير العمل الخاصة بك.",
+  
+  "thanks": "شكرًا",
+  "thankyou": "شكرًا لك",
+  "appreciate": "أقدر",
+  "grateful": "ممتن",
+  
+  "yourareverywelcome": "على الرحب والسعة! دائمًا سعيد بمساعدتك في سير العمل.",
+  "myPlesure": "بكل سرور! أخبرني إذا كنت بحاجة إلى أي شيء آخر.",
+  "noProblem": "لا مشكلة على الإطلاق! أنا هنا عندما تحتاج إلى مساعدة في سير العمل.",
+  "gladicouldhelp": "سعيد أنني استطعت المساعدة! لا تتردد في السؤال إذا كانت لديك المزيد من الأسئلة.",
+  
+  "create": "إنشاء",
+  "edit": "تعديل",
+  "remove": "إزالة",
+  "update": "تحديث",
+  "rename": "إعادة تسمية",
+  "add": "إضافة",
+  
+  "workflow": "سير العمل",
+  "process": "عملية",
+  "subprocess": "عملية فرعية",
+  "step": "خطوة",
+  "task": "مهمة",
+  
+  "createWorkflowPrompt": "سأكون سعيدًا بإنشاء سير عمل جديد. ما الاسم الذي تريده؟",
+  "workflowCreated": "تم! لقد قمت بإنشاء سير العمل {name} لك. هل ترغب في إضافة عمليات إليه الآن؟",
+  
+  "renameWorkflowPrompt": "يسعدني إعادة تسمية سير العمل. أي سير عمل يجب أن أعدل وما الاسم الجديد له؟",
+  "workflowNotFound": "لم أتمكن من العثور على سير عمل باسم {oldName}. هل يمكنك التحقق من الاسم؟",
+  "workflowRenamed": "فهمت! لقد أعدت تسمية سير العمل من {oldName} إلى {newName}. ماذا تريد أن تفعل بعد ذلك؟",
+  
+  "deleteWorkflowPrompt": "يمكنني مساعدتك في حذف سير العمل. أي سير عمل يجب أن أزيل؟",
+  "workflowDeleteNotFound": "لم أتمكن من العثور على سير عمل باسم {name}. هل يمكنك التحقق من الاسم والمحاولة مرة أخرى؟",
+  "workflowDeleted": "تم! لقد حذفت سير العمل {name}. أخبرني إذا كنت ترغب في إنشاء واحد جديد.",
+  
+  "workflowTaskComplete": "لقد قمت بهذه المهمة من سير العمل لك. هل هناك أي شيء آخر تريدني أن أفعله؟",
+  "workflowError": "عذرًا! واجهت مشكلة: {error}. هل يمكنك المحاولة مرة أخرى أو إعطائي المزيد من التفاصيل؟",
+  
+  "addProcessPrompt": "يمكنني إضافة عملية جديدة. ما الاسم الذي تريده؟",
+  "whichWorkflowPrompt": "إلى أي سير عمل يجب أن أضيف هذه العملية؟",
+  "workflowMatchNotFound": "لم أتمكن من العثور على سير عمل مطابق لـ {workflowName}. هذه هي سير العمل الموجودة لديك: ",
+  "multipleWorkflowsFound": "لقد وجدت عدة سير عمل تطابق {workflowName}. يرجى أن تكون أكثر تحديدًا. ",
+  "matchingWorkflows": "سير العمل المطابقة: {workflows}",
+  
+  "processExists": "العملية {processName} موجودة بالفعل في سير العمل {workflowName}. هل ترغب في إضافة عملية فرعية بدلاً من ذلك؟",
+  "processAdded": "تم! لقد أضفت العملية {processName} إلى سير العمل {workflowName}. هل ترغب في إضافة عمليات فرعية الآن؟",
+  "processTaskComplete": "لقد قمت بهذه المهمة من العملية لك. ماذا تريد أن تفعل بعد ذلك؟",
+  "processError": "لم أتمكن من إكمال مهمة العملية هذه. كان الخطأ: {error}",
+  
+  "named": "اسمه",
+  "called": "يسمى",
+  "withname": "بالاسم",
+  "fora": "لـ",
+  "and": "و",
+  
+  "howAreYou": "كيف حالك",
+  "yourname": "اسمك",
+  "howAreYouResponse": "أنا مجرد مساعد رقمي، لكنني أعمل بنسبة 100%! جاهز لمساعدتك في سير العمل.",
+  "assistantName": "أنا مساعد سير العمل الخاص بك، لكن يمكنك مناداتي بـ\"فلو\" إذا أردت!",
+  
+  "whomadeyou": "من صنعك",
+  "whocreatedyou": "من أنشأك",
+  "creatorResponse": "لقد قام ياسين قدري بإنشائي لمساعدتك في إدارة سير العمل بكفاءة أكبر. هدفي هو جعل عملك أسهل!",
+  
+  "help": "مساعدة",
+  "whatcanyoudo": "ماذا يمكنك أن تفعل",
+  "capabilitiesResponse": "يمكنني مساعدتك في إنشاء وتعديل وإدارة سير العمل والعمليات. هل تريد أن أشرح لك كيف؟",
+  
+  "imnotintierlysure": "لست متأكدًا تمامًا من أنني فهمت، لكنني سعيد بمساعدتك في إدارة سير العمل!",
+  "thatsinteresting": "هذا مثير للاهتمام! لكنني أفضل في المساعدة في سير العمل والعمليات.",
+  "imstilllearningcasualconversation": "ما زلت أتعلم المحادثة العادية. هل يمكنك أن تسألني عن سير العمل؟",
+  "letmethinkaboutthat": "دعني أفكر في ذلك... في غضون ذلك، يمكنني مساعدتك في إنشاء أو إدارة سير العمل!",
+  "imnotcertainiunderstood": "لست متأكدًا من أنني فهمت. هل يمكنك إعادة الصياغة أو السؤال عن سير العمل؟",
+  
+  "helpMessage": "إليك كيف يمكنني مساعدتك في سير العمل:\n\n*إدارة سير العمل*\n- \"إنشاء سير عمل جديد لمعالجة الطلبات\"\n- \"تعديل سير العمل 'معالجة الطلبات' إلى 'إدارة الطلبات'\"\n- \"حذف سير العمل التجريبي القديم\"\n- \"عرض جميع سير العمل\"\n\n*إدارة العمليات*\n- \"إضافة عملية دفع إلى سير العمل الخاص بالطلب\"\n- \"إنشاء عملية فرعية للتحقق من الائتمان\"\n- \"إزالة العملية التجريبية من سير العمل التجريبي\"\n\n*مساعدة عامة*\n- \"ماذا يمكنك أن تفعل؟\"\n- \"كيف يعمل هذا؟\"\n- \"اشرح لي سير العمل\"\n\nيمكنك أن تسأل بطريقة طبيعية - سأبذل قصارى جهدي لفهمك!",
+  
+  "noWorkflowsYet": "ليس لديك أي سير عمل بعد. هل تريد أن أنشئ واحدًا لك؟",
+  "workflowsListHeader": "هذه هي",
+  "workflowsListPrompt": "هل ترغب في العمل مع أي من هذه؟",
+  "fetchWorkflowsError": "عذرًا، لم أتمكن من جلب سير العمل الخاص بك. كان الخطأ: {error}",
+  
+  "as": "كـ",
+  "typing": "يكتب...",
+  "thinking": "يفكر",
+  "helloImAssitant": "مرحبًا! أنا مساعد سير العمل الخاص بك. كيف يمكنني مساعدتك اليوم؟",
+  "microphonePermissionRequired": "الإذن باستخدام الميكروفون مطلوب",
+  "speechRecognitionNotAvailable": "الاعتراف الصوتي غير متاح",
+  "workflowassistant": "مساعد سير العمل",
+  "howCanIHelp": "كيف يمكنني المساعدة",
+  "listening": "يستمع",
+  "typeYourMessage": "اكتب رسالتك",
+    "@workflowCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "@workflowNotFound": {
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowRenamed": {
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      },
+      "newName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@workflowDeleteNotFound": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@workflowError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowMatchNotFound": {
+    "placeholders": {
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+      "@multipleWorkflowsFound": {
+    "placeholders": {
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+    "@matchingWorkflows": {
+    "placeholders": {
+      "workflows": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@processExists": {
+    "placeholders": {
+      "processName": {
+        "type": "String"
+      },
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@processAdded": {
+    "placeholders": {
+      "processName": {
+        "type": "String"
+      },
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@processError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@fetchWorkflowsError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+"tor": "إلى",
+"news": "جديد",
+"dispalyWorkflows": "عرض سير العمل"
 
 
 

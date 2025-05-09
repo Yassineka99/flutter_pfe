@@ -92,7 +92,237 @@
 "doYouwantToAddAProcess": "Möchten Sie einen Prozess hinzufügen?",
 "generatingReport": "Bericht wird erstellt",
 "pleaseWaitpdf": "Bitte warten Sie, während wir Ihr Dokument vorbereiten",
-"errorGeneratingReport": "Fehler bei der Berichtserstellung"
+"errorGeneratingReport": "Fehler bei der Berichtserstellung",
+  "showAllWorkflows": "alle Workflows anzeigen",
+  "listWorkflows": "Workflows auflisten", 
+  "whatWorkflows": "welche Workflows",
+  "viewWorkflows": "Workflows ansehen",
+  "displayWorkflows": "Workflows anzeigen",
+  "seeWorkflows": "Workflows sehen",
+  "existingWorkflows": "bestehende Workflows",
+
+  "hi": "hallo",
+  "hello": "guten Tag",
+  "hey": "hey",
+  "goodMorning": "guten Morgen",
+  "goodAfternoon": "guten Nachmittag", 
+  "goodEvening": "guten Abend",
+
+  "howCanIassistWithYourWorflowsToday": "Wie kann ich dir heute bei deinen Workflows helfen?",
+  "hellowThereWhatWorkflowTasksShallWeTackleTogether": "Hallo! Welche Workflow-Aufgaben wollen wir gemeinsam angehen?",
+  "hiReadytostreamlineyourprocessesWhatsonyourmind": "Hi! Bereit, deine Prozesse zu optimieren? Was hast du im Kopf?",
+  "imheretohelpwithyourworkflowneeds": "Ich bin hier, um dir bei deinen Workflow-Anforderungen zu helfen.",
+
+  "thanks": "danke",
+  "thankyou": "vielen Dank",
+  "appreciate": "ich schätze es",
+  "grateful": "dankbar",
+
+  "yourareverywelcome": "Gern geschehen! Immer bereit, bei deinen Workflows zu helfen.",
+  "myPlesure": "Sehr gerne! Sag mir Bescheid, wenn du etwas brauchst.",
+  "noProblem": "Kein Problem! Ich bin da, wenn du Unterstützung mit Workflows brauchst.",
+  "gladicouldhelp": "Freut mich, dass ich helfen konnte! Frag ruhig, wenn du noch etwas brauchst.",
+
+  "create": "erstellen",
+  "edit": "bearbeiten",
+  "remove": "entfernen",
+  "update": "aktualisieren",
+  "rename": "umbenennen",
+  "add": "hinzufügen",
+
+  "workflow": "Workflow",
+  "process": "Prozess",
+  "subprocess": "Teilprozess",
+  
+  "step": "Schritt",
+  "task": "Aufgabe",
+
+  "createWorkflowPrompt": "Ich würde gerne einen neuen Workflow erstellen. Wie soll er heißen?",
+  "workflowCreated": "Fertig! Ich habe den Workflow {name} erstellt. Möchtest du jetzt Prozesse hinzufügen?",
+
+  "renameWorkflowPrompt": "Ich kann einen Workflow umbenennen. Welchen soll ich ändern und wie soll der neue Name lauten?",
+  "workflowNotFound": "Ich konnte keinen Workflow mit dem Namen {oldName} finden. Bitte überprüfe den Namen.",
+  "workflowRenamed": "Alles klar! Ich habe den Workflow von {oldName} zu {newName} umbenannt. Was möchtest du als Nächstes tun?",
+
+  "deleteWorkflowPrompt": "Ich kann einen Workflow löschen. Welchen soll ich entfernen?",
+  "workflowDeleteNotFound": "Ich habe keinen Workflow namens {name} gefunden. Kannst du den Namen bitte überprüfen?",
+  "workflowDeleted": "Erledigt! Ich habe den Workflow {name} gelöscht. Möchtest du einen neuen erstellen?",
+
+  "workflowTaskComplete": "Ich habe diese Workflow-Aufgabe für dich abgeschlossen. Noch etwas?",
+  "workflowError": "Ups! Es gab ein Problem: {error}. Kannst du es erneut versuchen oder mir mehr Details geben?",
+
+  "addProcessPrompt": "Ich kann einen neuen Prozess hinzufügen. Wie soll er heißen?",
+  "whichWorkflowPrompt": "Zu welchem Workflow soll ich diesen Prozess hinzufügen?",
+  "workflowMatchNotFound": "Ich habe keinen Workflow gefunden, der zu {workflowName} passt. Hier sind deine vorhandenen Workflows:",
+  "multipleWorkflowsFound": "Ich habe mehrere Workflows gefunden, die zu {workflowName} passen. Bitte sei etwas genauer.",
+  "matchingWorkflows": "Passende Workflows: {workflows}",
+
+  "processExists": "Der Prozess {processName} existiert bereits im Workflow {workflowName}. Möchtest du stattdessen einen Teilprozess hinzufügen?",
+  "processAdded": "Erledigt! Ich habe den Prozess {processName} dem Workflow {workflowName} hinzugefügt. Möchtest du nun Teilprozesse hinzufügen?",
+  "processTaskComplete": "Ich habe diese Prozessaufgabe für dich erledigt. Was möchtest du als Nächstes tun?",
+  "processError": "Ich konnte diese Prozessaufgabe nicht abschließen. Der Fehler war: {error}",
+
+  "named": "genannt",
+  "called": "benannt",
+  "withname": "mit dem Namen",
+  "fora": "für",
+  "and": "und",
+
+  "howAreYou": "wie geht's",
+  "yourname": "dein Name",
+  "howAreYouResponse": "Ich bin nur ein digitaler Assistent, aber ich funktioniere einwandfrei! Bereit, bei deinen Workflows zu helfen.",
+  "assistantName": "Ich bin dein Workflow-Assistent, aber du kannst mich Flow nennen, wenn du willst!",
+
+  "whomadeyou": "wer hat dich gemacht",
+  "whocreatedyou": "wer hat dich erschaffen",
+  "creatorResponse": "Ich wurde von Yassine Kadri entwickelt, um dir zu helfen, deine Workflows effizienter zu verwalten. Mein Ziel ist es, deine Arbeit zu erleichtern!",
+
+  "help": "hilfe",
+  "whatcanyoudo": "was kannst du tun",
+  "capabilitiesResponse": "Ich kann dir helfen, Workflows und Prozesse zu erstellen, zu bearbeiten und zu verwalten. Soll ich erklären wie?",
+
+  "imnotintierlysure": "Ich bin mir nicht ganz sicher, aber ich helfe gerne bei der Workflow-Verwaltung!",
+  "thatsinteresting": "Das ist interessant! Aber ich bin besser darin, bei Workflows und Prozessen zu helfen.",
+  "imstilllearningcasualconversation": "Ich lerne noch, wie man sich natürlich unterhält. Erzähl mir doch etwas über Workflows!",
+  "letmethinkaboutthat": "Lass mich mal nachdenken... In der Zwischenzeit kann ich dir bei Workflows helfen!",
+  "imnotcertainiunderstood": "Ich bin mir nicht sicher, ob ich das verstanden habe. Kannst du es bitte umformulieren oder mir eine Frage zu Workflows stellen?",
+
+  "helpMessage": "So kann ich dir bei Workflows helfen:\n\n*Workflow-Verwaltung*\n- \"Erstelle einen neuen Workflow für Bestellabwicklung\"\n- \"Benenne den Workflow 'Bestellabwicklung' in 'Auftragsmanagement' um\"\n- \"Lösche den alten Test-Workflow\"\n- \"Zeige mir alle meine Workflows\"\n\n*Prozessverwaltung*\n- \"Füge dem Bestell-Workflow einen Zahlungsprozess hinzu\"\n- \"Erstelle einen Teilprozess für Kreditprüfungen\"\n- \"Lösche den Testprozess im Demo-Workflow\"\n\n*Allgemeine Hilfe*\n- \"Was kannst du tun?\"\n- \"Wie funktioniert das?\"\n- \"Erkläre mir Workflows\"\n\nDu kannst ganz natürlich fragen – ich tue mein Bestes, dich zu verstehen!",
+
+  "noWorkflowsYet": "Du hast noch keine Workflows. Möchtest du, dass ich einen erstelle?",
+  "workflowsListHeader": "Hier sind deine",
+  "workflowsListPrompt": "Möchtest du mit einem dieser Workflows arbeiten?",
+  "fetchWorkflowsError": "Leider konnte ich deine Workflows nicht abrufen. Der Fehler war: {error}",
+
+  "as": "als",
+  "typing": "Schreibt...",
+  "thinking": "Denkt nach",
+  "helloImAssitant": "Hallo! Ich bin dein Workflow-Assistent. Wie kann ich dir heute helfen?",
+  "microphonePermissionRequired": "Mikrofonberechtigung erforderlich",
+  "speechRecognitionNotAvailable": "Spracherkennung nicht verfügbar",
+  "workflowassistant": "Workflow-Assistent",
+  "howCanIHelp": "Wie kann ich helfen",
+  "listening": "Höre zu",
+    "@workflowCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "@workflowNotFound": {
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowRenamed": {
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      },
+      "newName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@workflowDeleteNotFound": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@workflowError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowMatchNotFound": {
+    "placeholders": {
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+      "@multipleWorkflowsFound": {
+    "placeholders": {
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+    "@matchingWorkflows": {
+    "placeholders": {
+      "workflows": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@processExists": {
+    "placeholders": {
+      "processName": {
+        "type": "String"
+      },
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@processAdded": {
+    "placeholders": {
+      "processName": {
+        "type": "String"
+      },
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@processError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@fetchWorkflowsError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+"tor": "zu",
+"news": "neu",
+"dispalyWorkflows": "Workflows anzeigen"
+
+
 
 
 

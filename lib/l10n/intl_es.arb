@@ -92,7 +92,233 @@
 "doYouwantToAddAProcess": "¿Desea agregar un proceso?",
 "generatingReport": "Generando informe",
 "pleaseWaitpdf": "Por favor espere mientras preparamos su documento",
-"errorGeneratingReport": "Error al generar el informe"
+"errorGeneratingReport": "Error al generar el informe",
+"showAllWorkflows": "mostrar todos los flujos de trabajo",
+  "listWorkflows": "listar flujos de trabajo",
+  "whatWorkflows": "qué flujos de trabajo",
+  "viewWorkflows": "ver flujos de trabajo",
+  "displayWorkflows": "mostrar flujos de trabajo",
+  "seeWorkflows": "ver flujos de trabajo",
+  "existingWorkflows": "flujos de trabajo existentes",
+
+  "hi": "hola",
+  "hello": "buenos días",
+  "hey": "hey",
+  "goodMorning": "buenos días",
+  "goodAfternoon": "buenas tardes",
+  "goodEvening": "buenas noches",
+
+  "howCanIassistWithYourWorflowsToday": "¿Cómo puedo ayudarte con tus flujos de trabajo hoy?",
+  "hellowThereWhatWorkflowTasksShallWeTackleTogether": "¡Hola! ¿Qué tareas de flujo de trabajo abordamos juntos?",
+  "hiReadytostreamlineyourprocessesWhatsonyourmind": "¡Hola! ¿Listo para optimizar tus procesos? ¿Qué tienes en mente?",
+  "imheretohelpwithyourworkflowneeds": "Estoy aquí para ayudarte con tus necesidades de flujo de trabajo.",
+
+  "thanks": "gracias",
+  "thankyou": "muchas gracias",
+  "appreciate": "lo aprecio",
+  "grateful": "agradecido",
+
+  "yourareverywelcome": "¡De nada! Siempre listo para ayudar con tus flujos de trabajo.",
+  "myPlesure": "¡Con gusto! Avísame si necesitas algo más.",
+  "noProblem": "¡No hay problema! Estoy aquí si necesitas ayuda con tus flujos de trabajo.",
+  "gladicouldhelp": "¡Me alegra haber podido ayudar! Avísame si necesitas algo más.",
+
+  "create": "crear",
+  "edit": "editar",
+  "remove": "eliminar",
+  "update": "actualizar",
+  "rename": "renombrar",
+  "add": "añadir",
+
+  "workflow": "flujo de trabajo",
+  "process": "proceso",
+  "subprocess": "subproceso",
+  "step": "paso",
+  "task": "tarea",
+
+  "createWorkflowPrompt": "Me encantaría ayudarte a crear un nuevo flujo de trabajo. ¿Cómo quieres que se llame?",
+  "workflowCreated": "¡Listo! He creado el flujo de trabajo {name}. ¿Quieres agregar algunos procesos ahora?",
+
+  "renameWorkflowPrompt": "Puedo ayudarte a renombrar un flujo de trabajo. ¿Cuál quieres cambiar y cómo debería llamarse ahora?",
+  "workflowNotFound": "No pude encontrar ningún flujo de trabajo llamado {oldName}. ¿Puedes revisar el nombre?",
+  "workflowRenamed": "¡Perfecto! He renombrado el flujo de trabajo de {oldName} a {newName}. ¿Qué te gustaría hacer ahora?",
+
+  "deleteWorkflowPrompt": "Puedo ayudarte a eliminar un flujo de trabajo. ¿Cuál quieres borrar?",
+  "workflowDeleteNotFound": "No encontré ningún flujo de trabajo llamado {name}. ¿Puedes verificar el nombre?",
+  "workflowDeleted": "¡Hecho! Eliminé el flujo de trabajo {name}. ¿Quieres crear uno nuevo?",
+
+  "workflowTaskComplete": "He completado esta tarea del flujo de trabajo por ti. ¿Hay algo más?",
+  "workflowError": "¡Ups! Algo salió mal: {error}. ¿Puedes intentarlo de nuevo o darme más detalles?",
+
+  "addProcessPrompt": "Puedo agregar un nuevo proceso. ¿Cómo quieres llamarlo?",
+  "whichWorkflowPrompt": "¿A qué flujo de trabajo quieres agregar este proceso?",
+  "workflowMatchNotFound": "No encontré ningún flujo de trabajo que coincida con {workflowName}. Aquí están los que tienes:",
+  "multipleWorkflowsFound": "Encontré varios flujos de trabajo que coinciden con {workflowName}. ¿Puedes ser más específico?",
+  "matchingWorkflows": "Flujos coincidentes: {workflows}",
+
+  "processExists": "El proceso {processName} ya existe en el flujo de trabajo {workflowName}. ¿Quieres añadir un subproceso en su lugar?",
+  "processAdded": "¡Listo! Añadí el proceso {processName} al flujo de trabajo {workflowName}. ¿Quieres añadir subprocesos ahora?",
+  "processTaskComplete": "He completado esta tarea del proceso. ¿Qué quieres hacer después?",
+  "processError": "No pude completar esta tarea del proceso. El error fue: {error}",
+
+  "named": "llamado",
+  "called": "nombrado",
+  "withname": "con el nombre",
+  "fora": "para",
+  "and": "y",
+
+  "howAreYou": "¿cómo estás?",
+  "yourname": "tu nombre",
+  "howAreYouResponse": "Soy solo un asistente digital, ¡pero funciono perfectamente! Listo para ayudarte con los flujos de trabajo.",
+  "assistantName": "Soy tu asistente de flujos de trabajo, ¡pero puedes llamarme Flow si lo prefieres!",
+
+  "whomadeyou": "¿quién te hizo?",
+  "whocreatedyou": "¿quién te creó?",
+  "creatorResponse": "Fui desarrollado por Yassine Kadri para ayudarte a gestionar tus flujos de trabajo de forma eficiente. ¡Mi objetivo es facilitarte la vida!",
+
+  "help": "ayuda",
+  "whatcanyoudo": "¿qué puedes hacer?",
+  "capabilitiesResponse": "Puedo ayudarte a crear, editar y gestionar flujos de trabajo y procesos. ¿Quieres que te lo explique?",
+
+  "imnotintierlysure": "No estoy del todo seguro, ¡pero me encanta ayudar con la gestión de flujos de trabajo!",
+  "thatsinteresting": "¡Eso es interesante! Pero soy mejor ayudando con flujos de trabajo y procesos.",
+  "imstilllearningcasualconversation": "Todavía estoy aprendiendo a mantener conversaciones casuales. ¡Cuéntame sobre tus flujos de trabajo!",
+  "letmethinkaboutthat": "Déjame pensar... Mientras tanto, ¿quieres ayuda con tus flujos de trabajo?",
+  "imnotcertainiunderstood": "No estoy seguro de haber entendido. ¿Puedes reformularlo o preguntarme algo sobre flujos de trabajo?",
+
+  "helpMessage": "Así puedo ayudarte con los flujos de trabajo:\n\n*Gestión de flujos de trabajo*\n- \"Crea un nuevo flujo de trabajo para pedidos\"\n- \"Renombra el flujo de trabajo 'Pedidos' a 'Gestión de pedidos'\"\n- \"Elimina el flujo de prueba\"\n- \"Muéstrame todos mis flujos de trabajo\"\n\n*Gestión de procesos*\n- \"Añade un proceso de pago al flujo de pedidos\"\n- \"Crea un subproceso para verificación de crédito\"\n- \"Elimina el proceso de prueba en el flujo de demostración\"\n\n*Ayuda general*\n- \"¿Qué puedes hacer?\"\n- \"¿Cómo funciona esto?\"\n- \"Explícame los flujos de trabajo\"\n\nPuedes hablarme de forma natural — ¡haré lo mejor para entenderte!",
+
+  "noWorkflowsYet": "Aún no tienes flujos de trabajo. ¿Quieres que cree uno por ti?",
+  "workflowsListHeader": "Aquí están tus",
+  "workflowsListPrompt": "¿Quieres trabajar con alguno de estos flujos?",
+  "fetchWorkflowsError": "No pude obtener tus flujos de trabajo. El error fue: {error}",
+
+  "as": "como",
+  "typing": "Escribiendo...",
+  "thinking": "Pensando...",
+  "helloImAssitant": "¡Hola! Soy tu asistente de flujos de trabajo. ¿Cómo puedo ayudarte hoy?",
+  "microphonePermissionRequired": "Permiso de micrófono requerido",
+  "speechRecognitionNotAvailable": "Reconocimiento de voz no disponible",
+  "workflowassistant": "Asistente de flujos de trabajo",
+  "howCanIHelp": "¿Cómo puedo ayudarte?",
+  "listening": "Escuchando",
+  "@workflowCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "@workflowNotFound": {
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowRenamed": {
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      },
+      "newName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@workflowDeleteNotFound": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@workflowError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@workflowMatchNotFound": {
+    "placeholders": {
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+      "@multipleWorkflowsFound": {
+    "placeholders": {
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+    "@matchingWorkflows": {
+    "placeholders": {
+      "workflows": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@processExists": {
+    "placeholders": {
+      "processName": {
+        "type": "String"
+      },
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@processAdded": {
+    "placeholders": {
+      "processName": {
+        "type": "String"
+      },
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+      "@processError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+    "@fetchWorkflowsError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tor": "a",
+  "news": "nuevo",
+"dispalyWorkflows": "Mostrar flujos de trabajo"
 
 
 

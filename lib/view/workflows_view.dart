@@ -8,13 +8,16 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/user.dart';
 import '../model/workflow.dart';
 import '../model/process.dart';
+import '../services/conversational_ai_service.dart';
 import '../viewmodel/notification_view_model.dart';
 import '../viewmodel/sub_process_view_model.dart';
 import '../viewmodel/user_view_model.dart';
 import '../viewmodel/workflow_view_model.dart';
 import '../viewmodel/process_view_model.dart';
-import '../services/ai_assistant_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+
+import 'ai view/ai_message_bubble.dart';
+import 'ai view/typing_indicator.dart';
 
 const _dialogShape = RoundedRectangleBorder(
   borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -50,7 +53,6 @@ class _WorkflowViewState extends State<WorkflowView> {
   final ProcessViewModel _processViewModel = ProcessViewModel();
   List<Workflow>? workflowsList;
   bool isLoading = true;
-  late AIAssistantService _aiAssistant;
   final stt.SpeechToText _speechToText = stt.SpeechToText();
   bool _isListening = false;
   String _aiCommand = '';
@@ -58,157 +60,352 @@ class _WorkflowViewState extends State<WorkflowView> {
   bool _showAiAssistant = false;
   bool _speechAvailable = false;
   String _lastWords = '';
-  @override
-  void initState() {
-    super.initState();
-    _loadWorkflows();
-    _aiAssistant = AIAssistantService(
+  bool _isTyping = false;
+  late AppLocalizations intl;
+  late ConversationalAIService _conversationalAI;
+  final List<Map<String, dynamic>> _conversation = [];
+  final ScrollController _chatScrollController = ScrollController();
+  final TextEditingController _messageController = TextEditingController();
+
+
+
+    @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    intl = AppLocalizations.of(context)!;
+    _conversationalAI = ConversationalAIService(
+      intl: intl,
       workflowViewModel: _workflowViewModel,
       processViewModel: _processViewModel,
       subProcessViewModel: SubProcessViewModel(),
     );
+  }
+  @override
+  void initState() {
+    super.initState();
+    _loadWorkflows();
     _initSpeech();
-  }
-
-  Future<bool> _checkMicrophonePermission() async {
-  if (Platform.isAndroid) {
-    final status = await Permission.microphone.request();
-    return status.isGranted;
-  } else if (Platform.isIOS) {
-    final status = await Permission.speech.request();
-    return status.isGranted;
-  }
-  return false;
-}
-Future<void> _initSpeech() async {
-  _speechAvailable = await _speechToText.initialize();
-  setState(() {});
-}
-// Add this method to handle voice input
- void _listen() async {
-    final hasPermission = await _checkMicrophonePermission();
-  if (!hasPermission) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Microphone permission required')),
-    );
-    return;
-  }
-
-  if (!_speechAvailable) {
-    await _initSpeech();
-    if (!_speechAvailable) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Speech recognition not available')),
-      );
-      return;
-    }
-  }
-  if (!_speechAvailable) {
-    await _initSpeech();
-    if (!_speechAvailable) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Microphone access not available')),
-      );
-      return;
-    }
-  }
-
-  if (_isListening) {
-    _speechToText.stop();
-    setState(() {
-      _isListening = false;
-      _aiCommand = _lastWords;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_showAiAssistant) {
+        _startConversation();
+      }
     });
-    _submitAiCommand();
-  } else {
+  }
+
+  Future<void> _initSpeech() async {
+    _speechAvailable = await _speechToText.initialize();
+    setState(() {});
+  }
+// Add this method to handle voice input
+
+  void _startConversation() {
+    setState(() {
+      _conversation.add({
+        'text': intl.helloImAssitant,
+        'isUser': false,
+        'isLoading': false,
+      });
+      _scrollToBottom();
+    });
+  }
+
+  Future<void> _sendMessage() async {
+    final message = _messageController.text.trim();
+    if (message.isEmpty) return;
+
+    setState(() {
+      _conversation.add({
+        'text': message,
+        'isUser': true,
+        'isLoading': false,
+      });
+      _conversation.add({
+        'text': '',
+        'isUser': false,
+        'isLoading': true,
+      });
+      _messageController.clear();
+      _isTyping = true;
+      _scrollToBottom();
+    });
+
+    final response = await _conversationalAI.handleMessage(message, context);
+
+    setState(() {
+      _conversation.removeLast();
+      _conversation.add({
+        'text': response,
+        'isUser': false,
+        'isLoading': false,
+      });
+      _isTyping = false;
+      _scrollToBottom();
+      _loadWorkflows();
+    });
+  }
+
+  void _listen() async {
+    if (_isListening) {
+      _speechToText.stop();
+      setState(() => _isListening = false);
+      if (_lastWords.isNotEmpty) {
+        _messageController.text = _lastWords;
+        _sendMessage();
+      }
+      return;
+    }
+
+    final hasPermission = await Permission.microphone.request().isGranted;
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                intl.microphonePermissionRequired)),
+      );
+      return;
+    }
+
+    if (!_speechAvailable) {
+      await _initSpeech();
+      if (!_speechAvailable) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  intl.speechRecognitionNotAvailable)),
+        );
+        return;
+      }
+    }
+
     setState(() {
       _isListening = true;
       _lastWords = '';
-      _aiCommand = '';
     });
+
     _speechToText.listen(
-      onResult: (result) {
-        setState(() {
-          _lastWords = result.recognizedWords;
-          _aiCommand = _lastWords;
-        });
-      },
-      listenFor: Duration(seconds: 30),
+      onResult: (result) => setState(() => _lastWords = result.recognizedWords),
+      listenFor: const Duration(seconds: 30),
       cancelOnError: true,
       partialResults: true,
-      localeId: 'en', // Adjust based on your app's language
-      onSoundLevelChange: (level) {
-        // Optional: Add sound level visualization if desired
-      },
+      localeId: 'en_US',
     );
   }
-}
 
-// Add this method to submit commands
-  Future<void> _submitAiCommand() async {
-    if (_aiCommand.trim().isEmpty) return;
-
-    setState(() => _aiResponse = 'Processing...');
-    final response = await _aiAssistant.handleCommand(_aiCommand, context);
-    setState(() {
-      _aiResponse = response;
-      _loadWorkflows(); // Refresh the list after any changes
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_chatScrollController.hasClients) {
+        _chatScrollController.animateTo(
+          _chatScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
     });
   }
+// Add this method to submit commands
 
   Widget _buildAiAssistantButton() {
     return FloatingActionButton(
-      backgroundColor: Color(0xFF78A190),
-      onPressed: () => setState(() => _showAiAssistant = !_showAiAssistant),
-      child: Icon(Icons.assistant, color: Colors.white),
+      backgroundColor: const Color(0xFF78A190),
+      onPressed: () {
+        setState(() {
+          _showAiAssistant = !_showAiAssistant;
+          if (_showAiAssistant && _conversation.isEmpty) {
+            _startConversation();
+          }
+        });
+      },
+      child: const Icon(Icons.assistant, color: Colors.white),
     );
   }
 
 // Add this widget to show the AI assistant panel
   Widget _buildAiAssistantPanel() {
+    final intl = AppLocalizations.of(context)!;
+
     return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
-      height: _showAiAssistant ? 300 : 0,
-      padding: EdgeInsets.all(16),
+      duration: const Duration(milliseconds: 300),
+      height: _showAiAssistant ? MediaQuery.of(context).size.height * 0.5 : 0,
+      padding: const EdgeInsets.only(top: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-        child: _showAiAssistant
-            ? Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                          child: TextField(
-                        controller: TextEditingController(text: _aiCommand),
-                        onChanged: (value) => _aiCommand = value,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Draggable handle
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF78A190).withOpacity(0.3),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+
+          // Chat header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Color(0xFF78A190).withOpacity(0.2),
+                  child:
+                      Icon(Icons.assistant, size: 20, color: Color(0xFF28445C)),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  intl.workflowassistant,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF28445C),
+                    fontFamily: 'BrandonGrotesque',
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close,
+                      size: 20, color: Color(0xFF28445C)),
+                  onPressed: () => setState(() {
+                    _showAiAssistant = false;
+                    _conversation.clear();
+                  }),
+                ),
+              ],
+            ),
+          ),
+
+          // Conversation area
+          Expanded(
+            child: Stack(
+              children: [
+                _conversation.isEmpty
+                    ? Center(
+                        child: Text(
+                          intl.howCanIHelp,
+                          style: const TextStyle(
+                            color: Color(0xFF28445C),
+                            fontFamily: 'BrandonGrotesque',
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: _chatScrollController,
+                        padding: const EdgeInsets.only(
+                          left: 16,
+                          right: 16,
+                          top: 8,
+                          bottom: 80,
+                        ),
+                        itemCount: _conversation.length,
+                        itemBuilder: (context, index) {
+                          final message = _conversation[index];
+                          return AIMessageBubble(
+                            text: message['text'],
+                            isUserMessage: message['isUser'],
+                            isLoading: message['isLoading'],
+                          );
+                        },
+                      ),
+                if (_isTyping)
+                  Positioned(
+                    bottom: 16,
+                    left: 16,
+                    child: TypingIndicator(),
+                  ),
+              ],
+            ),
+          ),
+
+          // Input area
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                top: BorderSide(
+                  color: const Color(0xFF78A190).withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Column(
+              children: [
+                if (_isListening)
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      _lastWords.isEmpty ? intl.listening : '"$_lastWords"',
+                      style: TextStyle(
+                        color: const Color(0xFF78A190),
+                        fontStyle: FontStyle.italic,
+                        fontFamily: 'BrandonGrotesque',
+                      ),
+                    ),
+                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        style: const TextStyle(fontFamily: 'BrandonGrotesque'),
                         decoration: InputDecoration(
-                          hintText: 'Tell me what to do...',
+                          hintText: intl.typeYourMessage,
+                          hintStyle: TextStyle(
+                            color: const Color(0xFF28445C).withOpacity(0.5),
+                            fontFamily: 'BrandonGrotesque',
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFFF5F7F9),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
                           suffixIcon: IconButton(
-                            icon:
-                                Icon(_isListening ? Icons.mic : Icons.mic_none),
+                            icon: Icon(
+                              _isListening ? Icons.mic_off : Icons.mic,
+                              color: _isListening
+                                  ? Colors.red
+                                  : const Color(0xFF28445C).withOpacity(0.7),
+                            ),
                             onPressed: _listen,
                           ),
                         ),
-                      )),
-                      SizedBox(width: 8),
-                      ElevatedButton(
-                        style: _buttonStyle,
-                        onPressed: _submitAiCommand,
-                        child: Text('Send'),
+                        onSubmitted: (value) => _sendMessage(),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Text(_aiResponse),
                     ),
-                  ),
-                ],
-              )
-            : SizedBox.shrink(),
-      
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF78A190),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.send, color: Colors.white),
+                        onPressed: _sendMessage,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -504,8 +701,8 @@ Future<void> _initSpeech() async {
           ),
         ],
       ),
-      body: Stack(
-        children: [isLoading
+      body: Stack(children: [
+        isLoading
             ? const Center(child: CircularProgressIndicator())
             : (workflowsList?.isEmpty ?? true)
                 ? Center(child: Text(intl.noWorkflows))
@@ -523,14 +720,13 @@ Future<void> _initSpeech() async {
                       );
                     },
                   ),
-          Positioned(
+        Positioned(
           bottom: 0,
           left: 0,
           right: 0,
           child: _buildAiAssistantPanel(),
         ),
-      ]
-      ),
+      ]),
       floatingActionButton: _buildAiAssistantButton(),
     );
   }

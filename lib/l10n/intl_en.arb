@@ -92,6 +92,216 @@
 "doYouwantToAddAProcess":"Do You Want To Add a Process ?",
 "generatingReport":"Generating Report",
 "pleaseWaitpdf":"Please wait while we prepare your document",
-"errorGeneratingReport":"Error generating report"
+"errorGeneratingReport":"Error generating report",
+"showAllWorkflows": "show me all workflows",
+  "listWorkflows": "list workflows",
+  "whatWorkflows": "what workflows",
+  "viewWorkflows": "view workflows",
+  "displayWorkflows": "display workflows",
+  "seeWorkflows": "see workflows",
+  "existingWorkflows": "existing workflows",
+  "hi":"hi",
+  "hello":"hello",
+  "hey":"hey",
+  "goodMorning":"good morning",
+  "goodAfternoon":"good afternoon",
+  "goodEvening":"good evening",
+  "howCanIassistWithYourWorflowsToday":"How can I assist with your workflows today?",
+  "hellowThereWhatWorkflowTasksShallWeTackleTogether":"Hello there! What workflow tasks shall we tackle together?",
+  "hiReadytostreamlineyourprocessesWhatsonyourmind":"Hi! Ready to streamline your processes. What's on your mind?",
+  "imheretohelpwithyourworkflowneeds":"I'm here to help with your workflow needs.",
+  "thanks":"thanks",
+  "thankyou":"thank you",
+  "appreciate":"appreciate",
+  "grateful":"grateful",
+  "yourareverywelcome":"You're very welcome! Always happy to help with your workflows.",
+  "myPlesure":"My pleasure! Let me know if there's anything else you need.",
+  "noProblem":"No problem at all! I'm here whenever you need workflow assistance.",
+  "gladicouldhelp":"Glad I could help! Don't hesitate to ask if more questions come up.",
+  "create":"create",
+  "edit":"edit",
+  "remove":"remove",
+  "update":"update",
+  "rename":"rename",
+  "add":"add",
+  "workflow":"workflow",
+  "process":"process",
+  "subprocess":"sub-process",
+  "news":"new",
+  "step":"step",
+  "task":"task",
+  "createWorkflowPrompt": "I'd be happy to create a new workflow. What would you like to name it?",
+  "workflowCreated": "All set! I've created the {name} workflow for you. Would you like to add processes to it now?",
+  "@workflowCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "renameWorkflowPrompt": "I'd be happy to rename a workflow. Which workflow should I update and what should I rename it to?",
+  "workflowNotFound": "Hmm, I couldn't find a workflow named {oldName}. Could you double-check the name?",
+  "@workflowNotFound": {
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      }
+    }
+  },
+  "workflowRenamed": "Got it! I've renamed the workflow from {oldName} to {newName}. What would you like to do next?",
+  "@workflowRenamed": {
+    "placeholders": {
+      "oldName": {
+        "type": "String"
+      },
+      "newName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+  
+  "deleteWorkflowPrompt": "I can help delete a workflow. Which workflow should I remove?",
+  "workflowDeleteNotFound": "I couldn't find a workflow named {name}. Could you check the name and try again?",
+    "@workflowDeleteNotFound": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+  "workflowDeleted": "Done! I've deleted the {name} workflow. Let me know if you'd like to create a new one.",
+  "@workflowDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+ 
+ 
+  "workflowTaskComplete": "I've taken care of that workflow task for you. Is there anything else you'd like me to do?",
+  "workflowError": "Oops! I ran into a problem: {error}. Could you try again or give me more details?",
+    "@workflowError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "addProcessPrompt": "I can add a new process. What would you like to name it?",
+  "whichWorkflowPrompt": "Which workflow should I add this process to?",
+  "workflowMatchNotFound": "I couldn't find a workflow matching {workflowName}. Here are your existing workflows: ",
+  "@workflowMatchNotFound": {
+    "placeholders": {
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  
+  "multipleWorkflowsFound": "I found multiple workflows matching {workflowName}. Please be more specific. ",
+    "@multipleWorkflowsFound": {
+    "placeholders": {
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "matchingWorkflows": "Matching workflows: {workflows}",
+  "@matchingWorkflows": {
+    "placeholders": {
+      "workflows": {
+        "type": "String"
+      }
+    }
+  },
+  "processExists": "The process {processName} already exists in workflow {workflowName}. Would you like to add a sub-process instead?",
+  "@processExists": {
+    "placeholders": {
+      "processName": {
+        "type": "String"
+      },
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "processAdded": "Done! I've added the {processName} process to the {workflowName} workflow. Would you like to add sub-processes now?",
+    "@processAdded": {
+    "placeholders": {
+      "processName": {
+        "type": "String"
+      },
+      "workflowName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "processTaskComplete": "I've handled that process task for you. What would you like to do next?",
+  "processError": "Hmm, I couldn't complete that process task. The error was: {error}",
+    "@processError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "named":"named",
+  "called":"called",
+  "withname":"with name",
+  "fora":"for",
+  "and":"and",
+  "howAreYou":"how are you" ,
+  "yourname":"your name",
+  "howAreYouResponse": "I'm just a digital assistant, but I'm functioning at 100%! Ready to help you with your workflows.",
+  "assistantName": "I'm your Workflow Assistant, but you can call me Flow if you'd like!",
+  "whomadeyou":"who made you",
+  "whocreatedyou":"who created you",
+  "creatorResponse": "I was created by Yassine Kadri to help you manage workflows more efficiently. My purpose is to make your work easier!",
+  "help":"help",
+  "whatcanyoudo":"what can you do" ,
+  "capabilitiesResponse": "I can help you create, edit, and manage workflows and processes. Would you like me to explain how?",
+   "imnotintierlysure": "I'm not entirely sure I follow, but I'm happy to help with workflow management!",
+   "thatsinteresting": "That's interesting! I'm best at helping with workflows and processes though.",
+   "imstilllearningcasualconversation": "I'm still learning casual conversation. Could you ask me about workflows?",
+   "letmethinkaboutthat": "Let me think about that... In the meantime, I can help you create or manage workflows!",
+   "imnotcertainiunderstood": "I'm not certain I understand. Could you rephrase that or ask about workflows?",
+
+  
+  "helpMessage": "Here's how I can assist you with workflows:\n\n*Workflow Management*\n- \"Create a new workflow for order processing\"\n- \"Edit the 'Order Processing' workflow to 'Order Management'\"\n- \"Delete the old test workflow\"\n- \"Show me all workflows\"\n\n*Process Management*\n- \"Add a payment process to the order workflow\"\n- \"Create a sub-process for credit checks\"\n- \"Remove the test process from the demo workflow\"\n\n*General Help*\n- \"What can you do?\"\n- \"How does this work?\"\n- \"Explain workflows to me\"\n\nYou can ask naturally - I'll do my best to understand!",
+  
+  "noWorkflowsYet": "You don't have any workflows yet. Would you like me to create one for you?",
+  "workflowsListHeader": "Here are your",
+
+
+
+  "workflowsListPrompt": "Would you like to work with any of these?",
+  "fetchWorkflowsError": "Sorry, I couldn't fetch your workflows. The error was: {error}",
+  "@fetchWorkflowsError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "as":"as",
+  "typing":"Typing ... " ,
+  "thinking":"Thinking",
+  "helloImAssitant":"Hello! I'm your workflow assistant. How can I help you today?",
+  "microphonePermissionRequired":"Microphone Permission Required",
+  "speechRecognitionNotAvailable":"Speech Recognition Not Available",
+  "workflowassistant":"Workflow Assistant",
+  "howCanIHelp":"How Can I Help",
+  "listening":"Listening",
+  "typeYourMessage":"Type your message",
+  "tor":"to"
 
 }
