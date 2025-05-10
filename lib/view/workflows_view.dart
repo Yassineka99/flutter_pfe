@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -784,88 +785,220 @@ class __WorkflowCardState extends State<_WorkflowCard> {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: widget.onTap,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.workflow.name ?? '',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Row(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Color(0xFFB5927F).withOpacity(0.2), width: 1),
+      ),
+      shadowColor: Color(0xFF4e3a31).withOpacity(0.1),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFDF8F4),
+              Color(0xFFFBEFE8).withOpacity(0.7),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header Section
+              GestureDetector(
+                onTap: widget.onTap,
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF5E6DC).withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFFB5927F).withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: Color(0xFFB5927F).withOpacity(0.15),
+                    width: 1,
+                  )),
+                  padding: EdgeInsets.all(16),
+                  child: Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: widget.onEdit,
+                      Expanded(
+                        child: Text(
+                          widget.workflow.name ?? '',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF4e3a31),
+                            fontFamily: 'BrandonGrotesque',
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: widget.onDelete,
+                      Row(
+                        children: [
+                          _ActionButton(
+                            icon: Icons.edit_note_rounded,
+                            color: Color(0xFFB5927F),
+                            onPressed: widget.onEdit,
+                          ),
+                          SizedBox(width: 8),
+                          _ActionButton(
+                            icon: Icons.delete_forever_rounded,
+                            color: Colors.red.withOpacity(0.8),
+                            onPressed: widget.onDelete,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-            FutureBuilder<List<Process>>(
-              future: _processesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text(intl.errorLoadingProcesses);
-                }
 
-                final processes = snapshot.data ?? [];
+              SizedBox(height: 16),
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(intl.associatedProcesses),
-                        Text('${processes.length} ${intl.processes}'),
-                      ],
-                    ),
-                    if (processes.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      ...(_isExpanded ? processes : processes.take(2))
-                          .map((process) => ListTile(
-                                title: Text(process.name ?? ''),
-                                onTap: () =>
-                                    _showAddSubProcessDialog(process.id!),
-                              ))
-                          .toList(),
-                      if (processes.length > 2)
-                        IconButton(
-                          icon: Icon(_isExpanded
-                              ? Icons.expand_less
-                              : Icons.expand_more),
-                          onPressed: () =>
-                              setState(() => _isExpanded = !_isExpanded),
+              // Processes Section
+              FutureBuilder<List<Process>>(
+                future: _processesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _buildLoadingIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return _buildErrorState(intl.errorLoadingProcesses);
+                  }
+
+                  final processes = snapshot.data ?? [];
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              intl.associatedProcesses,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF4e3a31).withOpacity(0.9),
+                                fontFamily: 'BrandonGrotesque',
+                                fontSize: 16,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Color(0xFFB5927F).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Color(0xFFB5927F).withOpacity(0.2)),
+                              ),
+                              child: Text(
+                                '${processes.length} ${intl.processes}',
+                                style: TextStyle(
+                                  color: Color(0xFFB5927F),
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'BrandonGrotesque',
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                      
+                      if (processes.isNotEmpty) ...[
+                        SizedBox(height: 12),
+                        ...(_isExpanded ? processes : processes.take(2))
+                            .map((process) => _ProcessItem(
+                                  process: process,
+                                  onTap: () => _showAddSubProcessDialog(process.id!),
+                                ))
+                            .toList(),
+                        if (processes.length > 2)
+                          _ExpandButton(
+                            isExpanded: _isExpanded,
+                            onPressed: () => setState(() => _isExpanded = !_isExpanded),
+                          ),
+                      ] else ...[
+                        _buildEmptyState(intl.noAssignedProcesses),
+                      ],
                     ],
-                  ],
-                );
-              },
-            ),
-          ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Widget _buildLoadingIndicator() => Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFFB5927F),
+            strokeWidth: 2.5,
+          ),
+        ),
+      );
+
+  Widget _buildErrorState(String message) => Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline_rounded,
+                  color: Color(0xFF4e3a31).withOpacity(0.4), size: 18),
+              SizedBox(width: 8),
+              Text(
+                message,
+                style: TextStyle(
+                  color: Color(0xFF4e3a31).withOpacity(0.6),
+                  fontFamily: 'BrandonGrotesque',
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Widget _buildEmptyState(String message) => Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          children: [
+            Icon(Icons.auto_awesome_mosaic_rounded,
+                color: Color(0xFFB5927F).withOpacity(0.3), size: 40),
+            SizedBox(height: 12),
+            Text(
+              message,
+              style: TextStyle(
+                color: Color(0xFF4e3a31).withOpacity(0.4),
+                fontFamily: 'BrandonGrotesque',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
 }
+
 
 class AddProcessesDialog extends StatefulWidget {
   final int workflowId;
@@ -1312,6 +1445,166 @@ class _AddSubProcessesDialogState extends State<AddSubProcessesDialog> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+// Custom Process Item Widget
+class _ProcessItem extends StatelessWidget {
+  final Process process;
+  final VoidCallback onTap;
+
+  const _ProcessItem({required this.process, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            decoration: BoxDecoration(
+              color: Color(0xFFFDF8F4),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0xFFB5927F).withOpacity(0.08),
+                  blurRadius: 6,
+                  offset: Offset(0, 2),
+                ),
+              ],
+              border: Border.all(
+                color: Color(0xFFB5927F).withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            padding: EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFB5927F).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.assignment_turned_in_rounded,
+                      size: 20, color: Color(0xFF4e3a31).withOpacity(0.7)),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    process.name ?? '',
+                    style: TextStyle(
+                      color: Color(0xFF4e3a31),
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'BrandonGrotesque',
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                Icon(Icons.arrow_forward_ios_rounded,
+                    size: 14, color: Color(0xFFB5927F).withOpacity(0.6)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Custom Expand Button
+class _ExpandButton extends StatelessWidget {
+  final bool isExpanded;
+  final VoidCallback onPressed;
+
+  const _ExpandButton({required this.isExpanded, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        decoration: BoxDecoration(
+          color: isExpanded 
+              ? Color(0xFFB5927F).withOpacity(0.05)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Color(0xFFB5927F).withOpacity(isExpanded ? 0.2 : 0.1),
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onPressed,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  isExpanded ? 'SHOW LESS' : 'SHOW MORE',
+                  style: TextStyle(
+                    color: Color(0xFFB5927F),
+                    fontFamily: 'BrandonGrotesque',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                SizedBox(width: 8),
+                AnimatedRotation(
+                  turns: isExpanded ? 0 : 0.5,
+                  duration: Duration(milliseconds: 300),
+                  child: Icon(Icons.expand_less_rounded,
+                      size: 18, color: Color(0xFFB5927F)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Custom Action Button
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onPressed;
+
+  const _ActionButton({
+    required this.icon,
+    required this.color,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 200),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.05),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: IconButton(
+        icon: Icon(icon, size: 20, color: color),
+        onPressed: onPressed,
+        splashRadius: 20,
       ),
     );
   }

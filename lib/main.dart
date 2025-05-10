@@ -34,6 +34,61 @@ runApp(
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      colorScheme: ColorScheme.light(
+        primary: const Color(0xFFB5927F),  // Your terracotta color
+        secondary: const Color(0xFF4e3a31),  // Dark brown
+        surface: Colors.white,
+        background: const Color(0xFFF5E6DC),  // Light beige
+        error: const Color(0xFFB00020),
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: Colors.black,
+        onBackground: Colors.black,
+        onError: Colors.white,
+        brightness: Brightness.light,
+      ),
+      appBarTheme: const AppBarTheme(
+        color: Color(0xFFB5927F)),
+      cardTheme: CardTheme(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12)),
+        color: Colors.white,
+      ),
+      // Add other light theme customizations
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      colorScheme: ColorScheme.dark(
+        primary: const Color(0xFF917261),  // Darker terracotta
+        secondary: const Color(0xFFD3C1B6),  // Light beige
+        surface: const Color(0xFF1A1A1A),
+        background: const Color(0xFF121212),
+        error: const Color(0xFFCF6679),
+        onPrimary: Colors.black,
+        onSecondary: Colors.black,
+        onSurface: Colors.white,
+        onBackground: Colors.white,
+        onError: Colors.black,
+        brightness: Brightness.dark,
+      ),
+      appBarTheme: const AppBarTheme(
+        color: Color(0xFF1A1A1A)),
+      cardTheme: CardTheme(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12)),
+        color: const Color(0xFF1A1A1A),
+      ),
+      textTheme: TextTheme(
+        bodyLarge: TextStyle(color: Colors.white.withOpacity(0.87)),
+      // Add other dark theme customizations
+    ));
+  }
   @override
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);

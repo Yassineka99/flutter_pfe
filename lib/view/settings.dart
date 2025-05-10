@@ -451,114 +451,114 @@ class _SettingsViewState extends State<SettingsView> {
                       borderRadius: BorderRadius.circular(12)),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () async {
-                      final selectedLocale = await showDialog<String>(
-                        context: context,
-                        builder: (_) => Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: BorderSide(color: Color(0xFFB5927F).withOpacity(0.3), width: 1),
-                          ),
-                          elevation: 4,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xFFF5E6DC),
-                              borderRadius: BorderRadius.circular(20),
+              onTap: () async {
+                final selectedLocale = await showDialog<String>(
+                  context: context,
+                  builder: (_) => Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(color: Color(0xFFB5927F).withOpacity(0.3), width: 1),
+                    ),
+                    elevation: 4,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF5E6DC),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Header
+                          Padding(
+                            padding: EdgeInsets.all(20),
+                            child: Text(
+                              intl.selectLanguage,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF4e3a31),
+                                fontFamily: 'BrandonGrotesque',
+                              ),
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Header
-                                Padding(
-                                  padding: EdgeInsets.all(20),
-                                  child: Text(
-                                    intl.selectLanguage,
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF4e3a31),
-                                      fontFamily: 'BrandonGrotesque',
-                                    ),
-                                  ),
-                                ),
+                          ),
 
-                                // Language Options
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxHeight: MediaQuery.of(context).size.height * 0.5,
-                                  ),
-                                  child: ListView.separated(
-                                    shrinkWrap: true,
-                                    physics: BouncingScrollPhysics(),
-                                    itemCount: _flags.keys.length,
-                                    separatorBuilder: (_, __) => Divider(
-                                      height: 1,
-                                      color: Color(0xFFB5927F).withOpacity(0.2),
-                                    ),
-                                    itemBuilder: (context, index) {
-                                      final localeCode = _flags.keys.elementAt(index);
-                                      return Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () => Navigator.pop(context, localeCode),
-                                          borderRadius: BorderRadius.circular(12),
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                            child: Row(
-                                              children: [
-                                                Image.asset(
-                                                  _flags[localeCode]!,
-                                                  width: 40,
-                                                  height: 40,
-                                                ),
-                                                SizedBox(width: 16),
-                                                Text(
-                                                  _getLanguageName(localeCode, intl),
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                    color: Color(0xFF4e3a31),
-                                                    fontFamily: 'BrandonGrotesque',
-                                                  ),
-                                                ),
-                                                Spacer(),
-                                                if (localeCode == currentLocale)
-                                                  Icon(Icons.check, 
-                                                    color: Color(0xFFB5927F),
-                                                    size: 24,
-                                                  ),
-                                              ],
+                          // Language Options
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: MediaQuery.of(context).size.height * 0.5,
+                            ),
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              physics: BouncingScrollPhysics(),
+                              itemCount: _flags.keys.length,
+                              separatorBuilder: (_, __) => Divider(
+                                height: 1,
+                                color: Color(0xFFB5927F).withOpacity(0.2),
+                              ),
+                              itemBuilder: (context, index) {
+                                final localeCode = _flags.keys.elementAt(index);
+                                return Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () => Navigator.pop(context, localeCode),
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      child: Row(
+                                        children: [
+                                          Image.asset(
+                                            _flags[localeCode]!,
+                                            width: 40,
+                                            height: 40,
+                                          ),
+                                          SizedBox(width: 16),
+                                          Text(
+                                            _getLanguageName(localeCode, intl),
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Color(0xFF4e3a31),
+                                              fontFamily: 'BrandonGrotesque',
                                             ),
                                           ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-
-                                // Close Button
-                                Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text(intl.close,
-                                      style: TextStyle(
-                                        color: Color(0xFFB5927F),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: 'BrandonGrotesque',
+                                          Spacer(),
+                                          if (localeCode == currentLocale)
+                                            Icon(Icons.check, 
+                                              color: Color(0xFFB5927F),
+                                              size: 24,
+                                            ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                );
+                              },
                             ),
                           ),
-                        ),
-                      );
-                      if (selectedLocale != null) {
-                        localeProvider.setLocale(Locale(selectedLocale));
-                      }
-                    },
+
+                          // Close Button
+                          Padding(
+                            padding: EdgeInsets.all(16),
+                            child: TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(intl.close,
+                                style: TextStyle(
+                                  color: Color(0xFFB5927F),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'BrandonGrotesque',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+                if (selectedLocale != null) {
+                  localeProvider.setLocale(Locale(selectedLocale));
+                }
+              },
                     child: Center(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
