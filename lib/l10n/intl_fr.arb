@@ -319,7 +319,11 @@
   },
   "tor": "à",
   "news": "nouveau",
-"dispalyWorkflows": "Afficher les workflows"
+"dispalyWorkflows": "Afficher les workflows",
+  "showMore": "Afficher plus",
+  "showLess": "Afficher moins",
+  "markedAsCompleted": "marqué comme terminé"
+
 
 
 

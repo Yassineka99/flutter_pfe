@@ -320,7 +320,11 @@
   },
   "tor": "к",
   "news": "новый",
-"dispalyWorkflows": "Показать рабочие процессы"
+"dispalyWorkflows": "Показать рабочие процессы",
+  "showMore": "Показать больше",
+  "showLess": "Показать меньше",
+  "markedAsCompleted": "отмечено как выполнено"
+
 
 
 

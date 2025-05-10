@@ -10,6 +10,7 @@ import '../model/user.dart';
 import 'assigned_sub_processes.dart';
 import 'dashboard.dart';
 import 'login.dart';
+import 'mini_widgets/custom_nav_bar.dart';
 
 class WorkerHome extends StatefulWidget {
   const WorkerHome({super.key});
@@ -48,26 +49,14 @@ class _WorkerHomeState extends State<WorkerHome> {
     ];
     return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFF78A190),
-        selectedItemColor: Color(0xFF28445C),
-        unselectedItemColor: Color(0xFF28445C).withOpacity(.40),
-        selectedFontSize: 14,
-        unselectedFontSize: 14,
-        onTap: _onItemTapped,
-        items: [
-          BottomNavigationBarItem(
-            label: intl.assignedSubProcess,
-            icon: const Icon(Icons.task),
-          ),
-          BottomNavigationBarItem(
-            label: intl.settings,
-            icon: const Icon(Icons.settings),
-          ),
-        ],
-      ),
+      bottomNavigationBar: SafeArea(
+    child: CustomBottomNavBar(
+    selectedIndex: _selectedIndex,
+    onItemTapped: _onItemTapped,
+    icons: [Icons.task, Icons.settings],
+    labels: [intl.assignedSubProcess, intl.settings],
+  ),
+  ),
     );
   }
 }

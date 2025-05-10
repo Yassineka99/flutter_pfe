@@ -113,8 +113,7 @@ void _showAddUserDialog() {
           dialogBackgroundColor: Colors.white,
           dialogTheme: DialogTheme(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
+              borderRadius: BorderRadius.circular(20)),
             elevation: 16,
           ),
         ),
@@ -125,7 +124,7 @@ void _showAddUserDialog() {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF28445C),
+                color: const Color(0xFF4e3a31),
               ),
             ),
           ),
@@ -176,27 +175,28 @@ void _showAddUserDialog() {
                   const SizedBox(height: 16),
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFF28445C).withOpacity(0.2)),
+                      border: Border.all(color: const Color(0xFFB5927F).withOpacity(0.2)),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: DropdownButtonFormField<int>(
                       value: role,
-                      icon: Icon(Icons.arrow_drop_down, color: const Color(0xFF28445C)),
+                      icon: Icon(Icons.arrow_drop_down, color: const Color(0xFF4e3a31)),
                       decoration: InputDecoration(
                         labelText: intl.role,
                         border: InputBorder.none,
-                        labelStyle: TextStyle(color: const Color(0xFF28445C).withOpacity(0.6)),
+                        labelStyle: TextStyle(color: const Color(0xFF4e3a31).withOpacity(0.6)),
                       ),
                       items: [
                         DropdownMenuItem(
                           value: 2,
-                          child: Text(intl.manager, style: TextStyle(color: const Color(0xFF28445C))),
+                          child: Text(intl.manager, 
+                            style: TextStyle(color: const Color(0xFF4e3a31))),
                         ),
                         DropdownMenuItem(
                           value: 3,
-                          child: Text(intl.worker, style: TextStyle(color: const Color(0xFF28445C))),
-                        ),
+                          child: Text(intl.worker, 
+                            style: TextStyle(color: const Color(0xFF4e3a31))),)
                       ],
                       onChanged: (value) => role = value!,
                     ),
@@ -211,17 +211,16 @@ void _showAddUserDialog() {
                 Expanded(
                   child: TextButton(
                     style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFF78A190).withOpacity(0.1),
+                      backgroundColor: const Color(0xFFB5927F).withOpacity(0.1),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                        borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     onPressed: () => Navigator.pop(context),
                     child: Text(
                       intl.cancel,
                       style: TextStyle(
-                        color: const Color(0xFF28445C),
+                        color: const Color(0xFF4e3a31),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -231,26 +230,25 @@ void _showAddUserDialog() {
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF78A190),
+                      backgroundColor: const Color(0xFFB5927F),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                        borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     onPressed: () async {
-  if (_formKey.currentState!.validate()) {
-    _formKey.currentState!.save();
-    try {
-      await _userViewModel.createClient(name, email, phone, password, role);
-      _loadUsers();
-      Navigator.pop(context);
-      _showResultPopup(true); // Show success popup
-    } catch (e) {
-      Navigator.pop(context); // Close dialog first
-      _showResultPopup(false); // Show error popup
-    }
-  }
-},
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        try {
+                          await _userViewModel.createClient(name, email, phone, password, role);
+                          _loadUsers();
+                          Navigator.pop(context);
+                          _showResultPopup(true);
+                        } catch (e) {
+                          Navigator.pop(context);
+                          _showResultPopup(false);
+                        }
+                      }
+                    },
                     child: Text(
                       intl.save,
                       style: const TextStyle(
@@ -305,16 +303,16 @@ Widget _buildFormField({
     obscureText: obscureText,
     decoration: InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: const Color(0xFF28445C).withOpacity(0.6)),
+      prefixIcon: Icon(icon, color: const Color(0xFFB5927F).withOpacity(0.6)),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: const Color(0xFF28445C).withOpacity(0.2)),
+        borderSide: BorderSide(color: const Color(0xFFB5927F).withOpacity(0.2)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFF78A190)),
+        borderSide: const BorderSide(color: Color(0xFF4e3a31)),
       ),
-      labelStyle: TextStyle(color: const Color(0xFF28445C).withOpacity(0.6)),
+      labelStyle: TextStyle(color: const Color(0xFF4e3a31).withOpacity(0.6)),
     ),
     validator: validator,
     onSaved: onSaved,
@@ -350,34 +348,34 @@ Widget _buildFilterChip(SortCriteria criteria, String label) {
 
     return Scaffold(
   appBar: AppBar(
-    backgroundColor: const Color(0xFF78A190),
+    backgroundColor: const Color(0xFFB5927F),
     title: Padding(
       padding: const EdgeInsets.only(left: 120),
       child: Text(
       intl.usersList,
-      style:const TextStyle(
+      style: TextStyle(
         fontWeight: FontWeight.bold,
-        color:  Color(0xFF28445C),
+        color:  Color(0xFF4e3a31).withOpacity(.70),
         fontFamily: 'BrandonGrotesque'
       )
       
       )
     ),
     iconTheme: IconThemeData(
-      color: const Color(0xFF28445C).withOpacity(.40),
+      color: const Color(0xFF4e3a31).withOpacity(.70),
     ),
     actions: [
           IconButton(
             icon: Icon(
               Icons.filter_list,
               color: _showFilters 
-                  ? const Color(0xFF28445C) // Solid color when filters are visible
-                  : const Color(0xFF28445C).withOpacity(.40), // Transparent when hidden
+                  ? const Color(0xFF4e3a31).withOpacity(.40) // Solid color when filters are visible
+                  : const Color(0xFF4e3a31).withOpacity(.70), // Transparent when hidden
             ),
             onPressed: () => setState(() => _showFilters = !_showFilters),
           ),
       IconButton(
-        icon: Icon(Icons.add, color: const Color(0xFF28445C).withOpacity(.40)),
+        icon: Icon(Icons.add, color: const Color(0xFF4e3a31).withOpacity(.70)),
         onPressed: _showAddUserDialog,
       ),
     ],
@@ -630,6 +628,59 @@ Widget _buildMessageField({
     onSaved: onSaved,
   );
 }
+ 
+   Widget _buildLoadingIndicator() => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: CircularProgressIndicator(
+            color: const Color(0xFF28445C),
+            strokeWidth: 2.5,
+          ),
+        ),
+      );
+
+  Widget _buildErrorState(String message) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline_rounded,
+                  color: const Color(0xFF28445C).withOpacity(0.4), size: 18),
+              const SizedBox(width: 8),
+              Text(
+                message,
+                style: TextStyle(
+                  color: const Color(0xFF28445C).withOpacity(0.6),
+                  fontFamily: 'BrandonGrotesque',
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Widget _buildEmptyState(String message) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          children: [
+            Icon(Icons.auto_awesome_mosaic_rounded,
+                color: const Color(0xFF78A190).withOpacity(0.3), size: 40),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              style: TextStyle(
+                color: const Color(0xFF28445C).withOpacity(0.4),
+                fontFamily: 'BrandonGrotesque',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
+ 
   @override
   Widget build(BuildContext context) {
     final intl = AppLocalizations.of(context)!;
@@ -643,143 +694,183 @@ Widget _buildMessageField({
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: imageBytes != null
-                      ? MemoryImage(imageBytes)
-                      : const AssetImage('assets/images/user.png')
-                          as ImageProvider,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.user.name ?? '',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'BrandonGrotesque',
-                        ),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: const Color(0xFFB5927F).withOpacity(0.2), width: 1),
+      ),
+      shadowColor: const Color(0xFF4e3a31).withOpacity(0.1),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              const Color(0xFFFDF8F4),
+              const Color(0xFFFBEFE8).withOpacity(0.7),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // User Header Section
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5E6DC).withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFB5927F).withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  border: Border.all(
+                    color: const Color(0xFFB5927F).withOpacity(0.15),
+                    width: 1,
+                  )),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundImage: imageBytes != null
+                          ? MemoryImage(imageBytes)
+                          : const AssetImage('assets/images/user.png')
+                              as ImageProvider,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.user.name ?? '',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF4e3a31),
+                              fontFamily: 'BrandonGrotesque',
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          Text(
+                            widget.user.role == 1
+                                ? intl.admin
+                                : widget.user.role == 2
+                                    ? intl.manager
+                                    : intl.worker,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: const Color(0xFF4e3a31).withOpacity(0.7),
+                              fontFamily: 'BrandonGrotesque',
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        widget.user.role == 1
-                            ? intl.admin
-                            : widget.user.role == 2
-                                ? intl.manager
-                                : intl.worker,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'BrandonGrotesque',
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.message_outlined,
-                        color: const Color(0xFF28445C).withOpacity(0.6),
-                      ),
+                    ),
+                    _ActionButton(
+                      icon: Icons.message_outlined,
+                      color: const Color(0xFFB5927F),
                       onPressed: () => _showSendNotificationDialog(context, widget.user.id!),
                     ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            FutureBuilder<Map<String, dynamic>>(
-              future: _combinedFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+                  ],
+                ),
+              ),
 
-                if (snapshot.hasError) {
-                  return Text(intl.errorLoadingProcesses);
-                }
+              const SizedBox(height: 16),
 
-                final subProcesses = snapshot.data?['all'] ?? [];
-                final finished = snapshot.data?['finished'] ?? [];
+              // Sub-processes Section
+              FutureBuilder<Map<String, dynamic>>(
+                future: _combinedFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _buildLoadingIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return _buildErrorState(intl.errorLoadingProcesses);
+                  }
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          intl.assignedSubProcess,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'BrandonGrotesque',
-                          ),
-                        ),
-                        Row(
+                  final subProcesses = snapshot.data?['all'] ?? [];
+                  final finished = snapshot.data?['finished'] ?? [];
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _ProcessCounter(
-                              count: finished.length,
-                              color: Colors.green[100]!,
-                              textColor: Colors.green[800]!,
+                            Text(
+                              intl.assignedSubProcess,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF4e3a31).withOpacity(0.9),
+                                fontFamily: 'BrandonGrotesque',
+                                fontSize: 16,
+                                letterSpacing: 0.3,
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            _ProcessCounter(
-                              count: subProcesses.length,
-                              color: Colors.blue[100]!,
-                              textColor: Colors.blue[800]!,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color:  Colors.grey.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                    color: const Color(0xFFB5927F).withOpacity(0.2)),
+                              ),
+                              child: Row(
+                                children: [
+                                  _ProcessCounter(
+                                    count: finished.length,
+                                    color:  Colors.green.withOpacity(0.2),
+                                    textColor: const Color(0xFF4e3a31),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _ProcessCounter(
+                                    count: subProcesses.length,
+                                    color:  Colors.blue.withOpacity(0.1),
+                                    textColor: const Color(0xFF4e3a31),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    if (subProcesses.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          intl.noAssignedSubProcesses,
-                          style: const TextStyle(fontStyle: FontStyle.italic),
-                        ),
-                      )
-                    else
-                      Column(
-                        children: [
-                          ...(_isExpanded ? subProcesses : subProcesses.take(2))
-                              .map((process) => _ProcessItem(process: process))
-                              .toList(),
-                          if (subProcesses.length > 2)
-                            IconButton(
-                              icon: Icon(
-                                _isExpanded
-                                    ? Icons.expand_less
-                                    : Icons.expand_more,
-                                color: Colors.grey,
-                              ),
-                              onPressed: () =>
-                                  setState(() => _isExpanded = !_isExpanded),
-                            ),
-                        ],
                       ),
-                  ],
-                );
-              },
-            ),
-          ],
+                      if (subProcesses.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        ...(_isExpanded ? subProcesses : subProcesses.take(2))
+                            .map((process) => _ProcessItem(process: process))
+                            .toList(),
+                        if (subProcesses.length > 2)
+                          _ExpandButton(
+                            isExpanded: _isExpanded,
+                            onPressed: () =>
+                                setState(() => _isExpanded = !_isExpanded),
+                          ),
+                      ] else ...[
+                        _buildEmptyState(intl.noAssignedSubProcesses),
+                      ],
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
 class _ProcessCounter extends StatelessWidget {
   final int count;
   final Color color;
@@ -794,16 +885,17 @@ class _ProcessCounter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: textColor.withOpacity(0.1)),
       ),
       child: Text(
         count.toString(),
         style: TextStyle(
           fontSize: 14,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
           color: textColor,
           fontFamily: 'BrandonGrotesque',
         ),
@@ -812,6 +904,68 @@ class _ProcessCounter extends StatelessWidget {
   }
 }
 
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onPressed;
+
+  const _ActionButton({
+    required this.icon,
+    required this.color,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(icon, size: 24),
+      color: color,
+      onPressed: onPressed,
+      splashRadius: 24,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(),
+    );
+  }
+}
+
+class _ExpandButton extends StatelessWidget {
+  final bool isExpanded;
+  final VoidCallback onPressed;
+
+  const _ExpandButton({
+    required this.isExpanded,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: const Color(0xFF4e3a31),
+        padding: EdgeInsets.zero,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            isExpanded ? 'Show Less' : 'Show More',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFFB5927F),
+              fontFamily: 'BrandonGrotesque',
+            ),
+          ),
+          Icon(
+            isExpanded ? Icons.expand_less : Icons.expand_more,
+            size: 20,
+            color: const Color(0xFFB5927F),
+          ),
+        ],
+      ),
+    );
+  }
+}
 class _ProcessItem extends StatelessWidget {
   final SubProcess process;
 

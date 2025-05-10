@@ -320,7 +320,11 @@
 
 "tor": "zu",
 "news": "neu",
-"dispalyWorkflows": "Workflows anzeigen"
+"dispalyWorkflows": "Workflows anzeigen",
+  "showMore": "Mehr anzeigen",
+  "showLess": "Weniger anzeigen",
+  "markedAsCompleted": "als abgeschlossen markiert"
+
 
 
 

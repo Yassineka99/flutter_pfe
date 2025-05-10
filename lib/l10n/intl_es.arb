@@ -318,7 +318,11 @@
   },
   "tor": "a",
   "news": "nuevo",
-"dispalyWorkflows": "Mostrar flujos de trabajo"
+"dispalyWorkflows": "Mostrar flujos de trabajo",
+  "showMore": "Mostrar más",
+  "showLess": "Mostrar menos",
+  "markedAsCompleted": "marcado como completado"
+
 
 
 

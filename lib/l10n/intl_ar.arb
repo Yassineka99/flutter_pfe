@@ -320,7 +320,11 @@
   },
 "tor": "إلى",
 "news": "جديد",
-"dispalyWorkflows": "عرض سير العمل"
+"dispalyWorkflows": "عرض سير العمل",
+  "showMore": "عرض المزيد",
+  "showLess": "عرض أقل",
+  "markedAsCompleted": "تم وضع علامة كمكتمل"
+
 
 
 

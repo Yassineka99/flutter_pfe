@@ -28,26 +28,12 @@ class _AssignedSubProcessesState extends State<AssignedSubProcesses> {
 
   Future<void> _loadData() async {
     try {
-      // 1. Get all sub-processes assigned to the user
       final subProcesses = await _subProcessViewModel.getByUserId(widget.userId);
-      
-      // 2. Extract unique process IDs from sub-processes
-      final processIds = subProcesses
-          .map((sp) => sp.processId)
-          .whereType<int>()
-          .toSet();
+      final processIds = subProcesses.map((sp) => sp.processId).whereType<int>().toSet();
+      final processes = await Future.wait(processIds.map((id) => _processViewModel.getbyid(id.toString())));
 
-      // 3. Get parent processes for these sub-processes
-      final processes = await Future.wait(
-        processIds.map((id) => _processViewModel.getbyid(id.toString())),
-      );
-
-      // 4. Filter valid processes and exclude completed ones
       setState(() {
-        _processes = processes
-            .whereType<Process>()
-            .where((p) => p.statusId != 3)
-            .toList();
+        _processes = processes.whereType<Process>().where((p) => p.statusId != 3).toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -56,114 +42,156 @@ class _AssignedSubProcessesState extends State<AssignedSubProcesses> {
     }
   }
 
-  Future<void> _updateProcessStatus(Process process) async {
-    try {
-      // 1. Get current sub-processes for this process
-      final subProcesses = await _subProcessViewModel.getByUserAndProcess(
-        widget.userId, 
-        process.id!
-      );
+  Widget _buildSubProcessItem(SubProcess sp, Process process) {
+    final isCompleted = sp.statusId == 3;
+    final intl = AppLocalizations.of(context)!;
 
-      // 2. Update process status based on sub-processes
-      final allCompleted = subProcesses.every((sp) => sp.statusId == 3);
-      process.statusId = allCompleted ? 3 : 2;
-      process.finishedAt = allCompleted ? DateTime.now() : null;
-
-      // 3. Save process and sub-processes
-      await _processViewModel.update(process);
-      await _loadData();
-    } catch (e) {
-      print('Error updating process: $e');
-    }
-  }
-
-Widget _buildSubProcessItem(SubProcess sp, Process process) {
-  final isCompleted = sp.statusId == 3;
-  
-  return CheckboxListTile(
-    title: Text(sp.name ?? 'Unnamed Sub-process'),
-    subtitle: sp.message?.isNotEmpty ?? false 
-        ? Text(sp.message!) 
-        : null,
-    value: isCompleted,
-    onChanged: isCompleted 
-        ? null  // Disable checkbox if already completed
-        : (value) => _updateSubProcessStatus(sp, value ?? false),
-    activeColor: const Color(0xFF78A190), // Your brand color
-    secondary: Icon(
-      _getStatusIcon(sp.statusId),
-      color: _getStatusColor(sp.statusId),
-    ),
-  );
-}
-
-Future<void> _updateSubProcessStatus(
-  SubProcess sp, 
-  bool value
-) async {
-  if (value) {  // Only handle check (true) events
-    setState(() => sp.statusId = 3);
-    sp.finishedAt = DateTime.now();
-    
-    await _subProcessViewModel.update(sp);
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${sp.name} marked as completed'),
-        backgroundColor: Colors.green,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFF4e3a31).withOpacity(0.1)))),
+      child: CheckboxListTile(
+        title: Text(
+          sp.name ?? intl.noAssignedSubProcesses,
+          style: TextStyle(
+            fontSize: 16,
+            color: Color(0xFF4e3a31),
+            fontFamily: 'BrandonGrotesque',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: sp.message?.isNotEmpty ?? false 
+            ? Text(
+                sp.message!,
+                style: TextStyle(
+                  color: Color(0xFF4e3a31).withOpacity(0.6),
+                  fontFamily: 'BrandonGrotesque',
+                ),
+              )
+            : null,
+        value: isCompleted,
+        onChanged: isCompleted ? null : (value) => _updateSubProcessStatus(sp, value ?? false),
+        activeColor: Color(0xFFB5927F),
+        checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        secondary: Container(
+          padding: EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: _getStatusColor(sp.statusId).withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            _getStatusIcon(sp.statusId),
+            color: _getStatusColor(sp.statusId),
+            size: 20,
+          ),
+        ),
       ),
     );
   }
-}
-  IconData _getStatusIcon(int? status) {
-    switch (status) {
-      case 3:
-        return Icons.check_circle;
-      case 2:
-        return Icons.timelapse;
-      default:
-        return Icons.pending;
-    }
-  }
 
-  Color _getStatusColor(int? status) {
-    switch (status) {
-      case 3:
-        return Colors.green;
-      case 2:
-        return Colors.blue;
-      default:
-        return Colors.orange;
-    }
-  }
-
-Widget _buildProcessCard(Process process) {
-    return FutureBuilder<List<SubProcess>>(
-      future: _subProcessViewModel.getByUserAndProcess(
-        widget.userId, 
-        process.id!
+  Future<void> _updateSubProcessStatus(SubProcess sp, bool value) async {
+  if (value) {
+    setState(() => sp.statusId = 3);
+    sp.finishedAt = DateTime.now();
+    await _subProcessViewModel.update(sp);
+final intl = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      
+      SnackBar(
+        content: Text('${sp.name} ${intl.markedAsCompleted}'),
+        backgroundColor: Color(0xFFB5927F),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       ),
+    );
+
+    // 🔄 Reload the data to reflect the changes
+    await _loadData();
+  }
+}
+
+
+  Widget _buildProcessCard(Process process) {
+    final intl = AppLocalizations.of(context)!;
+
+    return FutureBuilder<List<SubProcess>>(
+      future: _subProcessViewModel.getByUserAndProcess(widget.userId, process.id!),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox.shrink();
+        if (!snapshot.hasData) return SizedBox.shrink();
 
         final subProcesses = snapshot.data!;
         final completedCount = subProcesses.where((sp) => sp.statusId == 3).length;
+        final progress = completedCount / subProcesses.length;
 
-        return Card(
-          margin: const EdgeInsets.all(8),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFFDF8F4), Color(0xFFFBEFE8)],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0xFF4e3a31).withOpacity(0.05),
+                blurRadius: 12,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
             child: Column(
               children: [
-                ListTile(
-                  title: Text(
-                    process.name ?? 'Unnamed Process',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: Color(0xFFB5927F).withOpacity(0.1)))),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              process.name ?? intl.noAssignedProcesses,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF4e3a31),
+                                fontFamily: 'BrandonGrotesque',
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: LinearProgressIndicator(
+                                    value: progress,
+                                    backgroundColor: Color(0xFFB5927F).withOpacity(0.1),
+                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFB5927F)),
+                                    minHeight: 6,
+                                    
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  '${(progress * 100).toStringAsFixed(0)}%',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF4e3a31),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  subtitle: Text('$completedCount/${subProcesses.length} completed'),
                 ),
                 ...subProcesses.map((sp) => _buildSubProcessItem(sp, process)),
               ],
@@ -180,27 +208,75 @@ Widget _buildProcessCard(Process process) {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            intl.assignedSubProcess,
-            style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF28445C),
-                    fontFamily: 'BrandonGrotesque')
-            
-            )),
+        backgroundColor: Color(0xFFB5927F),
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Color(0xFF4e3a31)),
+        title: Text(
+          intl.assignedSubProcess,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF4e3a31).withOpacity(0.7),
+            fontFamily: 'BrandonGrotesque',
+            letterSpacing: 0.5,
+          ),
+        ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF4e3a31),
+                strokeWidth: 2.5,
+              ),
+            )
           : RefreshIndicator(
+              color: Color(0xFF4e3a31),
               onRefresh: _loadData,
               child: _processes.isEmpty
-                  ? Center(child: Text(intl.noAssignedSubProcesses))
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.assignment_turned_in_outlined,
+                            size: 48,
+                            color: Color(0xFFB5927F).withOpacity(0.3),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            intl.noAssignedSubProcesses,
+                            style: TextStyle(
+                              color: Color(0xFF4e3a31).withOpacity(0.4),
+                              fontFamily: 'BrandonGrotesque',
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   : ListView.builder(
+                      padding: EdgeInsets.only(bottom: 24),
                       itemCount: _processes.length,
                       itemBuilder: (context, index) => _buildProcessCard(_processes[index]),
                     ),
             ),
     );
+  }
+
+  IconData _getStatusIcon(int? status) {
+    switch (status) {
+      case 3: return Icons.check_circle;
+      case 2: return Icons.timelapse;
+      default: return Icons.pending;
+    }
+  }
+
+  Color _getStatusColor(int? status) {
+    switch (status) {
+      case 3: return Color(0xFF78A190);
+      case 2: return Color(0xFF4e3a31);
+      default: return Colors.orange;
+    }
   }
 }

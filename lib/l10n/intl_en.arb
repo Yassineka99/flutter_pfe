@@ -302,6 +302,9 @@
   "howCanIHelp":"How Can I Help",
   "listening":"Listening",
   "typeYourMessage":"Type your message",
-  "tor":"to"
+  "tor":"to",
+  "showMore":"Show More",
+  "showLess":"Show Less",
+  "markedAsCompleted":"marked as completed"
 
 }
