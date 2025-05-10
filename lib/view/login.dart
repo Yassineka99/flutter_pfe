@@ -25,7 +25,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: SafeArea(
+      body :SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -35,60 +35,62 @@ class _LoginState extends State<Login> {
             child: Container(
               margin: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: const Color(0xFFF8F5F3),
+                borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 4)),
+                    color: const Color(0xFF4e3a31).withOpacity(0.1),
+                    blurRadius: 30,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 6),
+                  ),
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(32),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Header Icon
+                    // Auth Header
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF78A190).withOpacity(0.1),
+                        color: const Color(0xFFA17A69).withOpacity(0.15),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.person_outline_rounded,
-                        size: 32,
-                        color: Color(0xFF28445C),
+                      child: Icon(
+                        Icons.person,
+                        size: 36,
+                        color: const Color(0xFF4e3a31).withOpacity(0.8),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
 
                     // Title
-                    const Text(
+                    Text(
                       "Login",
                       style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
                         fontFamily: 'BrandonGrotesque',
-                        color: Color(0xFF28445C),
+                        color: const Color(0xFF4e3a31).withOpacity(0.9),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 36),
 
                     // Input Fields
                     TextInput(
                       hint: "Email",
                       controller: _emailController,
-                      icon: Icons.email_outlined,
+                      icon: Icons.email_rounded,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     PasswordInput(
                       hint: "Password",
                       controller: _passwordController,
-                      icon: Icons.lock_outline_rounded,
+                      icon: Icons.lock_rounded,
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 36),
 
                     // Login Button
                     SizedBox(
@@ -96,19 +98,23 @@ class _LoginState extends State<Login> {
                       child: ElevatedButton(
                         onPressed: _handleLogin,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF78A190),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: const Color(0xFFB5927F),
+                          padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                           ),
+                          elevation: 2,
+                          shadowColor: const Color(0xFF4e3a31).withOpacity(0.3),
                         ),
                         child: const Text(
                           "Sign In",
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 17,
                             fontFamily: 'BrandonGrotesque',
                             fontWeight: FontWeight.w600,
-                            color: Colors.white),
+                            letterSpacing: 0.8,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -134,9 +140,13 @@ class _LoginState extends State<Login> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid credentials'),
-          backgroundColor: Colors.redAccent,
+        SnackBar(
+          content: const Text('Invalid credentials'),
+          backgroundColor: const Color(0xFFA17A69),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
