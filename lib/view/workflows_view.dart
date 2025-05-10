@@ -26,17 +26,17 @@ const _dialogShape = RoundedRectangleBorder(
 const _headerStyle = TextStyle(
   fontSize: 22,
   fontWeight: FontWeight.w600,
-  color: Color(0xFF28445C),
+  color: Color(0xFF4e3a31),
   fontFamily: 'BrandonGrotesque',
 );
 
 const _inputBorder = OutlineInputBorder(
   borderRadius: BorderRadius.all(Radius.circular(12)),
-  borderSide: BorderSide(color: Color(0xFF78A190)),
+  borderSide: BorderSide(color: Color(0xFFB5927F)),
 );
 
 final _buttonStyle = ElevatedButton.styleFrom(
-  backgroundColor: Color(0xFF78A190),
+  backgroundColor: Color(0xFFB5927F),
   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
 );
@@ -206,7 +206,7 @@ class _WorkflowViewState extends State<WorkflowView> {
 
   Widget _buildAiAssistantButton() {
     return FloatingActionButton(
-      backgroundColor: const Color(0xFF78A190),
+      backgroundColor: const Color(0xFFB5927F),
       onPressed: () {
         setState(() {
           _showAiAssistant = !_showAiAssistant;
@@ -215,199 +215,198 @@ class _WorkflowViewState extends State<WorkflowView> {
           }
         });
       },
-      child: const Icon(Icons.assistant, color: Colors.white),
+      child:  Icon(Icons.assistant, color: Color(0xFF4e3a31).withOpacity(.70)),
     );
   }
 
 // Add this widget to show the AI assistant panel
-  Widget _buildAiAssistantPanel() {
-    final intl = AppLocalizations.of(context)!;
+ Widget _buildAiAssistantPanel() {
+  final intl = AppLocalizations.of(context)!;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      height: _showAiAssistant ? MediaQuery.of(context).size.height * 0.5 : 0,
-      padding: const EdgeInsets.only(top: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
+  return AnimatedContainer(
+    duration: const Duration(milliseconds: 300),
+    height: _showAiAssistant ? MediaQuery.of(context).size.height * 0.5 : 0,
+    padding: const EdgeInsets.only(top: 16),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF5E6DC),  // Navbar highlight color
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 16,
+          offset: const Offset(0, -4),
+        ),
+      ],
+    ),
+    child: Column(
+      children: [
+        // Draggable handle
+        Container(
+          width: 40,
+          height: 4,
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF4e3a31).withOpacity(0.3),  // Dark brown
+            borderRadius: BorderRadius.circular(2),
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Draggable handle
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF78A190).withOpacity(0.3),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
+        ),
 
-          // Chat header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Color(0xFF78A190).withOpacity(0.2),
-                  child:
-                      Icon(Icons.assistant, size: 20, color: Color(0xFF28445C)),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  intl.workflowassistant,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF28445C),
-                    fontFamily: 'BrandonGrotesque',
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.close,
-                      size: 20, color: Color(0xFF28445C)),
-                  onPressed: () => setState(() {
-                    _showAiAssistant = false;
-                    _conversation.clear();
-                  }),
-                ),
-              ],
-            ),
-          ),
-
-          // Conversation area
-          Expanded(
-            child: Stack(
-              children: [
-                _conversation.isEmpty
-                    ? Center(
-                        child: Text(
-                          intl.howCanIHelp,
-                          style: const TextStyle(
-                            color: Color(0xFF28445C),
-                            fontFamily: 'BrandonGrotesque',
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: _chatScrollController,
-                        padding: const EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                          top: 8,
-                          bottom: 80,
-                        ),
-                        itemCount: _conversation.length,
-                        itemBuilder: (context, index) {
-                          final message = _conversation[index];
-                          return AIMessageBubble(
-                            text: message['text'],
-                            isUserMessage: message['isUser'],
-                            isLoading: message['isLoading'],
-                          );
-                        },
-                      ),
-                if (_isTyping)
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    child: TypingIndicator(),
-                  ),
-              ],
-            ),
-          ),
-
-          // Input area
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                top: BorderSide(
-                  color: const Color(0xFF78A190).withOpacity(0.2),
-                  width: 1,
+        // Chat header
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: const Color(0xFFB5927F).withOpacity(0.2),
+                child: Icon(Icons.assistant, size: 20, color: Color(0xFF4e3a31)),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                intl.workflowassistant,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF4e3a31),  // Dark brown
+                  fontFamily: 'BrandonGrotesque',
                 ),
               ),
-            ),
-            child: Column(
-              children: [
-                if (_isListening)
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      _lastWords.isEmpty ? intl.listening : '"$_lastWords"',
-                      style: TextStyle(
-                        color: const Color(0xFF78A190),
-                        fontStyle: FontStyle.italic,
-                        fontFamily: 'BrandonGrotesque',
-                      ),
-                    ),
-                  ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        style: const TextStyle(fontFamily: 'BrandonGrotesque'),
-                        decoration: InputDecoration(
-                          hintText: intl.typeYourMessage,
-                          hintStyle: TextStyle(
-                            color: const Color(0xFF28445C).withOpacity(0.5),
-                            fontFamily: 'BrandonGrotesque',
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF5F7F9),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isListening ? Icons.mic_off : Icons.mic,
-                              color: _isListening
-                                  ? Colors.red
-                                  : const Color(0xFF28445C).withOpacity(0.7),
-                            ),
-                            onPressed: _listen,
-                          ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.close, size: 20, color: Color(0xFF4e3a31)),
+                onPressed: () => setState(() {
+                  _showAiAssistant = false;
+                  _conversation.clear();
+                }),
+              ),
+            ],
+          ),
+        ),
+
+        // Conversation area
+        Expanded(
+          child: Stack(
+            children: [
+              _conversation.isEmpty
+                  ? Center(
+                      child: Text(
+                        intl.howCanIHelp,
+                        style: const TextStyle(
+                          color: Color(0xFF4e3a31),  // Dark brown
+                          fontFamily: 'BrandonGrotesque',
                         ),
-                        onSubmitted: (value) => _sendMessage(),
                       ),
+                    )
+                  : ListView.builder(
+                      controller: _chatScrollController,
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        top: 8,
+                        bottom: 80,
+                      ),
+                      itemCount: _conversation.length,
+                      itemBuilder: (context, index) {
+                        final message = _conversation[index];
+                        return AIMessageBubble(
+                          text: message['text'],
+                          isUserMessage: message['isUser'],
+                          isLoading: message['isLoading'],
+                        );
+                      },
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFF78A190),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.send, color: Colors.white),
-                        onPressed: _sendMessage,
-                      ),
-                    ),
-                  ],
+              if (_isTyping)
+                Positioned(
+                  bottom: 16,
+                  left: 16,
+                  child: TypingIndicator(), // Ensure this uses new colors too
                 ),
-              ],
+            ],
+          ),
+        ),
+
+        // Input area
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5E6DC),  // Navbar highlight color
+            border: Border(
+              top: BorderSide(
+                color: const Color(0xFF4e3a31).withOpacity(0.2),  // Dark brown
+                width: 1,
+              ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+          child: Column(
+            children: [
+              if (_isListening)
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    _lastWords.isEmpty ? intl.listening : '"$_lastWords"',
+                    style: TextStyle(
+                      color: const Color(0xFF4e3a31),  // Dark brown
+                      fontStyle: FontStyle.italic,
+                      fontFamily: 'BrandonGrotesque',
+                    ),
+                  ),
+                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      style: const TextStyle(
+                          fontFamily: 'BrandonGrotesque', color: Color(0xFF4e3a31)),
+                      decoration: InputDecoration(
+                        hintText: intl.typeYourMessage,
+                        hintStyle: TextStyle(
+                          color: const Color(0xFF4e3a31).withOpacity(0.5),
+                          fontFamily: 'BrandonGrotesque',
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Color(0xFFA17A69).withOpacity(0.1),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isListening ? Icons.mic_off : Icons.mic,
+                            color: _isListening
+                                ? Colors.red
+                                : const Color(0xFF4e3a31).withOpacity(0.7),
+                          ),
+                          onPressed: _listen,
+                        ),
+                      ),
+                      onSubmitted: (value) => _sendMessage(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFF4e3a31),  // Dark brown
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.send, color: Colors.white),
+                      onPressed: _sendMessage,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   Future<void> _loadWorkflows() async {
     try {
@@ -579,50 +578,53 @@ class _WorkflowViewState extends State<WorkflowView> {
   }
 
   Widget _buildDialogHeader(String title, IconData icon) {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Color(0xFF78A190).withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 32, color: Color(0xFF28445C)),
+  return Column(
+    children: [
+      Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFB5927F).withOpacity(0.1),  // Navbar background
+          shape: BoxShape.circle,
         ),
-        SizedBox(height: 16),
-        Text(title, style: _headerStyle),
-      ],
-    );
-  }
+        child: Icon(icon, size: 32, color: const Color(0xFF4e3a31)),  // Dark brown
+      ),
+      const SizedBox(height: 16),
+      Text(title, style: _headerStyle),
+    ],
+  );
+}
 
   Widget _buildDialogActionButtons({
-    required VoidCallback onCancel,
-    required VoidCallback onConfirm,
-    Color confirmColor = const Color(0xFF78A190),
-    String confirmText = 'Save',
-  }) {
-    final intl = AppLocalizations.of(context)!;
+  required VoidCallback onCancel,
+  required VoidCallback onConfirm,
+  Color confirmColor = const Color(0xFFB5927F),  // Navbar background
+  String confirmText = 'Save',
+}) {
+  final intl = AppLocalizations.of(context)!;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        TextButton(
-          onPressed: onCancel,
-          child: Text(intl.cancel,
-              style: TextStyle(
-                  color: Color(0xFF28445C), fontFamily: 'BrandonGrotesque')),
-        ),
-        SizedBox(width: 12),
-        ElevatedButton(
-          style: _buttonStyle.copyWith(
-              backgroundColor: MaterialStatePropertyAll(confirmColor)),
-          onPressed: onConfirm,
-          child: Text(confirmText,
-              style: TextStyle(fontFamily: 'BrandonGrotesque')),
-        ),
-      ],
-    );
-  }
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      TextButton(
+        onPressed: onCancel,
+        child: Text(intl.cancel,
+            style: const TextStyle(
+                color: Color(0xFF4e3a31),  // Dark brown
+                fontFamily: 'BrandonGrotesque')),
+      ),
+      const SizedBox(width: 12),
+      ElevatedButton(
+        style: _buttonStyle.copyWith(
+            backgroundColor: MaterialStatePropertyAll(confirmColor)),
+        onPressed: onConfirm,
+        child: Text(confirmText,
+            style: const TextStyle(
+                color: Colors.white,  // For contrast
+                fontFamily: 'BrandonGrotesque')),
+      ),
+    ],
+  );
+}
 
   void _showDeleteConfirmation(int workflowId) {
     final intl = AppLocalizations.of(context)!;
@@ -682,20 +684,20 @@ class _WorkflowViewState extends State<WorkflowView> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF78A190),
+        backgroundColor: const Color(0xFFB5927F),
         title: Center(
           child: Padding(
             padding: EdgeInsets.only(left: 46),
             child: Text(intl.workflows,
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF28445C),
+                style:  TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF4e3a31).withOpacity(.70),
                     fontFamily: 'BrandonGrotesque')),
           ),
         ),
         actions: [
           IconButton(
-            color: const Color(0xFF28445C).withOpacity(.40),
+            color: Color(0xFF4e3a31).withOpacity(.70),
             icon: const Icon(Icons.add),
             onPressed: _showAddWorkflowDialog,
           ),
@@ -727,7 +729,10 @@ class _WorkflowViewState extends State<WorkflowView> {
           child: _buildAiAssistantPanel(),
         ),
       ]),
-      floatingActionButton: _buildAiAssistantButton(),
+      floatingActionButton: AnimatedSwitcher(duration: const Duration(milliseconds: 200),
+  child: _showAiAssistant
+      ? null
+      : _buildAiAssistantButton(), ),
     );
   }
 }
@@ -1138,27 +1143,32 @@ class _AddSubProcessesDialogState extends State<AddSubProcessesDialog> {
     }
   }
 
-  Widget _buildDialogHeader(String title, IconData icon) {
+    Widget _buildDialogHeader(String title, IconData icon) {
     return Column(
       children: [
         Container(
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Color(0xFF78A190).withOpacity(0.1),
+            color: Color(0xFFB5927F).withOpacity(0.1), // Updated color
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, size: 32, color: Color(0xFF28445C)),
+          child: Icon(icon, size: 32, color: Color(0xFF4e3a31)), // Updated color
         ),
         SizedBox(height: 16),
-        Text(title, style: _headerStyle),
+        Text(title, style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF4e3a31), // Dark brown
+          fontFamily: 'BrandonGrotesque',
+        )),
       ],
     );
   }
 
-  Widget _buildDialogActionButtons({
+   Widget _buildDialogActionButtons({
     required VoidCallback onCancel,
     required VoidCallback onConfirm,
-    Color confirmColor = const Color(0xFF78A190),
+    Color confirmColor = const Color(0xFFB5927F),
     String confirmText = 'Save',
   }) {
     final intl = AppLocalizations.of(context)!;
@@ -1169,16 +1179,19 @@ class _AddSubProcessesDialogState extends State<AddSubProcessesDialog> {
         TextButton(
           onPressed: onCancel,
           child: Text(intl.cancel,
-              style: TextStyle(
-                  color: Color(0xFF28445C), fontFamily: 'BrandonGrotesque')),
+              style: const TextStyle(
+                  color: Color(0xFF4e3a31),
+                  fontFamily: 'BrandonGrotesque')),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         ElevatedButton(
           style: _buttonStyle.copyWith(
-              backgroundColor: MaterialStatePropertyAll(confirmColor)),
+            backgroundColor: MaterialStatePropertyAll(confirmColor)),
           onPressed: onConfirm,
           child: Text(confirmText,
-              style: TextStyle(fontFamily: 'BrandonGrotesque')),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'BrandonGrotesque')),
         ),
       ],
     );
@@ -1190,84 +1203,89 @@ class _AddSubProcessesDialogState extends State<AddSubProcessesDialog> {
 
     return Dialog(
       shape: _dialogShape,
-      child: Padding(
-        padding: EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildDialogHeader(intl.addSubProcess, Icons.grain),
-            SizedBox(height: 16),
-            Container(
-              constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6),
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        style: TextStyle(fontFamily: 'BrandonGrotesque'),
-                        decoration: InputDecoration(
-                          labelText: intl.subProcessName,
-                          labelStyle: TextStyle(color: Color(0xFF28445C)),
-                          border: _inputBorder,
-                          contentPadding: EdgeInsets.all(16),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildDialogHeader(intl.addSubProcess, Icons.grain),
+              SizedBox(height: 16),
+              Container(
+                constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.6),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          style: TextStyle(fontFamily: 'BrandonGrotesque'),
+                          decoration: InputDecoration(
+                            labelText: intl.subProcessName,
+                            labelStyle: TextStyle(color: Color(0xFF28445C)),
+                            border: _inputBorder,
+                            contentPadding: EdgeInsets.all(16),
+                          ),
+                          validator: (value) =>
+                              value?.isEmpty ?? true ? intl.requiredField : null,
                         ),
-                        validator: (value) =>
-                            value?.isEmpty ?? true ? intl.requiredField : null,
-                      ),
-                      SizedBox(height: 16),
-                      TextFormField(
-                        controller: _messageController,
-                        style: TextStyle(fontFamily: 'BrandonGrotesque'),
-                        decoration: InputDecoration(
-                          labelText: intl.message,
-                          labelStyle: TextStyle(color: Color(0xFF28445C)),
-                          border: _inputBorder,
-                          contentPadding: EdgeInsets.all(16),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: _messageController,
+                          style: TextStyle(fontFamily: 'BrandonGrotesque'),
+                          decoration: InputDecoration(
+                            labelText: intl.message,
+                            labelStyle: TextStyle(color: Color(0xFF4e3a31)),
+                            border: _inputBorder,
+                            contentPadding: EdgeInsets.all(16),
+                          ),
+                          maxLines: 3,
+                          validator: (value) =>
+                              value?.isEmpty ?? true ? intl.requiredField : null,
                         ),
-                        maxLines: 3,
-                        validator: (value) =>
-                            value?.isEmpty ?? true ? intl.requiredField : null,
-                      ),
-                      SizedBox(height: 16),
-                      _buildUserSelectionList(),
-                    ],
+                        SizedBox(height: 16),
+                        _buildUserSelectionList(),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            _buildDialogActionButtons(
-              onCancel: () => Navigator.pop(context),
-              onConfirm: _saveSubProcess,
-            ),
-          ],
+              _buildDialogActionButtons(
+                onCancel: () => Navigator.pop(context),
+                onConfirm: _saveSubProcess,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildUserSelectionList() {
+   Widget _buildUserSelectionList() {
     final intl = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Color(0xFF78A190).withOpacity(0.3)),
+        border: Border.all(color: Colors.black.withOpacity(.40)),
         borderRadius: BorderRadius.circular(12),
       ),
-      padding: EdgeInsets.all(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(intl.selectUsers,
-              style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF28445C),
-                  fontFamily: 'BrandonGrotesque')),
-          SizedBox(height: 8),
+          Padding(
+            padding: EdgeInsets.all(12),
+            child: Text(intl.selectUsers,
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF4e3a31),
+                    fontFamily: 'BrandonGrotesque')),
+          ),
           Container(
-            constraints: BoxConstraints(maxHeight: 200),
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.3, // Flexible height
+            ),
             child: Scrollbar(
               child: ListView.builder(
                 shrinkWrap: true,
@@ -1276,12 +1294,15 @@ class _AddSubProcessesDialogState extends State<AddSubProcessesDialog> {
                 itemBuilder: (context, index) {
                   final user = _users[index];
                   return CheckboxListTile(
-                    contentPadding: EdgeInsets.zero,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12),
                     dense: true,
                     title: Text(user.name ?? '',
                         style: TextStyle(
-                            fontSize: 14, fontFamily: 'BrandonGrotesque')),
+                            fontSize: 14,
+                            color: Color(0xFF4e3a31),
+                            fontFamily: 'BrandonGrotesque')),
                     value: _selectedUsers[user.id] ?? false,
+                    activeColor: Color(0xFFB5927F),
                     onChanged: (value) => setState(() {
                       _selectedUsers[user.id!] = value ?? false;
                     }),

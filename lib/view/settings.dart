@@ -49,9 +49,8 @@ class _SettingsViewState extends State<SettingsView> {
     });
   }
 
-  void _showNotificationsPopup(List<model.Notification> notifications) {
+ void _showNotificationsPopup(List<model.Notification> notifications) {
     final intl = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
 
     showDialog(
       context: context,
@@ -59,15 +58,14 @@ class _SettingsViewState extends State<SettingsView> {
         shape: _dialogShape,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            color: const Color(0xFFF5E6DC), // New background color
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Header
-              _buildDialogHeader(
-                  intl.notifications, Icons.notifications_none_rounded),
+              _buildDialogHeader(intl.notifications, Icons.notifications_none_rounded),
 
               // Notifications Body
               Padding(
@@ -75,7 +73,7 @@ class _SettingsViewState extends State<SettingsView> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     notifications.isEmpty
                         ? Padding(
                             padding: const EdgeInsets.all(16),
@@ -84,67 +82,60 @@ class _SettingsViewState extends State<SettingsView> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontFamily: 'BrandonGrotesque',
-                                color: Color(0xFF28445C).withOpacity(0.6),
+                                color: Color(0xFF4e3a31).withOpacity(0.6),
                               ),
                             ),
                           )
                         : ConstrainedBox(
                             constraints: BoxConstraints(
-                                maxHeight:
-                                    MediaQuery.of(context).size.height * 0.4),
+                                maxHeight: MediaQuery.of(context).size.height * 0.4),
                             child: ListView.separated(
                               shrinkWrap: true,
                               physics: const BouncingScrollPhysics(),
                               itemCount: notifications.length,
-                              separatorBuilder: (_, __) => Divider(
+                              separatorBuilder: (_, __) => const Divider(
                                   height: 16, color: Colors.transparent),
                               itemBuilder: (context, index) {
                                 final notification = notifications[index];
                                 return Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: Color(0xFF78A190).withOpacity(0.05),
+                                    color: const Color(0xFFB5927F).withOpacity(0.05),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                        color:
-                                            Color(0xFF78A190).withOpacity(0.1)),
+                                        color: const Color(0xFFB5927F).withOpacity(0.1)),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         margin: const EdgeInsets.only(top: 4),
                                         child: Icon(Icons.circle,
-                                            size: 12, color: Color(0xFF78A190)),
+                                            size: 12, color: Color(0xFF4e3a31)),
                                       ),
-                                      SizedBox(width: 16),
+                                      const SizedBox(width: 16),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               notification.message ?? '',
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontFamily: 'BrandonGrotesque',
-                                                color: Color(0xFF28445C),
+                                                color: Color(0xFF4e3a31),
                                                 height: 1.4,
                                               ),
                                             ),
                                             if (notification.visibility != null)
                                               Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 8),
+                                                padding: const EdgeInsets.only(top: 8),
                                                 child: Text(
                                                   'Status: ${notification.visibility}',
                                                   style: TextStyle(
                                                     fontSize: 12,
-                                                    fontFamily:
-                                                        'BrandonGrotesque',
-                                                    color: Color(0xFF78A190)
-                                                        .withOpacity(0.8),
+                                                    fontFamily: 'BrandonGrotesque',
+                                                    color: Color(0xFF4e3a31).withOpacity(0.8),
                                                   ),
                                                 ),
                                               ),
@@ -157,7 +148,7 @@ class _SettingsViewState extends State<SettingsView> {
                               },
                             ),
                           ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
@@ -174,7 +165,7 @@ class _SettingsViewState extends State<SettingsView> {
                         .markAllAsRead(session.user!.id!)
                         .then((_) => _refreshNotifications());
                   },
-                  confirmColor: Color(0xFF78A190),
+                  confirmColor: const Color(0xFFB5927F),
                   confirmText: intl.markAllRead,
                 ),
               ),
@@ -253,27 +244,28 @@ class _SettingsViewState extends State<SettingsView> {
 /*-----------------------------------------Build Widgets --------------------------------------*/
 
   /* ---------------------------Notification popup design  -----------------------*/
-  Widget _buildDialogHeader(String title, IconData icon) {
+ Widget _buildDialogHeader(String title, IconData icon) {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.all(12),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Color(0xFF78A190).withOpacity(0.1),
+            color: const Color(0xFFB5927F).withOpacity(0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, size: 32, color: Color(0xFF28445C)),
+          child: Icon(icon, size: 32, color: const Color(0xFF4e3a31)),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Text(title, style: _headerStyle),
       ],
     );
   }
 
+  // Updated action buttons
   Widget _buildDialogActionButtons({
     required VoidCallback onCancel,
     required VoidCallback onConfirm,
-    Color confirmColor = const Color(0xFF78A190),
+    Color confirmColor = const Color(0xFFB5927F),
     String confirmText = 'Save',
   }) {
     final intl = AppLocalizations.of(context)!;
@@ -284,16 +276,19 @@ class _SettingsViewState extends State<SettingsView> {
         TextButton(
           onPressed: onCancel,
           child: Text(intl.cancel,
-              style: TextStyle(
-                  color: Color(0xFF28445C), fontFamily: 'BrandonGrotesque')),
+              style: const TextStyle(
+                  color: Color(0xFF4e3a31),
+                  fontFamily: 'BrandonGrotesque')),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         ElevatedButton(
           style: _buttonStyle.copyWith(
               backgroundColor: MaterialStatePropertyAll(confirmColor)),
           onPressed: onConfirm,
           child: Text(confirmText,
-              style: TextStyle(fontFamily: 'BrandonGrotesque')),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'BrandonGrotesque')),
         ),
       ],
     );
@@ -319,14 +314,13 @@ class _SettingsViewState extends State<SettingsView> {
       body: SafeArea(
         child: Column(
           children: [
-            // PROFILE CARD
+            // Updated PROFILE CARD
             Expanded(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Color(0xFF78A190),
+                    color: const Color(0xFFB5927F), // Terracotta color
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.all(12),
@@ -452,7 +446,7 @@ class _SettingsViewState extends State<SettingsView> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Card(
-                  color: Color(0xFF78A190).withOpacity(0.8),
+                  color: const Color(0xFFB5927F).withOpacity(0.8),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   child: InkWell(
@@ -460,31 +454,105 @@ class _SettingsViewState extends State<SettingsView> {
                     onTap: () async {
                       final selectedLocale = await showDialog<String>(
                         context: context,
-                        builder: (_) => SimpleDialog(
-                          title: Text(intl.selectLanguage,
-                              textAlign: TextAlign.center),
-                          children: _flags.keys
-                              .map((localeCode) => SimpleDialogOption(
-                                    child: Container(
-                                      height: 40,
-                                      decoration: const BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10)),
-                                          color: Color(0xFF78A190)),
-                                      child: Center(
-                                        child: Text(
-                                            _getLanguageName(localeCode, intl),
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                                fontSize: 20,
-                                                fontFamily:
-                                                    'BrandonGrotesque')),
+                        builder: (_) => Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: BorderSide(color: Color(0xFFB5927F).withOpacity(0.3), width: 1),
+                          ),
+                          elevation: 4,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFF5E6DC),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Header
+                                Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: Text(
+                                    intl.selectLanguage,
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF4e3a31),
+                                      fontFamily: 'BrandonGrotesque',
+                                    ),
+                                  ),
+                                ),
+
+                                // Language Options
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxHeight: MediaQuery.of(context).size.height * 0.5,
+                                  ),
+                                  child: ListView.separated(
+                                    shrinkWrap: true,
+                                    physics: BouncingScrollPhysics(),
+                                    itemCount: _flags.keys.length,
+                                    separatorBuilder: (_, __) => Divider(
+                                      height: 1,
+                                      color: Color(0xFFB5927F).withOpacity(0.2),
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      final localeCode = _flags.keys.elementAt(index);
+                                      return Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          onTap: () => Navigator.pop(context, localeCode),
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                            child: Row(
+                                              children: [
+                                                Image.asset(
+                                                  _flags[localeCode]!,
+                                                  width: 40,
+                                                  height: 40,
+                                                ),
+                                                SizedBox(width: 16),
+                                                Text(
+                                                  _getLanguageName(localeCode, intl),
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Color(0xFF4e3a31),
+                                                    fontFamily: 'BrandonGrotesque',
+                                                  ),
+                                                ),
+                                                Spacer(),
+                                                if (localeCode == currentLocale)
+                                                  Icon(Icons.check, 
+                                                    color: Color(0xFFB5927F),
+                                                    size: 24,
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+
+                                // Close Button
+                                Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(intl.close,
+                                      style: TextStyle(
+                                        color: Color(0xFFB5927F),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'BrandonGrotesque',
                                       ),
                                     ),
-                                    onPressed: () =>
-                                        Navigator.pop(context, localeCode),
-                                  ))
-                              .toList(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       );
                       if (selectedLocale != null) {
@@ -520,7 +588,7 @@ class _SettingsViewState extends State<SettingsView> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Card(
-                  color: Color(0xFF78A190).withOpacity(0.6),
+                  color: const Color(0xFFB5927F).withOpacity(0.6),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   child: Center(
@@ -563,7 +631,7 @@ class _SettingsViewState extends State<SettingsView> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Card(
-                  color: Color(0xFF78A190).withOpacity(0.5),
+                  color: const Color(0xFFB5927F).withOpacity(0.5),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   child: InkWell(
@@ -606,17 +674,17 @@ const _dialogShape = RoundedRectangleBorder(
 const _headerStyle = TextStyle(
   fontSize: 22,
   fontWeight: FontWeight.w600,
-  color: Color(0xFF28445C),
+  color: Color(0xFF4e3a31), // Dark brown
   fontFamily: 'BrandonGrotesque',
 );
 
 const _inputBorder = OutlineInputBorder(
   borderRadius: BorderRadius.all(Radius.circular(12)),
-  borderSide: BorderSide(color: Color(0xFF78A190)),
+  borderSide: BorderSide(color: Color(0xFFB5927F)), // Terracotta
 );
 
 final _buttonStyle = ElevatedButton.styleFrom(
-  backgroundColor: Color(0xFF78A190),
-  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+  backgroundColor: const Color(0xFFB5927F), // Terracotta
+  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
 );

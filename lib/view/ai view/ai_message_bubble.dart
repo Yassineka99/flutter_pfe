@@ -16,6 +16,7 @@ class AIMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final intl = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -28,8 +29,11 @@ class AIMessageBubble extends StatelessWidget {
               margin: const EdgeInsets.only(right: 12),
               child: CircleAvatar(
                 radius: 16,
-                backgroundColor: const Color(0xFF78A190).withOpacity(0.2),
-                child: const Icon(Icons.assistant, size: 18, color: Color(0xFF28445C)),
+                backgroundColor: const Color(0xFFB5927F).withOpacity(0.15),
+                child: Icon(Icons.assistant, 
+                  size: 18, 
+                  color: const Color(0xFF4E3A31).withOpacity(0.8),
+                ),
               ),
             ),
           Flexible(
@@ -43,33 +47,49 @@ class AIMessageBubble extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: isUserMessage
-                    ? const Color(0xFF78A190)
-                    : const Color(0xFFF5F7F9),
+                    ? const Color(0xFFB5927F) // Terracotta for user messages
+                    : const Color(0xFFEDE0D4), // Warm off-white for AI
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
                   topRight: const Radius.circular(20),
                   bottomLeft: Radius.circular(isUserMessage ? 20 : 4),
                   bottomRight: Radius.circular(isUserMessage ? 4 : 20),
                 ),
+                border: Border.all(
+                  color: isUserMessage
+                      ? const Color(0xFFB5927F).withOpacity(0.2)
+                      : const Color(0xFFD3B8AB).withOpacity(0.4),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: isLoading
                   ? Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const SizedBox(
+                        SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Color(0xFF28445C),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              const Color(0xFF4E3A31).withOpacity(0.6),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Text(
                           intl.thinking,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'BrandonGrotesque',
-                            color: Color(0xFF28445C),
+                            color: const Color(0xFF4E3A31).withOpacity(0.8),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -80,7 +100,8 @@ class AIMessageBubble extends StatelessWidget {
                         fontFamily: 'BrandonGrotesque',
                         color: isUserMessage
                             ? Colors.white
-                            : const Color(0xFF28445C),
+                            : const Color(0xFF4E3A31),
+                        height: 1.4,
                       ),
                     ),
             ),
@@ -90,8 +111,10 @@ class AIMessageBubble extends StatelessWidget {
               margin: const EdgeInsets.only(left: 12),
               child: CircleAvatar(
                 radius: 16,
-                backgroundColor: const Color(0xFF28445C).withOpacity(0.1),
-                child: const Icon(Icons.person, size: 18, color: Color(0xFF28445C)),
+                backgroundColor: const Color(0xFF4E3A31).withOpacity(0.08),
+                child: Icon(Icons.person, 
+                  size: 18, 
+                  color: const Color(0xFF4E3A31).withOpacity(0.7)),
               ),
             ),
         ],
