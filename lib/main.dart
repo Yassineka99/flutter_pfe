@@ -102,49 +102,83 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  bool _authenticated = false;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    final session = context.read<UserSession>();
+
+    // Skip biometrics if not enabled
+    if (!session.useFingerprint) {
+      setState(() {
+        _authenticated = true;
+        _loading = false;
+      });
+      return;
+    }
+
+    final localAuth = LocalAuthentication();
+    final canAuth = await localAuth.canCheckBiometrics;
+
+    if (!canAuth) {
+      setState(() {
+        _authenticated = true;
+        _loading = false;
+      });
+      return;
+    }
+
+    final success = await localAuth.authenticate(
+      localizedReason: 'Verify your identity to continue',
+      options: const AuthenticationOptions(biometricOnly: true),
+    );
+
+    if (!success) {
+      await session.logOut();
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const Splash()),
+        );
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _authenticated = true;
+          _loading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final session = context.watch<UserSession>();
 
     if (!session.isLoggedIn) return const Splash();
-
-    return FutureBuilder<bool>(
-      future: _verifyBiometrics(context, session),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (!snapshot.hasData || !snapshot.data!) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            session.logOut();
-          });
-          return const Splash();
-        }
-
-        return roleDetector(context);
-      },
-    );
-  }
-
-  Future<bool> _verifyBiometrics(BuildContext context, UserSession session) async {
-    if (!session.useFingerprint) return true;
-    
-    final localAuth = LocalAuthentication();
-    final canAuth = await localAuth.canCheckBiometrics;
-    if (!canAuth) return true;
-
-    return await localAuth.authenticate(
-      localizedReason: 'Verify your identity to continue',
-      options: const AuthenticationOptions(biometricOnly: true),
-    );
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    return roleDetector(context);
   }
 }
+
 
 Widget roleDetector(BuildContext context) {
   final session = context.watch<UserSession>();
