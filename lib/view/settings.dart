@@ -356,7 +356,7 @@ Expanded(
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                   maxLines: 2,
                   textAlign: TextAlign.center,
@@ -377,7 +377,7 @@ Expanded(
                   user.role == 2 ? intl.manager : intl.worker,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Colors.white,
+                    color: Colors.black,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -814,14 +814,14 @@ class _ContactInfoItem extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: Colors.white),
+          Icon(icon, size: 16, color: Colors.black),
           const SizedBox(width: 4),
           Flexible(
             child: Text(
               text,
               style: const TextStyle(
                 fontSize: 12,
-                color: Colors.white,
+                color: Colors.black,
                 fontWeight: FontWeight.w500,
               ),
               maxLines: 1,

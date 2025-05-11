@@ -61,11 +61,11 @@ class _AdminHomeState extends State<AdminHome> {
   body: _pages[_selectedIndex],
   bottomNavigationBar: ConvexAppBar(
     items: [
-      TabItem(icon: Icons.dashboard, title: intl.dashboard),
-      TabItem(icon: Icons.person, title: intl.users),
-      TabItem(icon: Icons.home, title: ''),
-      TabItem(icon: Icons.polyline_rounded, title: intl.workflows),
-      TabItem(icon: Icons.settings, title: intl.settings),
+      TabItem(icon: Icons.dashboard),
+      TabItem(icon: Icons.person),
+      TabItem(icon: Icons.home),
+      TabItem(icon: Icons.polyline_rounded),
+      TabItem(icon: Icons.settings),
       
     ],
     initialActiveIndex: _selectedIndex,

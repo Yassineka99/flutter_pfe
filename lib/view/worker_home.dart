@@ -32,7 +32,6 @@ class _WorkerHomeState extends State<WorkerHome> {
       _selectedIndex = index;
     });
   }
-
   @override
   Widget build(BuildContext context) {
 
@@ -52,9 +51,9 @@ class _WorkerHomeState extends State<WorkerHome> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: ConvexAppBar(
     items: [
-      TabItem(icon: Icons.dashboard, title: intl.assignedSubProcess),
+      TabItem(icon: Icons.dashboard),
       TabItem(icon: Icons.home, title: ''),
-      TabItem(icon: Icons.settings, title: intl.settings),
+      TabItem(icon: Icons.settings),
       
     ],
     initialActiveIndex: _selectedIndex,

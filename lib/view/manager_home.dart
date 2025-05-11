@@ -55,24 +55,30 @@ class _ManagerHomeState extends State<ManagerHome> {
 
     return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: ConvexAppBar(
-    items: [
-      TabItem(icon: Icons.dashboard, title: intl.workflows),
-      TabItem(icon: Icons.home, title: ''),
-      TabItem(icon: Icons.settings, title: intl.settings),
-      
-    ],
-    initialActiveIndex: _selectedIndex,
-onTap: (int index) {
-  if (index == 1) return; // skip dummy
-  _onItemTapped(index > 1 ? index - 1 : index);
-}
-,
-    backgroundColor: Color(0xFFB5927F),
-    activeColor: Colors.white,
-    color: Colors.white70,
-    style: TabStyle.reactCircle,
-  ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 60,  // Fixed height
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ConvexAppBar(
+            items: [
+          TabItem(icon: Icons.dashboard),
+          TabItem(icon: Icons.home, title: ''),
+          TabItem(icon: Icons.settings),
+          
+            ],
+            initialActiveIndex: _selectedIndex,
+              onTap: (int index) {
+          if (index == 1) return; // skip dummy
+          _onItemTapped(index > 1 ? index - 1 : index);
+              }
+              ,
+            backgroundColor: Color(0xFFB5927F),
+            activeColor: Colors.white,
+            color: Colors.white70,
+            style: TabStyle.reactCircle,
+          ),
+        ),
+      ),
     );
   }
 }
