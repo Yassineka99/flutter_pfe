@@ -7,6 +7,7 @@ import 'package:mime/mime.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/user_session.dart';
+import '../services/biometric_auth.dart';
 import '../services/locale_provider.dart';
 import '../services/theme_provider.dart';
 import '../viewmodel/notification_view_model.dart';
@@ -315,130 +316,156 @@ class _SettingsViewState extends State<SettingsView> {
         child: Column(
           children: [
             // Updated PROFILE CARD
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFB5927F), // Terracotta color
-                    borderRadius: BorderRadius.circular(12),
+Expanded(
+  flex: 3,
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFB5927F),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Main Content Column
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Profile Image
+              Container(
+                width: 110,
+                height: 110,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: ClipOval(
+                  child: imageBytes != null
+                      ? Image.memory(imageBytes, fit: BoxFit.cover)
+                      : Image.asset('assets/images/user.png', fit: BoxFit.cover),
+                ),
+              ),
+
+              // Name with Safe Text
+              Padding(
+                padding: const EdgeInsets.only(top: 12, left: 8, right: 8),
+                child: Text(
+                  user.name ?? '',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  padding: const EdgeInsets.all(12),
-                  child: Stack(
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: _loadingImage ? null : _pickAndUpload,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                CircleAvatar(
-                                  radius: 40,
-                                  backgroundImage: imageBytes != null
-                                      ? MemoryImage(imageBytes)
-                                      : const AssetImage(
-                                              'assets/images/user.png')
-                                          as ImageProvider,
-                                ),
-                                if (_loadingImage)
-                                  const CircularProgressIndicator(),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(user.name ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      fontFamily: 'BrandonGrotesque',
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                                Text(user.email ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontFamily: 'BrandonGrotesque',
-                                    )),
-                                Text(
-                                  user.role == 1
-                                      ? intl.admin
-                                      : user.role == 2
-                                          ? intl.manager
-                                          : intl.worker,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: 'BrandonGrotesque',
-                                  ),
-                                ),
-                                Text(user.phone ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontFamily: 'BrandonGrotesque',
-                                    )),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: FutureBuilder<List<model.Notification>>(
-                          future: _notificationsFuture,
-                          builder: (context, snapshot) {
-                            final count =
-                                snapshot.hasData ? snapshot.data!.length : 0;
-                            return Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.notifications_outlined,
-                                      size: 30, color: Colors.white),
-                                  onPressed: () {
-                                    if (snapshot.hasData) {
-                                      _showNotificationsPopup(snapshot.data!);
-                                    }
-                                  },
-                                ),
-                                if (count > 0)
-                                  Positioned(
-                                    top: 5,
-                                    right: 5,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      constraints: const BoxConstraints(
-                                        minWidth: 20,
-                                        minHeight: 20,
-                                      ),
-                                      child: Text(
-                                        count.toString(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  )
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+
+              // Role Badge
+              Container(
+                margin: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  user.role == 1 ? intl.admin : 
+                  user.role == 2 ? intl.manager : intl.worker,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
+
+              // Contact Info (Horizontal Layout)
+              Padding(
+                padding: const EdgeInsets.only(top: 16, left: 20, right: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _ContactInfoItem(
+                          icon: Icons.email,
+                          text: user.email ?? '',
+                          maxWidth: MediaQuery.of(context).size.width * 0.3,
+                        ),
+                        const SizedBox(height: 16),
+                        _ContactInfoItem(
+                          icon: Icons.phone,
+                          text: user.phone ?? '',
+                          maxWidth: MediaQuery.of(context).size.width * 0.3,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // Notification Icon (Original Position)
+          Positioned(
+            top: 8,
+            right: 8,
+            child: FutureBuilder<List<model.Notification>>(
+              future: _notificationsFuture,
+              builder: (context, snapshot) {
+                final count = snapshot.hasData ? snapshot.data!.length : 0;
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications_outlined,
+                          size: 30, color: Colors.white),
+                      onPressed: () {
+                        if (snapshot.hasData) {
+                          _showNotificationsPopup(snapshot.data!);
+                        }
+                      },
+                    ),
+                    if (count > 0)
+                      Positioned(
+                        top: 5,
+                        right: 5,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 20,
+                            minHeight: 20,
+                          ),
+                          child: Text(
+                            count.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                  ],
+                );
+              },
             ),
+          ),
+        ],
+      ),
+    ),
+  ),
+),
 
             // LANGUAGE CARD (UNCHANGED)
             Expanded(
@@ -625,6 +652,49 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
 
+            // FINGERPRINT CARD 
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Card(
+                  color: const Color(0xFFB5927F).withOpacity(0.7),
+                  child: Consumer<UserSession>(
+                    builder: (context, session, _) {
+                      return FutureBuilder<bool>(
+                        future: BiometricAuth.isAvailable(),
+                        builder: (context, snapshot) {
+                          final isAvailable = snapshot.data ?? false;
+                          
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.fingerprint, size: 35),
+                              const SizedBox(width: 10),
+                              Text(
+                                "Fingerprint Login",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontFamily: 'BrandonGrotesque',
+                                ),
+                              ),
+                              
+                              // In your SettingsView fingerprint section
+            Switch(
+              value: session.useFingerprint,
+              onChanged: (value) => session.toggleFingerprint(value),
+              activeColor: Colors.white,
+            ),
+                              if (!isAvailable) 
+                                Icon(Icons.error, color: Colors.red, size: 16),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
             // LOGOUT CARD (UNCHANGED)
             Expanded(
               child: Padding(
@@ -688,3 +758,78 @@ final _buttonStyle = ElevatedButton.styleFrom(
   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
 );
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _InfoRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: Colors.white.withOpacity(0.8)),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(text,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'BrandonGrotesque',
+                  color: Colors.white.withOpacity(0.9),
+                  overflow: TextOverflow.ellipsis,
+                )),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Color _getRoleColor(int role) {
+  switch (role) {
+    case 1: return const Color(0xFFE74C3C);
+    case 2: return const Color(0xFF2ECC71);
+    default: return const Color(0xFFF1C40F);
+  }
+}
+
+class _ContactInfoItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final double maxWidth;
+
+  const _ContactInfoItem({
+    required this.icon,
+    required this.text,
+    required this.maxWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: Colors.white),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

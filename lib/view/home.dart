@@ -1,3 +1,4 @@
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:front/model/user_session.dart';
 import 'package:front/view/settings.dart';
@@ -35,6 +36,8 @@ class _AdminHomeState extends State<AdminHome> {
       const UsersView(),
       const WorkflowView(),
       const SettingsView(),
+      const SettingsView(),
+
     ];
   }
 
@@ -56,13 +59,25 @@ class _AdminHomeState extends State<AdminHome> {
 
     return Scaffold(
   body: _pages[_selectedIndex],
-  bottomNavigationBar: SafeArea(
-    child: CustomBottomNavBar(
-    selectedIndex: _selectedIndex,
-    onItemTapped: _onItemTapped,
-    icons: [Icons.dashboard, Icons.person, Icons.polyline_rounded, Icons.settings],
-    labels: [intl.dashboard, intl.users, intl.workflows, intl.settings],
-  ),
+  bottomNavigationBar: ConvexAppBar(
+    items: [
+      TabItem(icon: Icons.dashboard, title: intl.dashboard),
+      TabItem(icon: Icons.person, title: intl.users),
+      TabItem(icon: Icons.home, title: ''),
+      TabItem(icon: Icons.polyline_rounded, title: intl.workflows),
+      TabItem(icon: Icons.settings, title: intl.settings),
+      
+    ],
+    initialActiveIndex: _selectedIndex,
+    onTap: (int index) {
+    // Ignore invisible tab
+    if (index == 2) return;
+    _onItemTapped(index > 2 ? index - 1 : index); // Adjust index for actual content
+  },
+    backgroundColor: Color(0xFFB5927F),
+    activeColor: Colors.white,
+    color: Colors.white70,
+    style: TabStyle.reactCircle,
   ),
 );
   }

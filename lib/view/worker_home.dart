@@ -1,3 +1,4 @@
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:front/model/user_session.dart';
 import 'package:front/view/settings.dart';
@@ -49,13 +50,23 @@ class _WorkerHomeState extends State<WorkerHome> {
     ];
     return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: SafeArea(
-    child: CustomBottomNavBar(
-    selectedIndex: _selectedIndex,
-    onItemTapped: _onItemTapped,
-    icons: [Icons.task, Icons.settings],
-    labels: [intl.assignedSubProcess, intl.settings],
-  ),
+      bottomNavigationBar: ConvexAppBar(
+    items: [
+      TabItem(icon: Icons.dashboard, title: intl.assignedSubProcess),
+      TabItem(icon: Icons.home, title: ''),
+      TabItem(icon: Icons.settings, title: intl.settings),
+      
+    ],
+    initialActiveIndex: _selectedIndex,
+    onTap: (int index) {
+    // Ignore invisible tab
+    if (index == 1) return;
+    _onItemTapped(index > 1 ? index - 1 : index); // Adjust index for actual content
+  },
+    backgroundColor: Color(0xFFB5927F),
+    activeColor: Colors.white,
+    color: Colors.white70,
+    style: TabStyle.reactCircle,
   ),
     );
   }

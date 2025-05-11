@@ -69,5 +69,6 @@ flutter {
 }
 
 dependencies {
+    implementation "androidx.fragment:fragment:1.6.2"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

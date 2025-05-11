@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:front/model/user_session.dart';
 import 'package:front/repository/workflow_repository.dart';
+import 'package:front/services/biometric_auth.dart';
 import 'package:front/services/locale_provider.dart';
 import 'package:front/services/theme_provider.dart';
 import 'package:front/view/home.dart';
 import 'package:front/view/manager_home.dart';
 import 'package:front/view/spash_screen.dart';
 import 'package:front/view/worker_home.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'l10n/l10n.dart';
@@ -34,61 +36,6 @@ runApp(
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  ThemeData _buildLightTheme() {
-    return ThemeData(
-      colorScheme: ColorScheme.light(
-        primary: const Color(0xFFB5927F),  // Your terracotta color
-        secondary: const Color(0xFF4e3a31),  // Dark brown
-        surface: Colors.white,
-        background: const Color(0xFFF5E6DC),  // Light beige
-        error: const Color(0xFFB00020),
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: Colors.black,
-        onBackground: Colors.black,
-        onError: Colors.white,
-        brightness: Brightness.light,
-      ),
-      appBarTheme: const AppBarTheme(
-        color: Color(0xFFB5927F)),
-      cardTheme: CardTheme(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12)),
-        color: Colors.white,
-      ),
-      // Add other light theme customizations
-    );
-  }
-
-  ThemeData _buildDarkTheme() {
-    return ThemeData(
-      colorScheme: ColorScheme.dark(
-        primary: const Color(0xFF917261),  // Darker terracotta
-        secondary: const Color(0xFFD3C1B6),  // Light beige
-        surface: const Color(0xFF1A1A1A),
-        background: const Color(0xFF121212),
-        error: const Color(0xFFCF6679),
-        onPrimary: Colors.black,
-        onSecondary: Colors.black,
-        onSurface: Colors.white,
-        onBackground: Colors.white,
-        onError: Colors.black,
-        brightness: Brightness.dark,
-      ),
-      appBarTheme: const AppBarTheme(
-        color: Color(0xFF1A1A1A)),
-      cardTheme: CardTheme(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12)),
-        color: const Color(0xFF1A1A1A),
-      ),
-      textTheme: TextTheme(
-        bodyLarge: TextStyle(color: Colors.white.withOpacity(0.87)),
-      // Add other dark theme customizations
-    ));
-  }
   @override
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
@@ -150,21 +97,59 @@ class MyApp extends StatelessWidget {
         ),
 
       )),
-        home: roleDetector(context));
+        home: AuthGate());
       
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final session = context.watch<UserSession>();
+
+    if (!session.isLoggedIn) return const Splash();
+
+    return FutureBuilder<bool>(
+      future: _verifyBiometrics(context, session),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.hasData || !snapshot.data!) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            session.logOut();
+          });
+          return const Splash();
+        }
+
+        return roleDetector(context);
+      },
+    );
+  }
+
+  Future<bool> _verifyBiometrics(BuildContext context, UserSession session) async {
+    if (!session.useFingerprint) return true;
+    
+    final localAuth = LocalAuthentication();
+    final canAuth = await localAuth.canCheckBiometrics;
+    if (!canAuth) return true;
+
+    return await localAuth.authenticate(
+      localizedReason: 'Verify your identity to continue',
+      options: const AuthenticationOptions(biometricOnly: true),
+    );
   }
 }
 
 Widget roleDetector(BuildContext context) {
   final session = context.watch<UserSession>();
-  if (session.isLoggedIn) {
-    if (session.user!.role == 1) {
-      return const AdminHome();
-    } else if (session.user!.role == 2) {
-      return const ManagerHome();
-    } else {
-      return const WorkerHome();
-    }
-  }
-  return const Splash();
+  
+  if (session.user!.role == 1) return const AdminHome();
+  if (session.user!.role == 2) return const ManagerHome();
+  return const WorkerHome();
 }
