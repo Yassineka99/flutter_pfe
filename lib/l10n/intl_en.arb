@@ -305,6 +305,8 @@
   "tor":"to",
   "showMore":"Show More",
   "showLess":"Show Less",
-  "markedAsCompleted":"marked as completed"
+  "markedAsCompleted":"marked as completed",
+  "chat":"Chat",
+  "typeMessage":"Type aYour Message"
 
 }

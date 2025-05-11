@@ -30,4 +30,29 @@ Future<void> update(Chat chat) async {
     print('Error updating subprocess: $e');
   }
 }
+
+  Future<List<Chat>>? GetAllbySenderAndRecieverid(int sender,int reciever) async {
+  return await chatRepository.GetAllbySenderAndRecieverid(sender,reciever);
+}
+
+Future<List<Chat>> getConversation(int user1, int user2) async {
+  try {
+    final sentMessages = await GetAllbySenderAndRecieverid(user1, user2) ?? [];
+    final receivedMessages = await GetAllbySenderAndRecieverid(user2, user1) ?? [];
+    
+    final allMessages = [...sentMessages, ...receivedMessages];
+    
+    
+    allMessages.sort((a, b) {
+      final aDate = a.from_user_date ?? DateTime(0);
+      final bDate = b.from_user_date ?? DateTime(0);
+      return bDate.compareTo(aDate); 
+    });
+    
+    return allMessages;
+  } catch (e) {
+    print('Error getting conversation: $e');
+    return [];
+  }
+}
 }

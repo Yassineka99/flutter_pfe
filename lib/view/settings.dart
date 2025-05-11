@@ -334,17 +334,20 @@ Expanded(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Profile Image
-              Container(
-                width: 110,
-                height: 110,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-                child: ClipOval(
-                  child: imageBytes != null
-                      ? Image.memory(imageBytes, fit: BoxFit.cover)
-                      : Image.asset('assets/images/user.png', fit: BoxFit.cover),
+              GestureDetector(
+                onTap: _loadingImage ? null : _pickAndUpload,
+                child: Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: ClipOval(
+                    child: imageBytes != null
+                        ? Image.memory(imageBytes, fit: BoxFit.cover)
+                        : Image.asset('assets/images/user.png', fit: BoxFit.cover),
+                  ),
                 ),
               ),
 

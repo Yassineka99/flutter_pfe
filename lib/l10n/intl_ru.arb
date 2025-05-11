@@ -323,7 +323,9 @@
 "dispalyWorkflows": "Показать рабочие процессы",
   "showMore": "Показать больше",
   "showLess": "Показать меньше",
-  "markedAsCompleted": "отмечено как выполнено"
+  "markedAsCompleted": "отмечено как выполнено",
+    "chat": "Чат",
+  "typeMessage": "Введите ваше сообщение"
 
 
 

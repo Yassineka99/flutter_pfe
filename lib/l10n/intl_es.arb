@@ -321,7 +321,9 @@
 "dispalyWorkflows": "Mostrar flujos de trabajo",
   "showMore": "Mostrar más",
   "showLess": "Mostrar menos",
-  "markedAsCompleted": "marcado como completado"
+  "markedAsCompleted": "marcado como completado",
+    "chat": "Chat",
+  "typeMessage": "Escribe tu mensaje"
 
 
 

@@ -322,7 +322,9 @@
 "dispalyWorkflows": "Afficher les workflows",
   "showMore": "Afficher plus",
   "showLess": "Afficher moins",
-  "markedAsCompleted": "marqué comme terminé"
+  "markedAsCompleted": "marqué comme terminé",
+    "chat": "Discussion",
+  "typeMessage": "Tapez votre message"
 
 
 

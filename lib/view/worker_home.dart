@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/user.dart';
 import 'assigned_sub_processes.dart';
+import 'chat_system_view.dart';
 import 'dashboard.dart';
 import 'login.dart';
 import 'mini_widgets/custom_nav_bar.dart';
@@ -45,23 +46,21 @@ class _WorkerHomeState extends State<WorkerHome> {
 
     final _pages = [
       AssignedSubProcesses(userId: user.id!),
+      ChatSystemView(currentUserId: user.id!),
       const SettingsView(),
     ];
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: ConvexAppBar(
     items: [
-      TabItem(icon: Icons.dashboard),
-      TabItem(icon: Icons.home, title: ''),
+      TabItem(icon: Icons.task_rounded),
+      TabItem(icon: Icons.chat_bubble_outline_outlined),
       TabItem(icon: Icons.settings),
       
     ],
     initialActiveIndex: _selectedIndex,
-    onTap: (int index) {
-    // Ignore invisible tab
-    if (index == 1) return;
-    _onItemTapped(index > 1 ? index - 1 : index); // Adjust index for actual content
-  },
+    onTap: _onItemTapped,
+  
     backgroundColor: Color(0xFFB5927F),
     activeColor: Colors.white,
     color: Colors.white70,

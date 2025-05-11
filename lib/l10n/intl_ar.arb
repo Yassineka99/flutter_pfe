@@ -323,7 +323,9 @@
 "dispalyWorkflows": "عرض سير العمل",
   "showMore": "عرض المزيد",
   "showLess": "عرض أقل",
-  "markedAsCompleted": "تم وضع علامة كمكتمل"
+  "markedAsCompleted": "تم وضع علامة كمكتمل",
+    "chat": "الدردشة",
+  "typeMessage": "اكتب رسالتك"
 
 
 
