@@ -55,23 +55,36 @@ class _ChatSystemViewState extends State<ChatSystemView> {
   }
 
   Future<void> _loadMessages() async {
-    if (_selectedUser == null) return;
+  if (_selectedUser == null) {
+    if (mounted) setState(() => _isLoading = false);
+    return;
+  }
+  
+  try {
+    final messages = await _chatViewModel.getConversation(
+      widget.currentUserId, 
+      _selectedUser!.id!
+    );
     
-    setState(() => _isLoading = true);
-    try {
-      final messages = await _chatViewModel.getConversation(
-        widget.currentUserId, 
-        _selectedUser!.id!
-      );
+    if (mounted) {
       setState(() {
         _messages = messages;
         _isLoading = false;
       });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      print('Error loading messages: $e');
     }
+  } catch (e) {
+    if (mounted) setState(() => _isLoading = false);
+    print('Error loading messages: $e');
+    
+    // Optional: Show error to user
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Failed to load messages'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
 
   Future<void> _sendMessage() async {
     if (_messageController.text.isEmpty || _selectedUser == null) return;
@@ -385,42 +398,47 @@ CircleAvatar(
                           ),
                         ),
                       Expanded(
-                        child: Container(
-                          color: Color(0xFFFBEFE8).withOpacity(0.3),
-                          child: _messages.isEmpty
-                              ? Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.chat_bubble_outline,
-                                        size: 48,
-                                        color: Color(0xFFB5927F).withOpacity(0.3)),
-                                      
-                                      SizedBox(height: 16),
-                                      Text(
-                                        "intl.noMessages",
-                                        style: TextStyle(
-                                          color: Color(0xFF4e3a31).withOpacity(0.4),
-                                          fontFamily: 'BrandonGrotesque',
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : ListView.builder(
-                                  padding: EdgeInsets.all(8),
-                                  reverse: true,
-                                  itemCount: _messages.length,
-                                  itemBuilder: (context, index) {
-                                    final message = _messages[index];
-                                    final isCurrentUser = message.from_user == widget.currentUserId;
-                                    return _buildMessage(message, isCurrentUser);
-                                  },
-                                ),
-                        ),
-                      ),
+  child: Container(
+    color: Color(0xFFFBEFE8).withOpacity(0.3),
+    child: _messages.isEmpty
+        ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.chat_bubble_outline,
+                  size: 48,
+                  color: Color(0xFFB5927F).withOpacity(0.3)),
+                SizedBox(height: 16),
+                Text(
+                  intl.noMessages,
+                  style: TextStyle(
+                    color: Color(0xFF4e3a31).withOpacity(0.4),
+                    fontFamily: 'BrandonGrotesque',
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          )
+        : RefreshIndicator(
+            onRefresh: _loadMessages,
+            color: Color(0xFFB5927F),
+            backgroundColor: Color(0xFFFBEFE8),
+            child: ListView.builder(
+              padding: EdgeInsets.all(8),
+              reverse: true,
+              physics: AlwaysScrollableScrollPhysics(), // Required for RefreshIndicator
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                final message = _messages[index];
+                final isCurrentUser = message.from_user == widget.currentUserId;
+                return _buildMessage(message, isCurrentUser);
+              },
+            ),
+          ),
+  ),
+),
                       _buildChatInput(),
                     ],
                   ),

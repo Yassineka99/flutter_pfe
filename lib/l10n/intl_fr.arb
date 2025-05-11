@@ -324,7 +324,9 @@
   "showLess": "Afficher moins",
   "markedAsCompleted": "marqué comme terminé",
     "chat": "Discussion",
-  "typeMessage": "Tapez votre message"
+  "typeMessage": "Tapez votre message",
+  "noMessages": "Aucun message"
+  
 
 
 

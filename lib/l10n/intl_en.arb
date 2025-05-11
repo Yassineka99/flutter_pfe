@@ -307,6 +307,7 @@
   "showLess":"Show Less",
   "markedAsCompleted":"marked as completed",
   "chat":"Chat",
-  "typeMessage":"Type aYour Message"
+  "typeMessage":"Type aYour Message",
+  "noMessages":"No Messages"
 
 }

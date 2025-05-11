@@ -323,7 +323,8 @@
   "showLess": "Mostrar menos",
   "markedAsCompleted": "marcado como completado",
     "chat": "Chat",
-  "typeMessage": "Escribe tu mensaje"
+  "typeMessage": "Escribe tu mensaje",
+  "noMessages": "No hay mensajes"
 
 
 
