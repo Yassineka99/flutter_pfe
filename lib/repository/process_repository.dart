@@ -38,7 +38,7 @@ try {
         // Mirror in SQLite as synced…
         await _dbHelper.insertData('''
         INSERT OR REPLACE INTO process
-          (id, name, workflow_id ,status_id, order , created_by , is_synced, is_deleted, needs_update)
+          (id, name, workflow_id ,status_id, ordera , created_by , is_synced, is_deleted, needs_update)
         VALUES
           (?, ?, ?, ?,?,?, 1, 0, 0)
       ''', [
@@ -54,7 +54,7 @@ try {
     } catch (e) {
       final localId = await _dbHelper.insertData('''
     INSERT INTO process
-      (name, workflow_id ,status_id, order , created_by,is_synced, is_deleted, needs_update)
+      (name, workflow_id ,status_id, ordera , created_by,is_synced, is_deleted, needs_update)
     VALUES
       (?, ?,?,?,?,0, 0, 0)
   ''', [name, workflowId, statusId, order, createdBy]);
@@ -143,7 +143,7 @@ try {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-workflow-id/$workflowId'))
-          .timeout(Duration(seconds: 3));
+          .timeout(Duration(seconds: 7));
 
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
@@ -157,7 +157,7 @@ try {
               ''', [wf['id'], wf['name'], wf['workflow_id'],wf['status_id'] ,wf['created_by']]);
           }
         });
-        return data.map((item) => Process.fromJson(item)).toList();
+        return data.map<Process>((json)=>Process.fromJson(json as Map<String,dynamic>)).toList();
       }
     } catch (e) {
       print(
@@ -231,60 +231,94 @@ try {
     }
   }
 
-   Future<void> syncProcess() async {
-    if (!await _isConnected()) return;
-    final db = await _dbHelper.database;
-    //create
-    final newRows = await _dbHelper.readData(
-        "SELECT * FROM process WHERE is_synced =0 AND needs_update = 0 AND is_deleted =0");
-    for (var row in newRows) {
-      try {
-        final response = await http.post(
-          Uri.parse('$apiUrl1/create'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
+ Future<void> syncProcess() async {
+  if (!await _isConnected()) return;
+  final db = await _dbHelper.database;
+
+  // CREATE (Insert new records from local to server)
+  final newRows = await _dbHelper.readData('''
+    SELECT * FROM process 
+    WHERE is_synced = 0 AND needs_update = 0 AND is_deleted = 0
+  ''');
+
+  for (var row in newRows) {
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl1/create'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': row['name'],
+          'workflow_id': row['workflow_id'],
+          'status_id': row['status_id'],
+          'order': row['ordera'],
+          'created_by': row['created_by'],
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final servWf = Process.fromJson(jsonDecode(response.body));
+
+        // Insert new with real server ID and delete the old row
+        await db!.transaction((txn) async {
+          await txn.insert('process', {
+            'id': servWf.id,
             'name': row['name'],
             'workflow_id': row['workflow_id'],
             'status_id': row['status_id'],
-            'order': row['order'],
+            'ordera': row['ordera'],
             'created_by': row['created_by'],
-          }),
-        );
-        if (response.statusCode == 201) {
-          final servWf = Process.fromJson(jsonDecode(response.body));
-          await _dbHelper.updateData('''
-          Update process
-          SET id= ${servWf.id},
-          is_synced = 1 
-          WHERE id = ${row['id']}
-          ''');
-        }
-      } catch (e) {}
+            'is_synced': 1,
+            'is_deleted': 0,
+            'needs_update': 0,
+          });
+          await txn.delete('process', where: 'id = ?', whereArgs: [row['id']]);
+        });
+      }
+    } catch (e) {
+      // Log the error if needed
     }
-    //update
-    final updatedRows = await _dbHelper.readData('''
+  }
+
+  // UPDATE (Send changes to server)
+  final updatedRows = await _dbHelper.readData('''
     SELECT * FROM process WHERE needs_update = 1 AND is_deleted = 0
-    ''');
-    for (var row in updatedRows) {
+  ''');
+
+  for (var row in updatedRows) {
+    try {
       final wf = Process.fromJson(row);
-      final response = await http.post(Uri.parse('$apiUrl1/update'),
-          headers: {'Content-Type': 'application/json; charset=UTF-8'},
-          body: jsonEncode(wf.toJson()));
+      final response = await http.post(
+        Uri.parse('$apiUrl1/update'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(wf.toJson()),
+      );
+
       if (response.statusCode == 200) {
         await _dbHelper.updateData('''
-          UPDATE process SET is_synced = 1 , need_update=0 WHERE id = ${wf.id}
+          UPDATE process SET is_synced = 1, needs_update = 0 WHERE id = ${wf.id}
         ''');
       }
+    } catch (e) {
+      // Log the error if needed
     }
-    // delete
-    final deletedRows = await _dbHelper
-        .readData("SELECT * FROM process WHERE is_deleted = 1");
-    for (var row in deletedRows) {
+  }
+
+  // DELETE (Remove deleted rows from server and local)
+  final deletedRows = await _dbHelper.readData('''
+    SELECT * FROM process WHERE is_deleted = 1
+  ''');
+
+  for (var row in deletedRows) {
+    try {
       final id = row['id'];
       final response = await http.post(Uri.parse('$apiUrl1/delete/$id'));
       if (response.statusCode == 200) {
-        await _dbHelper.deleteData("DELETE FROM process WHERE id = $id");
+        await _dbHelper.deleteData('DELETE FROM process WHERE id = $id');
       }
+    } catch (e) {
+      // Log the error if needed
     }
   }
+}
+
 }

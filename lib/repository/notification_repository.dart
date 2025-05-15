@@ -132,31 +132,45 @@ class NotificationRepository {
   }
 
  Future<void> syncNotification() async {
-    if (!await _isConnected()) return;
-    final db = await _dbHelper.database;
-    //create
-    final newRows = await _dbHelper.readData(
-        "SELECT * FROM notification WHERE is_synced =0 AND needs_update = 0 AND is_deleted =0");
-    for (var row in newRows) {
-      try {
-        final response = await http.post(
-          Uri.parse('$apiUrl/create'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'name': row['name'],
-            'user_to_notify': row['user_to_notify'],
-          }),
-        );
-        if (response.statusCode == 201) {
-          final servWf = Notification.fromJson(jsonDecode(response.body));
-          await _dbHelper.updateData('''
-          Update notification
-          SET id= ${servWf.id},
-          is_synced = 1 
-          WHERE id = ${row['id']}
-          ''');
-        }
-      } catch (e) {}
+  if (!await _isConnected()) return;
+
+  final db = await _dbHelper.database;
+
+  // ── 1) Sync newly created notifications
+  final newRows = await _dbHelper.readData('''
+    SELECT * FROM notification WHERE is_synced = 0 AND needs_update = 0 AND is_deleted = 0
+  ''');
+
+  for (var row in newRows) {
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl/create'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'message': row['message'],
+          'user_to_notify': row['user_to_notify'],
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final servNotif = Notification.fromJson(jsonDecode(response.body));
+
+        await db!.transaction((txn) async {
+          await txn.insert('notification', {
+            'id': servNotif.id,
+            'message': servNotif.message,
+            'user_to_notify': servNotif.userToNotify,
+            'is_synced': 1,
+            'is_deleted': 0,
+            'needs_update': 0,
+          });
+          await txn.delete('notification', where: 'id = ?', whereArgs: [row['id']]);
+        });
+      }
+    } catch (e) {
+      print('Notification sync (create) error: $e');
     }
   }
+}
+
 }

@@ -72,12 +72,7 @@ class _WorkflowViewState extends State<WorkflowView> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     intl = AppLocalizations.of(context)!;
-    _conversationalAI = ConversationalAIService(
-      intl: intl,
-      workflowViewModel: _workflowViewModel,
-      processViewModel: _processViewModel,
-      subProcessViewModel: SubProcessViewModel(),
-    );
+    _conversationalAI = ConversationalAIService();
   }
 
   @override
@@ -129,7 +124,45 @@ class _WorkflowViewState extends State<WorkflowView> {
       _scrollToBottom();
     });
 
-    final response = await _conversationalAI.handleMessage(message, context);
+    var response = await _conversationalAI.handleMessage(message, context);
+    print("📡 AI raw response before trim : [$response]");
+    response = cleanResponse(response);
+    response = response.trim(); // <-- Add this line
+    print("📡 AI raw response (trimmed): [$response]");
+    
+    // Check if AI returned structured command
+
+    if (response.startsWith("create_workflow(")) {
+      print("the response starts with create workflow");
+      final name = _extract(response);
+      print("name after extracting :$name");
+      if (name.isNotEmpty) {
+        print(" entered if after verifying is not empty $name");
+        await _workflowViewModel.create(
+            name, 1); // Ensure the database interaction is triggered here
+        response = "Workflow '$name' created successfully!";
+      } else {
+        response = "Failed to extract workflow name.";
+      }
+    } else if (response.startsWith("add_process(")) {
+      final parts = _extract(response).split(',');
+      if (parts.length == 2) {
+        final processName = parts[0].trim();
+        final workflowName = parts[1].trim();
+        final workflows = await _workflowViewModel.fetchAllWorkflows();
+        final workflow = workflows.firstWhere(
+            (w) => w.name?.toLowerCase() == workflowName.toLowerCase(),
+            orElse: () => Workflow());
+
+        if (workflow.id != null) {
+          await _processViewModel.create(processName, workflow.id!, 1, 1, 1);
+          response = "Process '$processName' added to '$workflowName'.";
+          await _loadWorkflows();
+        } else {
+          response = "Workflow '$workflowName' not found.";
+        }
+      }
+    }
 
     setState(() {
       _conversation.removeLast();
@@ -140,8 +173,22 @@ class _WorkflowViewState extends State<WorkflowView> {
       });
       _isTyping = false;
       _scrollToBottom();
-      _loadWorkflows();
     });
+  }
+
+  String _extract(String text) {
+    // Extract the command inside parentheses
+    final startIndex = text.indexOf('(');
+    final endIndex = text.indexOf(')');
+    if (startIndex != -1 && endIndex != -1) {
+      return text.substring(startIndex + 1, endIndex).trim();
+    }
+    return ''; // Return empty if no valid command is found
+  }
+
+  String cleanResponse(String response) {
+    // Remove any non-ASCII characters or fix encoding issues
+    return response.replaceAll(RegExp(r'[^\x00-\x7F]'), '');
   }
 
   void _listen() async {
@@ -1554,7 +1601,9 @@ class _ExpandButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isExpanded ? intl.showLess.toUpperCase() : intl.showMore.toUpperCase(),
+                  isExpanded
+                      ? intl.showLess.toUpperCase()
+                      : intl.showMore.toUpperCase(),
                   style: TextStyle(
                     color: Color(0xFFB5927F),
                     fontFamily: 'BrandonGrotesque',

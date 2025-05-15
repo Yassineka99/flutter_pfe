@@ -326,7 +326,8 @@
   "markedAsCompleted": "als abgeschlossen markiert",
     "chat": "Chat",
   "typeMessage": "Geben Sie Ihre Nachricht ein",
-  "noMessages": "Keine Nachrichten"
+  "noMessages": "Keine Nachrichten",
+  "fingerprint": "Fingerprint"
 
 
 

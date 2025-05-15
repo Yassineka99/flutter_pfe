@@ -92,7 +92,7 @@ class SubProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all'))
-          .timeout(Duration(seconds: 3));
+          .timeout(Duration(seconds: 7));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -127,7 +127,7 @@ class SubProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-process-id/$processId'))
-          .timeout(Duration(seconds: 3));
+          .timeout(Duration(seconds: 7));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -358,60 +358,94 @@ class SubProcessRepoitory {
   }
 
   Future<void> syncSubProcess() async {
-    if (!await _isConnected()) return;
-    final db = await _dbHelper.database;
-    //create
-    final newRows = await _dbHelper.readData(
-        "SELECT * FROM subprocess WHERE is_synced =0 AND needs_update = 0 AND is_deleted =0");
-    for (var row in newRows) {
-      try {
-        final response = await http.post(
-          Uri.parse('$apiUrl1/create'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'name': row['name'],
-            'process_id': row['process_id'],
-            'status': row['status'],
-            'created_by': row['created_by'],
-            'message': row['message'],
-            'assigned_to': row['assigned_to']
-          }),
-        );
-        if (response.statusCode == 201) {
-          final servWf = SubProcess.fromJson(jsonDecode(response.body));
-          await _dbHelper.updateData('''
-          Update subprocess
-          SET id= ${servWf.id},
-          is_synced = 1 
-          WHERE id = ${row['id']}
-          ''');
-        }
-      } catch (e) {}
+  if (!await _isConnected()) return;
+
+  final db = await _dbHelper.database;
+
+  // ── 1) Create new entries on server
+  final newRows = await _dbHelper.readData('''
+    SELECT * FROM subprocess WHERE is_synced = 0 AND needs_update = 0 AND is_deleted = 0
+  ''');
+
+  for (var row in newRows) {
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl1/create'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': row['name'],
+          'process_id': row['process_id'],
+          'status': row['status'],
+          'created_by': row['created_by'],
+          'message': row['message'],
+          'assigned_to': row['assigned_to'],
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final servWf = SubProcess.fromJson(jsonDecode(response.body));
+
+        await db!.transaction((txn) async {
+          await txn.insert('subprocess', {
+            'id': servWf.id,
+            'name': servWf.name,
+            'process_id': servWf.processId,
+            'status': servWf.statusId,
+            'created_by': servWf.createdBy,
+            'message': servWf.message,
+            'assigned_to': servWf.assignedTo,
+            'is_synced': 1,
+            'is_deleted': 0,
+            'needs_update': 0,
+          });
+          await txn.delete('subprocess', where: 'id = ?', whereArgs: [row['id']]);
+        });
+      }
+    } catch (e) {
+      print('SubProcess sync (create) error: $e');
     }
-    //update
-    final updatedRows = await _dbHelper.readData('''
+  }
+
+  // ── 2) Update modified rows
+  final updatedRows = await _dbHelper.readData('''
     SELECT * FROM subprocess WHERE needs_update = 1 AND is_deleted = 0
-    ''');
-    for (var row in updatedRows) {
+  ''');
+
+  for (var row in updatedRows) {
+    try {
       final wf = SubProcess.fromJson(row);
-      final response = await http.post(Uri.parse('$apiUrl1/update'),
-          headers: {'Content-Type': 'application/json; charset=UTF-8'},
-          body: jsonEncode(wf.toJson()));
+      final response = await http.post(
+        Uri.parse('$apiUrl1/update'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(wf.toJson()),
+      );
+
       if (response.statusCode == 200) {
         await _dbHelper.updateData('''
-          UPDATE subprocess SET is_synced = 1 , need_update=0 WHERE id = ${wf.id}
+          UPDATE subprocess SET is_synced = 1, needs_update = 0 WHERE id = ${wf.id}
         ''');
       }
+    } catch (e) {
+      print('SubProcess sync (update) error: $e');
     }
-    // delete
-    final deletedRows = await _dbHelper
-        .readData("SELECT * FROM subprocess WHERE is_deleted = 1");
-    for (var row in deletedRows) {
+  }
+
+  // ── 3) Handle deletions
+  final deletedRows = await _dbHelper.readData('''
+    SELECT * FROM subprocess WHERE is_deleted = 1
+  ''');
+
+  for (var row in deletedRows) {
+    try {
       final id = row['id'];
       final response = await http.post(Uri.parse('$apiUrl1/delete/$id'));
       if (response.statusCode == 200) {
-        await _dbHelper.deleteData("DELETE FROM subprocess WHERE id = $id");
+        await _dbHelper.deleteData('DELETE FROM subprocess WHERE id = $id');
       }
+    } catch (e) {
+      print('SubProcess sync (delete) error: $e');
     }
   }
+}
+
 }

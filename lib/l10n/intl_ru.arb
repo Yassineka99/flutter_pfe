@@ -326,7 +326,8 @@
   "markedAsCompleted": "отмечено как выполнено",
     "chat": "Чат",
   "typeMessage": "Введите ваше сообщение",
-  "noMessages": "Нет сообщений"
+  "noMessages": "Нет сообщений",
+  "fingerprint": "Отпечаток пальца"
 
 
 

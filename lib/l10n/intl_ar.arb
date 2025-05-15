@@ -326,7 +326,8 @@
   "markedAsCompleted": "تم وضع علامة كمكتمل",
     "chat": "الدردشة",
   "typeMessage": "اكتب رسالتك",
-  "noMessages": "لا توجد رسائل"
+  "noMessages": "لا توجد رسائل",
+  "fingerprint": "البصمة"
 
 
 

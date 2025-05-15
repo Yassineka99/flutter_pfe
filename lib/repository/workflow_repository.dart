@@ -82,7 +82,7 @@ Future<List<Workflow>> getAllWorkflows() async {
     // try remote fetch
     final response = await http
       .get(Uri.parse('$apiUrl1/get-all'))
-      .timeout(Duration(seconds: 5));
+      .timeout(Duration(seconds: 7));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -219,16 +219,22 @@ Future<void> syncWorkflows() async {
         }),
       );
 
-      if (response.statusCode == 201) {
-        final serverWf = Workflow.fromJson(jsonDecode(response.body));
+        if (response.statusCode == 201) {
+          final serverWf = Workflow.fromJson(jsonDecode(response.body));
 
-        await _dbHelper.updateData('''
-          UPDATE workflow
-          SET id = ${serverWf.id},
-              is_synced = 1
-          WHERE id = ${row['id']}
-        ''');
-      }
+          await db!.transaction((txn) async {
+            await txn.insert('workflow', {
+              'id': serverWf.id,
+              'name': serverWf.name,
+              'created_by': serverWf.createdBy,
+              'is_synced': 1,
+              'is_deleted': 0,
+              'needs_update': 0,
+            });
+            await txn.delete('workflow', where: 'id = ?', whereArgs: [row['id']]);
+          });
+        }
+
     } catch (e) {
       print('Workflow sync (create) error: $e');
     }

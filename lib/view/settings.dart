@@ -674,7 +674,7 @@ Expanded(
                               const Icon(Icons.fingerprint, size: 35),
                               const SizedBox(width: 10),
                               Text(
-                                "Fingerprint Login",
+                                intl.fingerprint,
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontFamily: 'BrandonGrotesque',

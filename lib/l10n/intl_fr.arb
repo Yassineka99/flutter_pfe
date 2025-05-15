@@ -325,7 +325,8 @@
   "markedAsCompleted": "marqué comme terminé",
     "chat": "Discussion",
   "typeMessage": "Tapez votre message",
-  "noMessages": "Aucun message"
+  "noMessages": "Aucun message",
+  "fingerprint": "Empreinte digitale"
   
 
 

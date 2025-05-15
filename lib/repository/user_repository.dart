@@ -185,36 +185,53 @@ Future<bool> _isConnected() async {
   }
 
    Future<void> syncUser() async {
-    if (!await _isConnected()) return;
-    final db = await _dbHelper.database;
-    //create
-    final newRows = await _dbHelper.readData(
-        "SELECT * FROM user WHERE is_synced =0 AND needs_update = 0 AND is_deleted =0");
-    for (var row in newRows) {
-      try {
-        final response = await http.post(
-          Uri.parse('$apiUrl1/create'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'name': row['name'],
-            'email': row['email'],
-            'phone': row['phone'],
-            'password': row['password'],
-            'role': row['role'],
-          }),
-        );
-        if (response.statusCode == 201) {
-          final servWf = User.fromJson(jsonDecode(response.body));
-          await _dbHelper.updateData('''
-          Update user
-          SET id= ${servWf.id},
-          is_synced = 1 
-          WHERE id = ${row['id']}
-          ''');
-        }
-      } catch (e) {}
+  if (!await _isConnected()) return;
+
+  final db = await _dbHelper.database;
+
+  // ── 1) Sync newly created users
+  final newRows = await _dbHelper.readData('''
+    SELECT * FROM user WHERE is_synced = 0 AND needs_update = 0 AND is_deleted = 0
+  ''');
+
+  for (var row in newRows) {
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl1/create'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': row['name'],
+          'email': row['email'],
+          'phone': row['phone'],
+          'password': row['password'],
+          'role': row['role'],
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final servUser = User.fromJson(jsonDecode(response.body));
+
+        await db!.transaction((txn) async {
+          await txn.insert('user', {
+            'id': servUser.id,
+            'name': servUser.name,
+            'email': servUser.email,
+            'phone': servUser.phone,
+            'password': servUser.password,
+            'role': servUser.role,
+            'is_synced': 1,
+            'needs_update': 0,
+            'is_deleted': 0,
+          });
+          await txn.delete('user', where: 'id = ?', whereArgs: [row['id']]);
+        });
+      }
+    } catch (e) {
+      print('User sync (create) error: $e');
     }
   }
+}
+
 
 
 }

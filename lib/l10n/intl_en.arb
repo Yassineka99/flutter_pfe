@@ -308,6 +308,7 @@
   "markedAsCompleted":"marked as completed",
   "chat":"Chat",
   "typeMessage":"Type aYour Message",
-  "noMessages":"No Messages"
+  "noMessages":"No Messages",
+  "fingerprint":"Fingerprint"
 
 }

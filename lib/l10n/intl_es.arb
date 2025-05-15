@@ -324,7 +324,8 @@
   "markedAsCompleted": "marcado como completado",
     "chat": "Chat",
   "typeMessage": "Escribe tu mensaje",
-  "noMessages": "No hay mensajes"
+  "noMessages": "No hay mensajes",
+  "fingerprint": "Huella digital"
 
 
 

@@ -5,7 +5,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
+import '../model/sub_process.dart';
 import '../model/workflow.dart';
+import '../model/process.dart';
 import '../viewmodel/workflow_view_model.dart';
 import '../viewmodel/process_view_model.dart';
 import '../viewmodel/sub_process_view_model.dart';
@@ -29,7 +31,10 @@ class _DashboardViewState extends State<DashboardView> {
   List<Workflow> _workflows = [];
   bool _isPieChart = true;
   bool _isLoading = true;
-
+  static bool _dataLoaded = false;
+  static List<Workflow> _cachedWorkflows = [];
+  static Map<int, List<Process>> _cachedProcesses = {};
+  static Map<int, List<SubProcess>> _cachedSubProcesses = {};
   @override
   void initState() {
     super.initState();
@@ -96,19 +101,15 @@ class _DashboardViewState extends State<DashboardView> {
       Workflow workflow) async {
     try {
       // 1. Get processes for this workflow
-      final processes = await _processVM.getByWorkflowId(workflow.id!);
+      final processes = _cachedProcesses.values.expand((list) => list).cast<Process>().toList();
+      final subProcesses = _cachedSubProcesses.values.expand((list) => list).cast<SubProcess>().toList();
 
-      // 2. Get sub-processes for each process
-      final allSubs = await Future.wait(
-          processes.map((p) => _subProcessVM.getByProcessId(p.id!)));
-
-      // 3. Combine sub-processes
-      final subProcesses = allSubs.expand((s) => s).toList();
 
       return {
-        'process': _getStatusCounts(processes, (p) => p.statusId),
-        'subProcess': _getStatusCounts(subProcesses, (sp) => sp.statusId),
+        'process': _getStatusCounts<Process>(processes, (p) => p.statusId ?? -1),
+        'subProcess': _getStatusCounts<SubProcess>(subProcesses, (sp) => sp.statusId ?? -1),
       };
+
     } catch (e) {
       print('Error loading workflow data: $e');
       return {'process': {}, 'subProcess': {}};
@@ -123,22 +124,53 @@ class _DashboardViewState extends State<DashboardView> {
     };
   }
 
-  Future<void> _loadData() async {
-    try {
-      final workflows = await _workflowVM.fetchAllWorkflows();
-      if (mounted) {
-        setState(() {
-          _workflows = workflows;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-      print('Error loading data: $e');
-    }
+Future<void> _loadData() async {
+  if (_dataLoaded) {
+    _workflows = _cachedWorkflows;
+    _isLoading = false;
+    setState(() {});
+    return;
   }
+
+  try {
+    final workflows = await _workflowVM.fetchAllWorkflows();
+
+    final processMap = <int, List<Process>>{};
+    final subProcessMap = <int, List<SubProcess>>{};
+
+    // 🧠 Fetch all processes in parallel
+    final processFutures = workflows.map((workflow) async {
+      final processes = await _processVM.getByWorkflowId(workflow.id!);
+      processMap[workflow.id!] = processes;
+
+      // 🧠 Fetch sub-processes in parallel for each process
+      final subProcessFutures = processes.map((process) async {
+        final subs = await _subProcessVM.getByProcessId(process.id!);
+        subProcessMap[process.id!] = subs;
+      });
+
+      await Future.wait(subProcessFutures);
+    });
+
+    // Wait for all processes and subprocesses to finish
+    await Future.wait(processFutures);
+
+    if (mounted) {
+      setState(() {
+        _workflows = workflows;
+        _isLoading = false;
+        _cachedWorkflows = workflows;
+        _cachedProcesses = processMap;
+        _cachedSubProcesses = subProcessMap;
+        _dataLoaded = true;
+      });
+    }
+  } catch (e) {
+    if (mounted) setState(() => _isLoading = false);
+    print('Error loading dashboard data: $e');
+  }
+}
+
 
   Color _getStatusColor(int status) {
     switch (status) {
@@ -176,141 +208,142 @@ class _DashboardViewState extends State<DashboardView> {
     }
   }
 
-void _showSignatureDialog() async {
-  final Uint8List? signature = await showDialog<Uint8List>(
-    context: context,
-    builder: (context) => Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFFFDF8F4),
-              const Color(0xFFFBEFE8).withOpacity(0.7),
+  void _showSignatureDialog() async {
+    final Uint8List? signature = await showDialog<Uint8List>(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFFFDF8F4),
+                const Color(0xFFFBEFE8).withOpacity(0.7),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFFB5927F).withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.brush,
+                    color: const Color(0xFF4e3a31).withOpacity(0.8),
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    AppLocalizations.of(context)!.signReport,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF4e3a31),
+                      fontFamily: 'BrandonGrotesque',
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Signature Area
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5E6DC).withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFB5927F).withOpacity(0.2),
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Signature(
+                    controller: _signatureController,
+                    backgroundColor: Colors.transparent,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                          backgroundColor:
+                              const Color(0xFFB5927F).withOpacity(0.1),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(
+                                color:
+                                    const Color(0xFFB5927F).withOpacity(0.2)),
+                          )),
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        AppLocalizations.of(context)!.cancel,
+                        style: TextStyle(
+                          color: const Color(0xFF4e3a31),
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'BrandonGrotesque',
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFB5927F),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () async {
+                        if (_signatureController.isNotEmpty) {
+                          final signatureImage = await _signatureController
+                              .toPngBytes(height: 200, width: 400);
+                          if (signatureImage != null) {
+                            Navigator.pop(context, signatureImage);
+                          }
+                        }
+                      },
+                      child: Text(
+                        AppLocalizations.of(context)!.confirm,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'BrandonGrotesque',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFFB5927F).withOpacity(0.2),
-            width: 1,
-          ),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.brush,
-                  color: const Color(0xFF4e3a31).withOpacity(0.8),
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  AppLocalizations.of(context)!.signReport,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF4e3a31),
-                    fontFamily: 'BrandonGrotesque',
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Signature Area
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5E6DC).withOpacity(0.3),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFB5927F).withOpacity(0.2),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Signature(
-                  controller: _signatureController,
-                  backgroundColor: Colors.transparent,
-                  
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFFB5927F).withOpacity(0.1),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(
-                          color: const Color(0xFFB5927F).withOpacity(0.2)),
-                    )),
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      AppLocalizations.of(context)!.cancel,
-                      style: TextStyle(
-                        color: const Color(0xFF4e3a31),
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'BrandonGrotesque',
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFB5927F),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () async {
-                      if (_signatureController.isNotEmpty) {
-                        final signatureImage = await _signatureController
-                            .toPngBytes(height: 200, width: 400);
-                        if (signatureImage != null) {
-                          Navigator.pop(context, signatureImage);
-                        }
-                      }
-                    },
-                    child: Text(
-                      AppLocalizations.of(context)!.confirm,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'BrandonGrotesque',
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
         ),
       ),
-    ),
-  );
+    );
 
-  if (signature != null && signature.isNotEmpty) {
-    await _generateReport(signature);
+    if (signature != null && signature.isNotEmpty) {
+      await _generateReport(signature);
+    }
+    _signatureController.clear();
   }
-  _signatureController.clear();
-}
 
   Future<void> _generateReport(Uint8List signatureImage) async {
     final currentContext = context;
@@ -691,134 +724,141 @@ void _showSignatureDialog() async {
   }
 
   Widget _buildWorkflowCharts(Workflow workflow, BuildContext context) {
-  final intl = AppLocalizations.of(context)!;
+    final intl = AppLocalizations.of(context)!;
 
-  return FutureBuilder(
-    future: _loadWorkflowData(workflow),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(
-          child: CircularProgressIndicator(
-            color: const Color(0xFF4e3a31),
-            strokeWidth: 2.5,
-          ),
-        );
-      }
-
-      if (snapshot.hasError) {
-        return Center(
-          child: Text(
-            intl.error,
-            style: TextStyle(
-              color: const Color(0xFF4e3a31).withOpacity(0.6),
-              fontFamily: 'BrandonGrotesque',
-              fontSize: 14,
+    return FutureBuilder(
+      future: _loadWorkflowData(workflow),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: const Color(0xFF4e3a31),
+              strokeWidth: 2.5,
             ),
-          ),
-        );
-      }
+          );
+        }
 
-      final processCounts = snapshot.data?['process'] ?? {};
-      final subProcessCounts = snapshot.data?['subProcess'] ?? {};
-      
-      return Card(
-        margin: const EdgeInsets.only(bottom: 16),
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: const Color(0xFFB5927F).withOpacity(0.2), width: 1),
-        ),
-        shadowColor: const Color(0xFF4e3a31).withOpacity(0.1),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                const Color(0xFFFDF8F4),
-                const Color(0xFFFBEFE8).withOpacity(0.7),
-              ],
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              intl.error,
+              style: TextStyle(
+                color: const Color(0xFF4e3a31).withOpacity(0.6),
+                fontFamily: 'BrandonGrotesque',
+                fontSize: 14,
+              ),
             ),
+          );
+        }
+
+        final processCounts = snapshot.data?['process'] ?? {};
+        final subProcessCounts = snapshot.data?['subProcess'] ?? {};
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          elevation: 4,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+                color: const Color(0xFFB5927F).withOpacity(0.2), width: 1),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Text(
-                    workflow.name ?? '',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF4e3a31),
-                      fontFamily: 'BrandonGrotesque',
-                      letterSpacing: 0.5,
+          shadowColor: const Color(0xFF4e3a31).withOpacity(0.1),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFFFDF8F4),
+                  const Color(0xFFFBEFE8).withOpacity(0.7),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Text(
+                      workflow.name ?? '',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF4e3a31),
+                        fontFamily: 'BrandonGrotesque',
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildChart(processCounts, intl.processes, context),
-                    ),
-                    Expanded(
-                      child: _buildChart(subProcessCounts, intl.subProcesses, context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 24,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: [1, 2, 3].map((status) => 
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(status).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: _getStatusColor(status).withOpacity(0.2),
-                          width: 1,
-                        ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child:
+                            _buildChart(processCounts, intl.processes, context),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 10,
-                            height: 10,
+                      Expanded(
+                        child: _buildChart(
+                            subProcessCounts, intl.subProcesses, context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 24,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.center,
+                    children: [1, 2, 3]
+                        .map(
+                          (status) => Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: _getStatusColor(status),
-                              shape: BoxShape.circle,
+                              color: _getStatusColor(status).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: _getStatusColor(status).withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: _getStatusColor(status),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _getStatusLabel(status, context),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF4e3a31)
+                                        .withOpacity(0.8),
+                                    fontFamily: 'BrandonGrotesque',
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _getStatusLabel(status, context),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF4e3a31).withOpacity(0.8),
-                              fontFamily: 'BrandonGrotesque',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ).toList(),
-                ),
-              ],
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -831,7 +871,7 @@ void _showSignatureDialog() async {
             padding: EdgeInsets.only(left: 118),
             child: Text(
               intl.dashboard,
-              style:  TextStyle(
+              style: TextStyle(
                   color: Color(0xFF4e3a31).withOpacity(0.7),
                   fontFamily: 'BrandonGrotesque',
                   fontWeight: FontWeight.bold),
@@ -850,11 +890,12 @@ void _showSignatureDialog() async {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(
-            color:Color(0xFFB5927F) ,
-          ))
+          ? const Center(
+              child: CircularProgressIndicator(
+              color: Color(0xFFB5927F),
+            ))
           : RefreshIndicator(
-            color: Color(0xFFB5927F),
+              color: Color(0xFFB5927F),
               onRefresh: _loadData,
               child: _workflows.isEmpty
                   ? Center(child: Text(intl.noWorkflows))

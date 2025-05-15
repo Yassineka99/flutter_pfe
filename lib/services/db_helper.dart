@@ -16,10 +16,10 @@ class DBHelper {
 
   Future<Database> _initDB() async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'app.db');
+    final path = join(dbPath, 'app2.db');
     return openDatabase(
       path,
-      version: 6, 
+      version: 6,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE user (
@@ -45,6 +45,7 @@ class DBHelper {
           workflow_id INTEGER,
           status_id INTEGER,
           created_by INTEGER,
+          ordera INTEGER,
           is_synced INTEGER DEFAULT 0,
           is_deleted INTEGER DEFAULT 0,
           needs_update INTEGER DEFAULT 0
@@ -114,34 +115,47 @@ class DBHelper {
           await db.execute('ALTER TABLE user ADD COLUMN image TEXT');
           await db.execute('ALTER TABLE user ADD COLUMN imageType TEXT');
         }
-        if(oldVersion<4)
-        {
+        if (oldVersion < 4) {
           await db.execute('''
             ALTER TABLE user ADD COLUMN created_locally INTEGER DEFAULT 0
           ''');
-
         }
-        if(oldVersion<5)
-        {
-          await db.execute(' ALTER TABLE user ADD COLUMN is_deleted INTEGER DEFAULT 0');
-          await db.execute('ALTER TABLE user ADD COLUMN needs_update INTEGER DEFAULT 0');
-          await db.execute('ALTER TABLE workflow ADD COLUMN is_deleted INTEGER DEFAULT 0');
-          await db.execute('ALTER TABLE workflow ADD COLUMN needs_update INTEGER DEFAULT 0');
-          await db.execute(' ALTER TABLE process ADD COLUMN is_deleted INTEGER DEFAULT 0');
-          await db.execute('ALTER TABLE process ADD COLUMN needs_update INTEGER DEFAULT 0');
-          await db.execute('ALTER TABLE subprocess ADD COLUMN is_deleted INTEGER DEFAULT 0');
-          await db.execute('ALTER TABLE subprocess ADD COLUMN needs_update INTEGER DEFAULT 0');
-          await db.execute(' ALTER TABLE notification ADD COLUMN is_deleted INTEGER DEFAULT 0');
-          await db.execute('ALTER TABLE notification ADD COLUMN needs_update INTEGER DEFAULT 0');
-          await db.execute('ALTER TABLE status ADD COLUMN is_deleted INTEGER DEFAULT 0');
-          await db.execute('ALTER TABLE status ADD COLUMN needs_update INTEGER DEFAULT 0');     
-          await db.execute('ALTER TABLE role ADD COLUMN is_deleted INTEGER DEFAULT 0');
-          await db.execute('ALTER TABLE role ADD COLUMN needs_update INTEGER DEFAULT 0');       
+        if (oldVersion < 5) {
+          await db.execute(
+              ' ALTER TABLE user ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE user ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE workflow ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE workflow ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute(
+              ' ALTER TABLE process ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE process ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE subprocess ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE subprocess ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute(
+              ' ALTER TABLE notification ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE notification ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE status ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE status ADD COLUMN needs_update INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE role ADD COLUMN is_deleted INTEGER DEFAULT 0');
+          await db.execute(
+              'ALTER TABLE role ADD COLUMN needs_update INTEGER DEFAULT 0');
         }
-        if(oldVersion < 6 )
-        {
+        if (oldVersion < 6) {
           await db.execute('ALTER TABLE subprocess ADD COLUMN message INTEGER');
           await db.execute('ALTER TABLE subprocess ADD COLUMN created_by TEXT');
+        }
+        if (oldVersion < 7) {
+          await db.execute('ALTER TABLE process ADD COLUMN order INTEGER');
         }
       },
     );
@@ -173,21 +187,21 @@ class DBHelper {
     return await db!.rawQuery(sql, args);
   }
 
-  insertData(String sql,[List<dynamic>? args]) async {
+  insertData(String sql, [List<dynamic>? args]) async {
     Database? mydb = await database;
-    int response = await mydb!.rawInsert(sql,args);
+    int response = await mydb!.rawInsert(sql, args);
     return response;
   }
 
-  updateData(String sql,[List<dynamic>? args]) async {
+  updateData(String sql, [List<dynamic>? args]) async {
     Database? mydb = await database;
-    int response = await mydb!.rawUpdate(sql,args);
+    int response = await mydb!.rawUpdate(sql, args);
     return response;
   }
 
-  deleteData(String sql,[List<dynamic>? args]) async {
+  deleteData(String sql, [List<dynamic>? args]) async {
     Database? mydb = await database;
-    int response = await mydb!.rawDelete(sql,args);
+    int response = await mydb!.rawDelete(sql, args);
     return response;
   }
 }
