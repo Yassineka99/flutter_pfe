@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:o3d/o3d.dart';
 
-class MyWidget extends StatefulWidget {
+class ProductObject extends StatefulWidget {
   final String modelpath ;
-  const MyWidget({super.key, required this.modelpath});
+  const ProductObject({super.key, required this.modelpath});
 
   @override
-  State<MyWidget> createState() => _MyWidgetState();
+  State<ProductObject> createState() => _ProductObjectState();
 }
 
-class _MyWidgetState extends State<MyWidget> {
+class _ProductObjectState extends State<ProductObject> {
   O3DController o3dController = O3DController();
   PageController pageController = PageController();
   @override

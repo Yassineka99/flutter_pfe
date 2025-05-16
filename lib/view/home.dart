@@ -1,6 +1,7 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:front/model/user_session.dart';
+import 'package:front/view/products.dart';
 import 'package:front/view/settings.dart';
 import 'package:front/view/users_view.dart';
 import 'package:front/view/workflows_view.dart';
@@ -34,7 +35,7 @@ class _AdminHomeState extends State<AdminHome> {
     _pages = [
       const DashboardView(),
       const UsersView(),
-      const MyWidget(modelpath: 'assets/models/baseball_bat_metal.glb',),
+      const ProductsView(),
       const WorkflowView(),
       const SettingsView(),
     ];
