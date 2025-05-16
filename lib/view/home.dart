@@ -13,6 +13,7 @@ import '../model/user.dart';
 import 'dashboard.dart';
 import 'login.dart';
 import 'mini_widgets/custom_nav_bar.dart';
+import 'model_3d_viewer.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -27,17 +28,15 @@ class _AdminHomeState extends State<AdminHome> {
   SubProcessViewModel sub = SubProcessViewModel();
   ProcessViewModel pro = ProcessViewModel();
   late List<Widget> _pages;
-  
   @override
   void initState() {
     super.initState();
     _pages = [
       const DashboardView(),
       const UsersView(),
+      const MyWidget(modelpath: 'assets/models/baseball_bat_metal.glb',),
       const WorkflowView(),
       const SettingsView(),
-      const SettingsView(),
-
     ];
   }
 
@@ -69,11 +68,9 @@ class _AdminHomeState extends State<AdminHome> {
       
     ],
     initialActiveIndex: _selectedIndex,
-    onTap: (int index) {
-    // Ignore invisible tab
-    if (index == 2) return;
-    _onItemTapped(index > 2 ? index - 1 : index); // Adjust index for actual content
-  },
+    onTap: 
+    _onItemTapped, // Adjust index for actual content
+ 
     backgroundColor: Color(0xFFB5927F),
     activeColor: Colors.white,
     color: Colors.white70,
