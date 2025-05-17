@@ -1,6 +1,7 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:front/model/user_session.dart';
+import 'package:front/view/products.dart';
 import 'package:front/view/settings.dart';
 import 'package:front/view/workflows_view.dart';
 import 'package:front/viewmodel/process_view_model.dart';
@@ -22,7 +23,7 @@ class ManagerHome extends StatefulWidget {
 
 class _ManagerHomeState extends State<ManagerHome> {
   User? user;
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
   SubProcessViewModel sub = SubProcessViewModel();
   ProcessViewModel pro = ProcessViewModel();
   late List<Widget> _pages;
@@ -32,6 +33,7 @@ class _ManagerHomeState extends State<ManagerHome> {
     super.initState();
     _pages = [
       const WorkflowView(),
+      ProductsView(),
       const SettingsView(),
     ];
   }
@@ -62,15 +64,13 @@ class _ManagerHomeState extends State<ManagerHome> {
           child: ConvexAppBar(
             items: [
           TabItem(icon: Icons.dashboard),
-          TabItem(icon: Icons.home, title: ''),
+          TabItem(icon: Icons.home,),
           TabItem(icon: Icons.settings),
           
             ],
             initialActiveIndex: _selectedIndex,
-              onTap: (int index) {
-          if (index == 1) return; // skip dummy
-          _onItemTapped(index > 1 ? index - 1 : index);
-              }
+              onTap: // skip dummy
+          _onItemTapped
               ,
             backgroundColor: Color(0xFFB5927F),
             activeColor: Colors.white,

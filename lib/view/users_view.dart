@@ -25,25 +25,48 @@ class _UsersViewState extends State<UsersView> {
   bool isLoading = true;
   bool _showFilters = false;
   SortCriteria? _selectedSort;
+    static List<User>? _cachedUsersList;
+  static bool _isCacheValid = false;
   @override
   void initState() {
     super.initState();
     _loadUsers();
   }
 
-  Future<void> _loadUsers() async {
-    try {
-      final users = await _userViewModel.getUsersByRoleId(3);
+Future<void> _loadUsers({bool forceRefresh = false}) async {
+  // Use cached data if available and not forcing refresh
+  if (!forceRefresh && _isCacheValid && _cachedUsersList != null) {
+    setState(() {
+      usersList = _cachedUsersList;
+      isLoading = false;
+    });
+    return;
+  }
+
+  setState(() => isLoading = true);
+  
+  try {
+    final users = await _userViewModel.getUsersByRoleId(3);
+    // Update cache
+    _cachedUsersList = users;
+    _isCacheValid = true;
+    
+    setState(() {
+      usersList = users;
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+    });
+    // If we have cached data, show it even if refresh failed
+    if (_cachedUsersList != null) {
       setState(() {
-        usersList = users;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
+        usersList = _cachedUsersList;
       });
     }
   }
+}
 
   void _handleSort(SortCriteria criteria) async {
     if (usersList == null) return;
@@ -235,20 +258,22 @@ void _showAddUserDialog() {
                         borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        try {
-                          await _userViewModel.createClient(name, email, phone, password, role);
-                          _loadUsers();
-                          Navigator.pop(context);
-                          _showResultPopup(true);
-                        } catch (e) {
-                          Navigator.pop(context);
-                          _showResultPopup(false);
-                        }
-                      }
-                    },
+  onPressed: () async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      try {
+        await _userViewModel.createClient(name, email, phone, password, role);
+        // Invalidate cache after adding new user
+        _isCacheValid = false;
+        _loadUsers(forceRefresh: true);
+        Navigator.pop(context);
+        _showResultPopup(true);
+      } catch (e) {
+        Navigator.pop(context);
+        _showResultPopup(false);
+      }
+    }
+  },
                     child: Text(
                       intl.save,
                       style: const TextStyle(
@@ -403,19 +428,24 @@ Widget _buildFilterChip(SortCriteria criteria, String label) {
                   ),
                 ),
                 // Main content area
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: usersList!.length,
-                    itemBuilder: (context, index) {
-                      final user = usersList![index];
-                      return _UserCard(
-                        user: user,
-                        subProcessViewModel: _subProcessViewModel,
-                      );
-                    },
-                  ),
-                ),
+// Replace your Expanded widget containing ListView.builder with:
+Expanded(
+  child: RefreshIndicator(
+    onRefresh: () => _loadUsers(forceRefresh: true),
+    color: const Color(0xFFB5927F),
+    child: ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: usersList!.length,
+      itemBuilder: (context, index) {
+        final user = usersList![index];
+        return _UserCard(
+          user: user,
+          subProcessViewModel: _subProcessViewModel,
+        );
+      },
+    ),
+  ),
+),
               ],
             ),
 );
@@ -446,23 +476,41 @@ class _UserCard extends StatefulWidget {
 class __UserCardState extends State<_UserCard> {
   bool _isExpanded = false;
   int finishedsum = 0;
+  static final Map<int, Map<String, dynamic>> _userDataCache = {};
   late Future<Map<String, dynamic>> _combinedFuture;
     final NotificationViewModel _notificationViewModel = NotificationViewModel();
 
   @override
   void initState() {
     super.initState();
-    _combinedFuture = _loadCombinedData();
+        if (_userDataCache.containsKey(widget.user.id)) {
+      _combinedFuture = Future.value(_userDataCache[widget.user.id]);
+    } else {
+      _combinedFuture = _loadCombinedData().then((data) {
+        _userDataCache[widget.user.id!] = data; // Cache the data
+        return data;
+      });
+    }
+  }
+  void _clearCache() {
+    _userDataCache.remove(widget.user.id);
+  }
+Future<Map<String, dynamic>> _loadCombinedData({bool forceRefresh = false}) async {
+  if (!forceRefresh && _userDataCache.containsKey(widget.user.id)) {
+    return _userDataCache[widget.user.id]!;
   }
 
-  Future<Map<String, dynamic>> _loadCombinedData() async {
-    final subProcesses = await widget.subProcessViewModel.getByUserId(widget.user.id!);
-    final finished = await SubProcessViewModel().getByStatusAndUserId(3, widget.user.id!);
-    return {
-      'all': subProcesses,
-      'finished': finished,
-    };
-  }
+  final subProcesses = await widget.subProcessViewModel.getByUserId(widget.user.id!);
+  final finished = await SubProcessViewModel().getByStatusAndUserId(3, widget.user.id!);
+  
+  final data = {
+    'all': subProcesses,
+    'finished': finished,
+  };
+  
+  _userDataCache[widget.user.id!] = data; // Cache the data
+  return data;
+}
   void _showResultPopup(bool success) {
   final intl = AppLocalizations.of(context)!;
   ScaffoldMessenger.of(context).showSnackBar(

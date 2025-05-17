@@ -25,7 +25,7 @@ class AdminHome extends StatefulWidget {
 
 class _AdminHomeState extends State<AdminHome> {
   User? user;
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
   SubProcessViewModel sub = SubProcessViewModel();
   ProcessViewModel pro = ProcessViewModel();
   late List<Widget> _pages;
