@@ -325,7 +325,18 @@
     "chat": "Chat",
   "typeMessage": "Escribe tu mensaje",
   "noMessages": "No hay mensajes",
-  "fingerprint": "Huella digital"
+  "fingerprint": "Huella digital",
+  "twoDBlueprint": "Plano 2D",
+  "threeDModelPreview": "Vista previa del modelo 3D",
+  "productList": "Lista de productos",
+  "unamedWorkflow": "Flujo de trabajo sin nombre",
+  "associatedProduct": "Producto asociado",
+  "unamedProduct": "Producto sin nombre",
+  "onlyAvailable": "El modelo 3D solo está disponible para flujos de trabajo finalizados",
+  "viewModel": "Ver el modelo 3D",
+  "viewBlueprint": "Ver el plano 2D",
+  "invalidImageFormat": "Formato de imagen no válido",
+  "noAssociatedProduct": "No hay producto asociado"
 
 
 

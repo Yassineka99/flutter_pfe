@@ -327,7 +327,18 @@
     "chat": "Chat",
   "typeMessage": "Geben Sie Ihre Nachricht ein",
   "noMessages": "Keine Nachrichten",
-  "fingerprint": "Fingerprint"
+  "fingerprint": "Fingerprint",
+    "twoDBlueprint": "2D-Plan",
+  "threeDModelPreview": "3D-Modellvorschau",
+  "productList": "Produktliste",
+  "unamedWorkflow": "Unbenannter Arbeitsablauf",
+  "associatedProduct": "Zugehöriges Produkt",
+  "unamedProduct": "Unbenanntes Produkt",
+  "onlyAvailable": "3D-Modell ist nur für abgeschlossene Arbeitsabläufe verfügbar",
+  "viewModel": "3D-Modell anzeigen",
+  "viewBlueprint": "2D-Plan anzeigen",
+  "invalidImageFormat": "Ungültiges Bildformat",
+  "noAssociatedProduct": "Kein zugehöriges Produkt"
 
 
 

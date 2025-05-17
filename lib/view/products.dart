@@ -1,10 +1,14 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:front/viewmodel/product_view_model.dart';
 import 'package:front/viewmodel/workflow_view_model.dart';
+import 'package:photo_view/photo_view.dart';
 import '../model/workflow.dart';
 import '../model/product.dart';
 import 'model_3d_viewer.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductsView extends StatefulWidget {
   const ProductsView({super.key});
@@ -49,6 +53,34 @@ class _ProductsViewState extends State<ProductsView> {
     }
   }
 
+  void _show2dBlueprintPopup(Uint8List imageBytes) {
+    final intl = AppLocalizations.of(context)!;
+  try {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title:  Text(intl.twoDBlueprint),
+            backgroundColor: const Color(0xFFB5927F),
+          ),
+          body: PhotoView(
+            imageProvider: MemoryImage(imageBytes),
+            minScale: PhotoViewComputedScale.contained * 0.5,
+            maxScale: PhotoViewComputedScale.covered * 3.0,
+            initialScale: PhotoViewComputedScale.contained,
+            heroAttributes: PhotoViewHeroAttributes(tag: 'image_${DateTime.now().millisecondsSinceEpoch}'),
+          ),
+        ),
+      ),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to display image: ${e.toString()}')),
+    );
+  }
+}
+
   Future<void> _loadProduct(int productId) async {
     if (!productsCache.containsKey(productId)) {
       final product = await productViewModel.getProductById(productId.toString());
@@ -59,12 +91,13 @@ class _ProductsViewState extends State<ProductsView> {
   }
 
   void _show3dModelPopup(String modelPath) {
+    final intl = AppLocalizations.of(context)!;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Scaffold(
           appBar: AppBar(
-            title: const Text('3D Model Preview'),
+            title: Text(intl.threeDModelPreview),
             backgroundColor: const Color(0xFFB5927F),
             iconTheme: const IconThemeData(
               color: Colors.white,
@@ -78,17 +111,18 @@ class _ProductsViewState extends State<ProductsView> {
 
   @override
   Widget build(BuildContext context) {
+      final intl = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFB5927F),
-        title: const Padding(
+        title:  Padding(
           padding: EdgeInsets.only(left: 120),
           child: Text(
-            'Products List',
+            intl.productList,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF4e3a31),
-              fontFamily: 'BrandonGrotesque'
+              color: Color(0xFF4e3a31).withOpacity(0.7),
+              fontFamily: 'BrandonGrotesque',
             ),
           ),
         ),
@@ -97,9 +131,21 @@ class _ProductsViewState extends State<ProductsView> {
         ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFFB5927F),
+              ),
+            )
           : workflowsdata.isEmpty
-              ? const Center(child: Text('No workflows found'))
+              ?  Center(
+                  child: Text(
+                    intl.noWorkflows,
+                    style: TextStyle(
+                      color: Color(0xFF4e3a31),
+                      fontSize: 18,
+                    ),
+                  ),
+                )
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: workflowsdata.length,
@@ -109,6 +155,14 @@ class _ProductsViewState extends State<ProductsView> {
                         ? productsCache[workflow.product_id!]
                         : null;
                     
+                    // Simple image decoding like your user example
+                    Uint8List? imageBytes;
+                    if (workflow.image != null && workflow.image!.isNotEmpty) {
+                      try {
+                        imageBytes = base64Decode(workflow.image!);
+                      } catch (_) {}
+                    }
+
                     return Card(
                       margin: const EdgeInsets.only(bottom: 16),
                       elevation: 4,
@@ -168,13 +222,22 @@ class _ProductsViewState extends State<ProductsView> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            workflow.name ?? 'Unnamed Workflow',
+                                            workflow.name ?? intl.unamedWorkflow,
                                             style: const TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w800,
                                               color: Color(0xFF4e3a31),
                                               fontFamily: 'BrandonGrotesque',
                                               letterSpacing: 0.3,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Status: ${_getStatusText(workflow.status_id)}',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: _getStatusColor(workflow.status_id),
+                                              fontFamily: 'BrandonGrotesque',
                                             ),
                                           ),
                                         ],
@@ -192,8 +255,8 @@ class _ProductsViewState extends State<ProductsView> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        'Associated Product',
+                                       Text(
+                                        intl.associatedProduct,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w700,
                                           color: Color(0xFF4e3a31),
@@ -202,48 +265,74 @@ class _ProductsViewState extends State<ProductsView> {
                                           letterSpacing: 0.3,
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      const SizedBox(height: 12),
+                                      
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                product.name ?? 'Unnamed Product',
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontFamily: 'BrandonGrotesque',
-                                                ),
-                                              ),
-                                              Text(
-                                                'Status: ${_getStatusText(product.status_id)}',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey[600],
-                                                  fontFamily: 'BrandonGrotesque',
-                                                ),
-                                              ),
-                                            ],
+                                          Text(
+                                            product.name ?? intl.unamedProduct,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: 'BrandonGrotesque',
+                                            ),
                                           ),
-                                          if (product.modelFileName != null && 
-                                              product.modelFileName!.isNotEmpty)
-                                            ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: const Color(0xFFB5927F),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(10),
+                                          const SizedBox(height: 16),
+                                          // 3D Model Button (on top)
+                                          if (product.modelFileName != null && product.modelFileName!.isNotEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(bottom: 8),
+                                              child: Tooltip(
+                                                message: workflow.status_id != 3 
+                                                    ? intl.onlyAvailable 
+                                                    : intl.viewModel,
+                                                child: SizedBox(
+                                                  width: double.infinity,
+                                                  child: ElevatedButton.icon(
+                                                    icon: const Icon(Icons.threed_rotation, size: 16),
+                                                    label:  Text(intl.viewModel),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: workflow.status_id == 3 
+                                                          ? const Color(0xFFB5927F)
+                                                          : const Color(0xFFB5927F).withOpacity(0.5),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                                    ),
+                                                    onPressed: workflow.status_id == 3 
+                                                        ? () => _show3dModelPopup(product.modelFileName!)
+                                                        : null,
+                                                  ),
                                                 ),
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 16, vertical: 8),
                                               ),
-                                              onPressed: () => _show3dModelPopup(
-                                                product.modelFileName!),
-                                              child: const Text(
-                                                'View 3D Model',
+                                            ),
+                                          // 2D Blueprint Button (below) - SIMPLE VERSION
+                                          SizedBox(
+                                            width: double.infinity,
+                                            child: ElevatedButton.icon(
+                                              icon: const Icon(Icons.image, size: 16),
+                                              label:  Text(intl.viewBlueprint),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFF78A190),
+                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                              onPressed: imageBytes != null 
+                                                  ? () => _show2dBlueprintPopup(imageBytes!)
+                                                  : null,
+                                            ),
+                                          ),
+                                          if (workflow.image != null && imageBytes == null)
+                                             Padding(
+                                              padding: EdgeInsets.only(top: 4),
+                                              child: Text(
+                                                intl.invalidImageFormat,
                                                 style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.orange,
+                                                  fontSize: 12,
                                                 ),
                                               ),
                                             ),
@@ -253,10 +342,10 @@ class _ProductsViewState extends State<ProductsView> {
                                   ),
                                 ),
                               ] else ...[
-                                const Padding(
+                                 Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 8),
                                   child: Text(
-                                    'No associated product',
+                                    intl.noAssociatedProduct,
                                     style: TextStyle(
                                       fontStyle: FontStyle.italic,
                                       color: Colors.grey,
@@ -274,16 +363,21 @@ class _ProductsViewState extends State<ProductsView> {
     );
   }
 
+  Color _getStatusColor(int? statusId) {
+    switch (statusId) {
+      case 1: return Colors.blue;
+      case 2: return Colors.orange;
+      case 3: return Colors.green;
+      default: return Colors.grey;
+    }
+  }
+
   String _getStatusText(int? statusId) {
     switch (statusId) {
-      case 1:
-        return 'Pending';
-      case 2:
-        return 'In Progress';
-      case 3:
-        return 'Completed';
-      default:
-        return 'Unknown';
+      case 1: return 'Created';
+      case 2: return 'Started';
+      case 3: return 'Finished';
+      default: return 'Unknown';
     }
   }
 }

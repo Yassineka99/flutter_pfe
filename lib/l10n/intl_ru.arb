@@ -327,7 +327,18 @@
     "chat": "Чат",
   "typeMessage": "Введите ваше сообщение",
   "noMessages": "Нет сообщений",
-  "fingerprint": "Отпечаток пальца"
+  "fingerprint": "Отпечаток пальца",
+  "twoDBlueprint": "2D-чертёж",
+  "threeDModelPreview": "Предварительный просмотр 3D-модели",
+  "productList": "Список продуктов",
+  "unamedWorkflow": "Безымянный рабочий процесс",
+  "associatedProduct": "Связанный продукт",
+  "unamedProduct": "Безымянный продукт",
+  "onlyAvailable": "3D-модель доступна только для завершённых рабочих процессов",
+  "viewModel": "Посмотреть 3D-модель",
+  "viewBlueprint": "Посмотреть 2D-чертёж",
+  "invalidImageFormat": "Недопустимый формат изображения",
+  "noAssociatedProduct": "Нет связанного продукта"
 
 
 

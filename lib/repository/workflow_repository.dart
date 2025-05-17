@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:front/services/db_helper.dart';
@@ -12,42 +13,41 @@ class WorkflowRepository {
   static const String apiUrl1 = '$baseUrl/api/workflow';
   final DBHelper _dbHelper = DBHelper();
   Future<Workflow> createWorkflow(String name, int createdBy) async {
-  try {
-    // Attempt the server call with a timeout:
-    final response = await http
-      .post(
-        Uri.parse('$apiUrl1/create'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'name': name, 'createdBy': createdBy}),
-      )
-      .timeout(const Duration(seconds: 5));
+    try {
+      // Attempt the server call with a timeout:
+      final response = await http
+          .post(
+            Uri.parse('$apiUrl1/create'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'name': name, 'createdBy': createdBy}),
+          )
+          .timeout(const Duration(seconds: 5));
 
-    if (response.statusCode == 201) {
-      final serverWf = Workflow.fromJson(jsonDecode(response.body));
-      // Mirror in SQLite as synced…
-      await _dbHelper.insertData('''
+      if (response.statusCode == 201) {
+        final serverWf = Workflow.fromJson(jsonDecode(response.body));
+        // Mirror in SQLite as synced…
+        await _dbHelper.insertData('''
         INSERT OR REPLACE INTO workflow
           (id, name, created_by, is_synced, is_deleted, needs_update)
         VALUES
           (?, ?, ?, 1, 0, 0)
       ''', [serverWf.id, serverWf.name, serverWf.createdBy]);
-      return serverWf;
-    }
-    // Non-201 status is treated like an offline failure:
-    throw Exception('Server returned ${response.statusCode}');
-  } catch (e) {
-  print('createWorkflow: server failed, falling back offline: $e');
-  final localId = await _dbHelper.insertData('''
+        return serverWf;
+      }
+      // Non-201 status is treated like an offline failure:
+      throw Exception('Server returned ${response.statusCode}');
+    } catch (e) {
+      print('createWorkflow: server failed, falling back offline: $e');
+      final localId = await _dbHelper.insertData('''
     INSERT INTO workflow
       (name, created_by, is_synced, is_deleted, needs_update)
     VALUES
       (?, ?, 0, 0, 0)
   ''', [name, createdBy]);
-  print('Offline workflow created with local ID: $localId');
-  return Workflow(id: localId, name: name, createdBy: createdBy);
-}
-}
-
+      print('Offline workflow created with local ID: $localId');
+      return Workflow(id: localId, name: name, createdBy: createdBy);
+    }
+  }
 
   Future<Workflow> getWorkflowById(String id) async {
     final response = await http.get(
@@ -77,147 +77,166 @@ class WorkflowRepository {
     }
   }
 
-Future<List<Workflow>> getAllWorkflows() async {
-  try {
-    // try remote fetch
-    final response = await http
-      .get(Uri.parse('$apiUrl1/get-all'))
-      .timeout(Duration(seconds: 7));
+  Future<List<Workflow>> getAllWorkflows() async {
+    try {
+      // try remote fetch
+      final response = await http
+          .get(Uri.parse('$apiUrl1/get-all'))
+          .timeout(Duration(seconds: 7));
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      // write into sqlite
-      final db = await _dbHelper.database;
-      await db!.transaction((txn) async {
-        for (var wf in data) {
-          await txn.rawInsert('''
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        // write into sqlite
+        final db = await _dbHelper.database;
+        await db!.transaction((txn) async {
+          for (var wf in data) {
+            await txn.rawInsert('''
             INSERT OR REPLACE INTO workflow 
             (id, name, created_by, is_synced)
             VALUES (?, ?, ?, 1)
           ''', [wf['id'], wf['name'], wf['createdBy']]);
-        }
-      });
-      // map JSON → Workflow
-      return data
-        .map<Workflow>((json) => Workflow.fromJson(json as Map<String, dynamic>))
-        .toList();
+          }
+        });
+        // map JSON → Workflow
+        return data
+            .map<Workflow>(
+                (json) => Workflow.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+    } catch (e) {
+      // if remote fails, fall through to offline branch
+      print('Server fetch failed, using local data: $e');
     }
-  } catch (e) {
-    // if remote fails, fall through to offline branch
-    print('Server fetch failed, using local data: $e');
+
+    // ‣ OFFLINE: read raw rows from sqflite
+    final List<Map<String, dynamic>> raw =
+        await _dbHelper.readData("SELECT * FROM workflow");
+    // map to Workflow and return
+    return raw.map<Workflow>((row) => Workflow.fromJson(row)).toList();
   }
 
-  // ‣ OFFLINE: read raw rows from sqflite
-  final List<Map<String, dynamic>> raw = 
-      await _dbHelper.readData("SELECT * FROM workflow");
-  // map to Workflow and return
-  return raw
-    .map<Workflow>((row) => Workflow.fromJson(row))
-    .toList();
-}
-
   Future<Workflow> updateWorkflow(Workflow wf) async {
-  try {
-    // Try the server, with a timeout
-    final response = await http
-      .post(
-        Uri.parse('$apiUrl1/update'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode(wf.toJson()),
-      )
-      .timeout(const Duration(seconds: 5));
+    try {
+      // Try the server, with a timeout
+      final response = await http
+          .post(
+            Uri.parse('$apiUrl1/update'),
+            headers: {'Content-Type': 'application/json; charset=UTF-8'},
+            body: jsonEncode(wf.toJson()),
+          )
+          .timeout(const Duration(seconds: 5));
 
-    if (response.statusCode == 200) {
-      final updated = Workflow.fromJson(jsonDecode(response.body));
-      // Mirror in SQLite as synced
-      await _dbHelper.updateData(
-        '''
+      if (response.statusCode == 200) {
+        final updated = Workflow.fromJson(jsonDecode(response.body));
+        // Mirror in SQLite as synced
+        await _dbHelper.updateData(
+          '''
         UPDATE workflow
         SET name = ?, created_by = ?, is_synced = 1, needs_update = 0
         WHERE id = ?
         ''',
-        [updated.name, updated.createdBy, updated.id],
-      );
-      return updated;
-    }
-    throw Exception('Server returned ${response.statusCode}');
-  } catch (e) {
-    // Offline or server error → queue for later sync
-    print('updateWorkflow: server failed, queuing offline: $e');
-    await _dbHelper.updateData(
-      '''
+          [updated.name, updated.createdBy, updated.id],
+        );
+        return updated;
+      }
+      throw Exception('Server returned ${response.statusCode}');
+    } catch (e) {
+      // Offline or server error → queue for later sync
+      print('updateWorkflow: server failed, queuing offline: $e');
+      await _dbHelper.updateData(
+        '''
       UPDATE workflow
       SET name = ?, created_by = ?, needs_update = 1
       WHERE id = ?
       ''',
-      [wf.name, wf.createdBy, wf.id],
-    );
-    return wf;
+        [wf.name, wf.createdBy, wf.id],
+      );
+      return wf;
+    }
   }
-}
-
 
 // Delete
-Future<void> deleteWorkflow(int id) async {
-  try {
-    // Try the server, with a timeout
-    final response = await http
-      .post(Uri.parse('$apiUrl1/delete/$id'))
-      .timeout(const Duration(seconds: 5));
+  Future<void> deleteWorkflow(int id) async {
+    try {
+      // Try the server, with a timeout
+      final response = await http
+          .post(Uri.parse('$apiUrl1/delete/$id'))
+          .timeout(const Duration(seconds: 5));
 
-    if (response.statusCode == 200) {
-      // Remove locally immediately
-      await _dbHelper.deleteData(
-        'DELETE FROM workflow WHERE id = ?',
-        [id],
-      );
-      return;
-    }
-    throw Exception('Server returned ${response.statusCode}');
-  } catch (e) {
-    // Offline or server error → flag for deletion
-    print('deleteWorkflow: server failed, flagging offline: $e');
-    await _dbHelper.updateData(
-      '''
+      if (response.statusCode == 200) {
+        // Remove locally immediately
+        await _dbHelper.deleteData(
+          'DELETE FROM workflow WHERE id = ?',
+          [id],
+        );
+        return;
+      }
+      throw Exception('Server returned ${response.statusCode}');
+    } catch (e) {
+      // Offline or server error → flag for deletion
+      print('deleteWorkflow: server failed, flagging offline: $e');
+      await _dbHelper.updateData(
+        '''
       UPDATE workflow
       SET is_deleted = 1
       WHERE id = ?
       ''',
-      [id],
-    );
-  }
-}
-
-
-Future<bool> _isConnected() async {
-  try {
-    final result = await InternetAddress.lookup('example.com');
-    return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-  } on SocketException catch (_) {
-    return false;
-  }
-}
-
-Future<void> syncWorkflows() async {
-  if (!await _isConnected()) return;
-
-  final db = await _dbHelper.database;
-
-  // ── 1) New rows (is_synced = 0 && needs_update = 0 && is_deleted = 0)
-  final newRows = await _dbHelper.readData(
-    "SELECT * FROM workflow WHERE is_synced = 0 AND needs_update = 0 AND is_deleted = 0"
-  );
-
-  for (var row in newRows) {
-    try {
-      final response = await http.post(
-        Uri.parse('$apiUrl1/create'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': row['name'],
-          'createdBy': row['created_by'],
-        }),
+        [id],
       );
+    }
+  }
+
+  Future<Uint8List?> getWorkflowImage(int workflowId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$apiUrl1/get/$workflowId/image'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Image response headers: ${response.headers}');
+        print('Image data length: ${response.bodyBytes.length}');
+        return response.bodyBytes; // Directly return the image bytes
+      } else {
+        print('Failed to fetch workflow image. Status: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching workflow image: $e');
+      return null;
+    }
+  }
+
+  Future<bool> _isConnected() async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> syncWorkflows() async {
+    if (!await _isConnected()) return;
+
+    final db = await _dbHelper.database;
+
+    // ── 1) New rows (is_synced = 0 && needs_update = 0 && is_deleted = 0)
+    final newRows = await _dbHelper.readData(
+        "SELECT * FROM workflow WHERE is_synced = 0 AND needs_update = 0 AND is_deleted = 0");
+
+    for (var row in newRows) {
+      try {
+        final response = await http.post(
+          Uri.parse('$apiUrl1/create'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'name': row['name'],
+            'createdBy': row['created_by'],
+          }),
+        );
 
         if (response.statusCode == 201) {
           final serverWf = Workflow.fromJson(jsonDecode(response.body));
@@ -231,45 +250,40 @@ Future<void> syncWorkflows() async {
               'is_deleted': 0,
               'needs_update': 0,
             });
-            await txn.delete('workflow', where: 'id = ?', whereArgs: [row['id']]);
+            await txn
+                .delete('workflow', where: 'id = ?', whereArgs: [row['id']]);
           });
         }
-
-    } catch (e) {
-      print('Workflow sync (create) error: $e');
+      } catch (e) {
+        print('Workflow sync (create) error: $e');
+      }
     }
-  }
 
-  // ── 2) Updated rows (needs_update = 1 && is_deleted = 0)
-  final updatedRows = await _dbHelper.readData(
-    "SELECT * FROM workflow WHERE needs_update = 1 AND is_deleted = 0"
-  );
-  for (var row in updatedRows) {
-    final wf = Workflow.fromJson(row);
-    final response = await http.post(
-      Uri.parse('$apiUrl1/update'),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode(wf.toJson()),
-    );
-    if (response.statusCode == 200) {
-      await _dbHelper.updateData(
-        "UPDATE workflow SET is_synced = 1, needs_update = 0 WHERE id = ${wf.id}"
+    // ── 2) Updated rows (needs_update = 1 && is_deleted = 0)
+    final updatedRows = await _dbHelper.readData(
+        "SELECT * FROM workflow WHERE needs_update = 1 AND is_deleted = 0");
+    for (var row in updatedRows) {
+      final wf = Workflow.fromJson(row);
+      final response = await http.post(
+        Uri.parse('$apiUrl1/update'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(wf.toJson()),
       );
+      if (response.statusCode == 200) {
+        await _dbHelper.updateData(
+            "UPDATE workflow SET is_synced = 1, needs_update = 0 WHERE id = ${wf.id}");
+      }
+    }
+
+    // ── 3) Deleted rows (is_deleted = 1)
+    final deletedRows =
+        await _dbHelper.readData("SELECT * FROM workflow WHERE is_deleted = 1");
+    for (var row in deletedRows) {
+      final id = row['id'];
+      final response = await http.post(Uri.parse('$apiUrl1/delete/$id'));
+      if (response.statusCode == 200) {
+        await _dbHelper.deleteData("DELETE FROM workflow WHERE id = $id");
+      }
     }
   }
-
-  // ── 3) Deleted rows (is_deleted = 1)
-  final deletedRows = await _dbHelper.readData(
-    "SELECT * FROM workflow WHERE is_deleted = 1"
-  );
-  for (var row in deletedRows) {
-    final id = row['id'];
-    final response = await http.post(Uri.parse('$apiUrl1/delete/$id'));
-    if (response.statusCode == 200) {
-      await _dbHelper.deleteData("DELETE FROM workflow WHERE id = $id");
-    }
-  }
-}
-
-
 }

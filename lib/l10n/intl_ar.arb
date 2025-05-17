@@ -327,7 +327,18 @@
     "chat": "الدردشة",
   "typeMessage": "اكتب رسالتك",
   "noMessages": "لا توجد رسائل",
-  "fingerprint": "البصمة"
+  "fingerprint": "البصمة",
+   "twoDBlueprint": "مخطط ثنائي الأبعاد",
+  "threeDModelPreview": "معاينة النموذج ثلاثي الأبعاد",
+  "productList": "قائمة المنتجات",
+  "unamedWorkflow": "سير عمل بدون اسم",
+  "associatedProduct": "المنتج المرتبط",
+  "unamedProduct": "منتج بدون اسم",
+  "onlyAvailable": "النموذج ثلاثي الأبعاد متاح فقط لسير العمل المنتهي",
+  "viewModel": "عرض النموذج ثلاثي الأبعاد",
+  "viewBlueprint": "عرض المخطط ثنائي الأبعاد",
+  "invalidImageFormat": "تنسيق الصورة غير صالح",
+  "noAssociatedProduct": "لا يوجد منتج مرتبط"
 
 
 

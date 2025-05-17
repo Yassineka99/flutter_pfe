@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:front/model/workflow.dart';
 import 'package:front/repository/workflow_repository.dart';
 
@@ -39,7 +41,14 @@ class WorkflowViewModel {
       print('Error fetching client: $e');
     }
   }
-
+  Future<Uint8List?> getWorkflowImage(int workflowid) async {
+    try {
+      return await workflowRepository.getWorkflowImage(workflowid);
+    } catch (e) {
+      print('Error fetching user image: $e');
+      return null;
+    }
+  }
   Future<List<Workflow>> fetchAllWorkflows() async {
     try {
       // then pull either remote or cached (depending on connectivity)

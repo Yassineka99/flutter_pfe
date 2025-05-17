@@ -97,24 +97,25 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  Future<Map<String, Map<int, int>>> _loadWorkflowData(
-      Workflow workflow) async {
-    try {
-      // 1. Get processes for this workflow
-      final processes = _cachedProcesses.values.expand((list) => list).cast<Process>().toList();
-      final subProcesses = _cachedSubProcesses.values.expand((list) => list).cast<SubProcess>().toList();
+  Future<Map<String, Map<int, int>>> _loadWorkflowData(Workflow workflow) async {
+  try {
+    // Get processes ONLY for this workflow
+    final processes = _cachedProcesses[workflow.id] ?? [];
+    
+    // Get sub-processes ONLY for these processes
+    final subProcesses = processes
+        .expand((process) => _cachedSubProcesses[process.id] ?? [])
+        .toList();
 
-
-      return {
-        'process': _getStatusCounts<Process>(processes, (p) => p.statusId ?? -1),
-        'subProcess': _getStatusCounts<SubProcess>(subProcesses, (sp) => sp.statusId ?? -1),
-      };
-
-    } catch (e) {
-      print('Error loading workflow data: $e');
-      return {'process': {}, 'subProcess': {}};
-    }
+    return {
+      'process': _getStatusCounts<Process>(processes, (p) => p.statusId ?? -1),
+      'subProcess': _getStatusCounts<SubProcess>(subProcesses.cast<SubProcess>(), (sp) => sp.statusId ?? -1),
+    };
+  } catch (e) {
+    print('Error loading workflow data for ${workflow.id}: $e');
+    return {'process': {}, 'subProcess': {}};
   }
+}
 
   Map<int, int> _getStatusCounts<T>(List<T> items, int? Function(T) getStatus) {
     return {
@@ -138,22 +139,17 @@ Future<void> _loadData() async {
     final processMap = <int, List<Process>>{};
     final subProcessMap = <int, List<SubProcess>>{};
 
-    // 🧠 Fetch all processes in parallel
-    final processFutures = workflows.map((workflow) async {
+    // Fetch processes for each workflow
+    for (final workflow in workflows) {
       final processes = await _processVM.getByWorkflowId(workflow.id!);
       processMap[workflow.id!] = processes;
 
-      // 🧠 Fetch sub-processes in parallel for each process
-      final subProcessFutures = processes.map((process) async {
+      // Fetch sub-processes for each process
+      for (final process in processes) {
         final subs = await _subProcessVM.getByProcessId(process.id!);
         subProcessMap[process.id!] = subs;
-      });
-
-      await Future.wait(subProcessFutures);
-    });
-
-    // Wait for all processes and subprocesses to finish
-    await Future.wait(processFutures);
+      }
+    }
 
     if (mounted) {
       setState(() {

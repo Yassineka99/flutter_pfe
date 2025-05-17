@@ -309,6 +309,17 @@
   "chat":"Chat",
   "typeMessage":"Type aYour Message",
   "noMessages":"No Messages",
-  "fingerprint":"Fingerprint"
+  "fingerprint":"Fingerprint",
+  "twoDBlueprint":"2D Blueprint",
+  "threeDModelPreview":"3D Model Preview",
+  "productList":"Products List",
+  "unamedWorkflow":"Unnamed Workflow",
+  "associatedProduct":"Associated Product",
+  "unamedProduct":"Unnamed Product",
+  "onlyAvailable":"3D model is only available for finished workflows",
+  "viewModel":"View the 3D model",
+  "viewBlueprint":"View 2D Blueprint",
+  "invalidImageFormat":"Invalid image format",
+  "noAssociatedProduct":"No associated product"
 
 }
