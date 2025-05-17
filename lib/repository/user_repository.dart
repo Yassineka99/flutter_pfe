@@ -26,7 +26,7 @@ class UserRepoitory {
               'role': role!.toString(),
             }),
           )
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(milliseconds: 1000));
       if (response.statusCode == 201) {
         final serverWf = User.fromJson(jsonDecode(response.body));
         // Mirror in SQLite as synced…
@@ -136,7 +136,7 @@ class UserRepoitory {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-      ).timeout(Duration(seconds: 3));
+      ).timeout(Duration(milliseconds: 2000));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);

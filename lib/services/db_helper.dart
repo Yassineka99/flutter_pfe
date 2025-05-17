@@ -99,6 +99,22 @@ class DBHelper {
           id INTEGER PRIMARY KEY,
           name TEXT,
           created_by INTEGER,
+          quantity INTEGER,
+          status_id INTEGER,
+          image TEXT,
+          imageType TEXT,
+          product_id INTEGER,
+          is_synced INTEGER DEFAULT 0,
+          is_deleted INTEGER DEFAULT 0,
+          needs_update INTEGER DEFAULT 0
+        )
+      ''');
+              await db.execute('''
+        CREATE TABLE product (
+          id INTEGER PRIMARY KEY,
+          name TEXT,
+          status_id INTEGER,
+          modelFileName TEXT,
           is_synced INTEGER DEFAULT 0,
           is_deleted INTEGER DEFAULT 0,
           needs_update INTEGER DEFAULT 0

@@ -139,7 +139,7 @@ class _WorkflowViewState extends State<WorkflowView> {
       if (name.isNotEmpty) {
         print(" entered if after verifying is not empty $name");
         await _workflowViewModel.create(
-            name, 1); // Ensure the database interaction is triggered here
+            name, 1,1,1,'','',0); // Ensure the database interaction is triggered here
         response = "Workflow '$name' created successfully!";
       } else {
         response = "Failed to extract workflow name.";
@@ -545,7 +545,7 @@ class _WorkflowViewState extends State<WorkflowView> {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     try {
-                      await _workflowViewModel.create(name, 1);
+                      await _workflowViewModel.create(name, 1,0,1,'','',0);
                       _loadWorkflows();
                       Navigator.pop(context);
                       _showResultPopup(true);

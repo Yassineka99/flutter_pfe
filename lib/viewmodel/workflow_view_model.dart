@@ -6,9 +6,9 @@ import 'package:front/repository/workflow_repository.dart';
 class WorkflowViewModel {
   WorkflowRepository workflowRepository = WorkflowRepository();
   Workflow? workflow;
-  Future<void> create(String name, int createdBy) async {
+  Future<void> create(String name, int createdBy,int quantity , int status_id , String image , String imageType , int product_id) async {
     try {
-      await workflowRepository.createWorkflow(name, createdBy);
+      await workflowRepository.createWorkflow(name, createdBy,quantity,status_id,image,imageType,product_id);
     } catch (e) {
       print('Error creating workflow: $e');
     }

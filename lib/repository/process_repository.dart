@@ -32,7 +32,7 @@ try {
               'created_by': createdBy!.toString()
             }),
           )
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(milliseconds: 1000));
       if (response.statusCode == 201) {
         final serverWf = Process.fromJson(jsonDecode(response.body));
         // Mirror in SQLite as synced…
@@ -88,7 +88,7 @@ try {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-user-id/$userId'))
-          .timeout(Duration(seconds: 3));
+          .timeout(Duration(milliseconds: 1500));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -116,7 +116,7 @@ try {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-status-id/$userId'))
-          .timeout(Duration(seconds: 3));
+          .timeout(Duration(milliseconds: 1500));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -143,7 +143,7 @@ try {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-workflow-id/$workflowId'))
-          .timeout(Duration(seconds: 7));
+          .timeout(Duration(milliseconds: 1500));
 
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
@@ -177,7 +177,7 @@ try {
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             body: jsonEncode(subProcess.toJson()),
           )
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(milliseconds: 1000));
 
       if (response.statusCode == 200) {
         final updated = Process.fromJson(jsonDecode(response.body));

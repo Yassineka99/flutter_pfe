@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 class WorkflowRepository {
   static const String apiUrl1 = '$baseUrl/api/workflow';
   final DBHelper _dbHelper = DBHelper();
-  Future<Workflow> createWorkflow(String name, int createdBy) async {
+  Future<Workflow> createWorkflow(String name, int createdBy,int quantity , int status_id , String image , String imageType , int product_id) async {
     try {
       // Attempt the server call with a timeout:
       final response = await http
@@ -21,17 +21,23 @@ class WorkflowRepository {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'name': name, 'createdBy': createdBy}),
           )
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(milliseconds: 1200));
 
       if (response.statusCode == 201) {
         final serverWf = Workflow.fromJson(jsonDecode(response.body));
         // Mirror in SQLite as synced…
         await _dbHelper.insertData('''
         INSERT OR REPLACE INTO workflow
-          (id, name, created_by, is_synced, is_deleted, needs_update)
+          (id, name, created_by, 
+          quantity, status_id , image ,
+          imageType , product_id
+          is_synced, is_deleted, needs_update)
         VALUES
-          (?, ?, ?, 1, 0, 0)
-      ''', [serverWf.id, serverWf.name, serverWf.createdBy]);
+          (?, ?, ?,?,?,?,?,?, 1, 0, 0)
+      ''', [serverWf.id, serverWf.name, 
+      serverWf.createdBy,serverWf.quantity,
+      serverWf.status_id,serverWf.image,
+      serverWf.imageType,serverWf.product_id]);
         return serverWf;
       }
       // Non-201 status is treated like an offline failure:
@@ -40,12 +46,15 @@ class WorkflowRepository {
       print('createWorkflow: server failed, falling back offline: $e');
       final localId = await _dbHelper.insertData('''
     INSERT INTO workflow
-      (name, created_by, is_synced, is_deleted, needs_update)
+      (name, created_by, 
+      quantity , status_id , image , imageType , product_id ,
+      is_synced, is_deleted, needs_update)
     VALUES
-      (?, ?, 0, 0, 0)
-  ''', [name, createdBy]);
+      (?, ?,?,?,?,?,?, 0, 0, 0)
+  ''', [name, createdBy,quantity,status_id,
+  image , imageType , product_id]);
       print('Offline workflow created with local ID: $localId');
-      return Workflow(id: localId, name: name, createdBy: createdBy);
+      return Workflow(id: localId, name: name, createdBy: createdBy , quantity: quantity , status_id: status_id , image: image , imageType: imageType ,product_id: product_id);
     }
   }
 
@@ -82,7 +91,7 @@ class WorkflowRepository {
       // try remote fetch
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all'))
-          .timeout(Duration(seconds: 7));
+          .timeout(Duration(milliseconds: 1500));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
@@ -92,9 +101,11 @@ class WorkflowRepository {
           for (var wf in data) {
             await txn.rawInsert('''
             INSERT OR REPLACE INTO workflow 
-            (id, name, created_by, is_synced)
-            VALUES (?, ?, ?, 1)
-          ''', [wf['id'], wf['name'], wf['createdBy']]);
+            (id, name, created_by,quantity,status_id,image,imageType,
+            product_id
+            ,is_synced)
+            VALUES (?, ?, ?,?,?,?,?,? ,1)
+          ''', [wf['id'], wf['name'], wf['createdBy'],wf['quantity'],wf['status_id'],wf['image'],wf['imageType'],wf['product_id']]);
           }
         });
         // map JSON → Workflow
@@ -124,7 +135,7 @@ class WorkflowRepository {
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             body: jsonEncode(wf.toJson()),
           )
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(milliseconds: 1000));
 
       if (response.statusCode == 200) {
         final updated = Workflow.fromJson(jsonDecode(response.body));
@@ -132,10 +143,18 @@ class WorkflowRepository {
         await _dbHelper.updateData(
           '''
         UPDATE workflow
-        SET name = ?, created_by = ?, is_synced = 1, needs_update = 0
+        SET name = ?, created_by = ?, 
+        is_synced = 1, needs_update = 0 ,
+        quantity = ? , status_id = ? ,
+        image = ? , imageType = ? ,
+        product_id = ?
         WHERE id = ?
         ''',
-          [updated.name, updated.createdBy, updated.id],
+          [updated.name, updated.createdBy, 
+          updated.quantity , updated.status_id,
+          updated.image, updated.imageType,
+          updated.product_id,
+          updated.id],
         );
         return updated;
       }
@@ -146,10 +165,15 @@ class WorkflowRepository {
       await _dbHelper.updateData(
         '''
       UPDATE workflow
-      SET name = ?, created_by = ?, needs_update = 1
+      SET name = ?, created_by = ?, 
+      needs_update = 1 ,quantity = ?,
+      status_id = ? ,image = ?,
+      imageType = ? , product_id = ?
       WHERE id = ?
       ''',
-        [wf.name, wf.createdBy, wf.id],
+        [wf.name, wf.createdBy,wf.quantity,wf.status_id,
+        wf.image,wf.imageType,wf.product_id,
+         wf.id],
       );
       return wf;
     }
@@ -161,7 +185,7 @@ class WorkflowRepository {
       // Try the server, with a timeout
       final response = await http
           .post(Uri.parse('$apiUrl1/delete/$id'))
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(milliseconds: 1000));
 
       if (response.statusCode == 200) {
         // Remove locally immediately
@@ -235,6 +259,11 @@ class WorkflowRepository {
           body: jsonEncode({
             'name': row['name'],
             'createdBy': row['created_by'],
+            'quantity':row['quantity'],
+            'status_id':row['status_id'],
+            'image':row['image'],
+            'imageType':row['imageType'],
+            'product_id':row['product_id'],
           }),
         );
 
@@ -246,6 +275,11 @@ class WorkflowRepository {
               'id': serverWf.id,
               'name': serverWf.name,
               'created_by': serverWf.createdBy,
+              'quantity' : serverWf.quantity ,
+              'status_id' : serverWf.status_id,
+              'image':serverWf.image,
+              'imageType':serverWf.imageType,
+              'product_id':serverWf.product_id,
               'is_synced': 1,
               'is_deleted': 0,
               'needs_update': 0,

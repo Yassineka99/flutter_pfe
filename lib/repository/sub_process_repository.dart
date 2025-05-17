@@ -35,7 +35,7 @@ class SubProcessRepoitory {
               'assigned_to': assignedTo!.toString(),
             }),
           )
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(milliseconds: 1000));
       if (response.statusCode == 201) {
         final serverWf = SubProcess.fromJson(jsonDecode(response.body));
         // Mirror in SQLite as synced…
@@ -79,7 +79,7 @@ class SubProcessRepoitory {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-    ).timeout(Duration(seconds: 3));
+    ).timeout(Duration(milliseconds: 1000));
     if (response.statusCode == 200) {
       return SubProcess.fromJson(jsonDecode(response.body));
     } else {
@@ -92,7 +92,7 @@ class SubProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all'))
-          .timeout(Duration(seconds: 7));
+          .timeout(Duration(milliseconds: 1500));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -127,7 +127,7 @@ class SubProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-process-id/$processId'))
-          .timeout(Duration(seconds: 7));
+          .timeout(Duration(milliseconds: 1500));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -163,7 +163,7 @@ class SubProcessRepoitory {
     try {
       final response = await http
           .get(Uri.parse('$apiUrl1/get-all-by-user-id/$userId'))
-          .timeout(Duration(seconds: 3));
+          .timeout(Duration(milliseconds: 2000));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -201,7 +201,7 @@ class SubProcessRepoitory {
       final response = await http
           .get(Uri.parse(
               '$apiUrl1/get-all-by-user-process-id/$userId/$processId'))
-          .timeout(Duration(seconds: 3));
+          .timeout(Duration(milliseconds: 2000));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
@@ -241,7 +241,7 @@ class SubProcessRepoitory {
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             body: jsonEncode(subProcess.toJson()),
           )
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(milliseconds: 1000));
 
       if (response.statusCode == 200) {
         final updated = SubProcess.fromJson(jsonDecode(response.body));
@@ -293,7 +293,7 @@ class SubProcessRepoitory {
     try {
       final response = await http
           .post(Uri.parse('$apiUrl1/delete/$id'))
-          .timeout(Duration(seconds: 5));
+          .timeout(Duration(milliseconds: 1000));
       if (response.statusCode == 200) {
         await _dbHelper.deleteData('''
     DELETE FROM subprocess WHERE id = ?
@@ -320,7 +320,7 @@ class SubProcessRepoitory {
       final response = await http
           .get(Uri.parse(
               '$apiUrl1/get-all-by-status-and-user-id/$status/$userid'))
-          .timeout(Duration(seconds: 3));
+          .timeout(Duration(milliseconds: 1500));
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         final db = await _dbHelper.database;
