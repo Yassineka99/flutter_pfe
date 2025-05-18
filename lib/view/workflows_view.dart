@@ -67,7 +67,8 @@ class _WorkflowViewState extends State<WorkflowView> {
   final List<Map<String, dynamic>> _conversation = [];
   final ScrollController _chatScrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
-
+  static List<Workflow>? _cachedWorkflows;
+  static final Map<int, List<Process>> _processesCache = {};
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -454,17 +455,35 @@ class _WorkflowViewState extends State<WorkflowView> {
     );
   }
 
-  Future<void> _loadWorkflows() async {
-    try {
-      final workflows = await _workflowViewModel.fetchAllWorkflows();
-      setState(() {
-        workflowsList = workflows;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() => isLoading = false);
+ Future<void> _loadWorkflows({bool forceRefresh = false}) async {
+  // Use cached data if available and not forcing refresh
+  if (!forceRefresh && _cachedWorkflows != null) {
+    setState(() {
+      workflowsList = _cachedWorkflows;
+      isLoading = false;
+    });
+    return;
+  }
+
+  setState(() => isLoading = true);
+  
+  try {
+    final workflows = await _workflowViewModel.fetchAllWorkflows();
+    // Update cache
+    _cachedWorkflows = workflows;
+    
+    setState(() {
+      workflowsList = workflows;
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() => isLoading = false);
+    // If we have cached data, show it even if refresh failed
+    if (_cachedWorkflows != null) {
+      setState(() => workflowsList = _cachedWorkflows);
     }
   }
+}
 
   void _handleWorkflowTap(int workflowId) {
     final intl = AppLocalizations.of(context)!;
@@ -495,16 +514,21 @@ class _WorkflowViewState extends State<WorkflowView> {
     );
   }
 
-  void _showAddProcessesDialog(int workflowId) {
-    showDialog(
-      context: context,
-      builder: (context) => AddProcessesDialog(
-        workflowId: workflowId,
-        processViewModel: _processViewModel,
-        onProcessesAdded: () => _loadWorkflows(),
-      ),
-    );
-  }
+void _showAddProcessesDialog(int workflowId) {
+  showDialog(
+    context: context,
+    builder: (context) => AddProcessesDialog(
+      workflowId: workflowId,
+      processViewModel: _processViewModel,
+      onProcessesAdded: () {
+        // Invalidate both caches
+        _cachedWorkflows = null;
+        _processesCache.remove(workflowId);
+        _loadWorkflows();
+      },
+    ),
+  );
+}
 
   void _showAddWorkflowDialog() {
     final intl = AppLocalizations.of(context)!;
@@ -541,19 +565,20 @@ class _WorkflowViewState extends State<WorkflowView> {
               SizedBox(height: 24),
               _buildDialogActionButtons(
                 onCancel: () => Navigator.pop(context),
-                onConfirm: () async {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    try {
-                      await _workflowViewModel.create(name, 1,0,1,'','',0);
-                      _loadWorkflows();
-                      Navigator.pop(context);
-                      _showResultPopup(true);
-                    } catch (e) {
-                      _showResultPopup(false);
-                    }
-                  }
-                },
+onConfirm: () async {
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
+    try {
+      await _workflowViewModel.create(name, 1, 0, 1, '', '', 0);
+      _cachedWorkflows = null; // Invalidate cache
+      _loadWorkflows();
+      Navigator.pop(context);
+      _showResultPopup(true);
+    } catch (e) {
+      _showResultPopup(false);
+    }
+  }
+},
               ),
             ],
           ),
@@ -598,23 +623,24 @@ class _WorkflowViewState extends State<WorkflowView> {
               SizedBox(height: 24),
               _buildDialogActionButtons(
                 onCancel: () => Navigator.pop(context),
-                onConfirm: () async {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    try {
-                      await _workflowViewModel.update(Workflow(
-                        id: workflow.id,
-                        name: newName,
-                        createdBy: workflow.createdBy,
-                      ));
-                      _loadWorkflows();
-                      Navigator.pop(context);
-                      _showResultPopup(true);
-                    } catch (e) {
-                      _showResultPopup(false);
-                    }
-                  }
-                },
+onConfirm: () async {
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
+    try {
+      await _workflowViewModel.update(Workflow(
+        id: workflow.id,
+        name: newName,
+        createdBy: workflow.createdBy,
+      ));
+      _cachedWorkflows = null; // Invalidate cache
+      _loadWorkflows();
+      Navigator.pop(context);
+      _showResultPopup(true);
+    } catch (e) {
+      _showResultPopup(false);
+    }
+  }
+},
               ),
             ],
           ),
@@ -696,16 +722,17 @@ class _WorkflowViewState extends State<WorkflowView> {
               const SizedBox(height: 24),
               _buildDialogActionButtons(
                 onCancel: () => Navigator.pop(context),
-                onConfirm: () async {
-                  try {
-                    await _workflowViewModel.delete(workflowId);
-                    _loadWorkflows();
-                    Navigator.pop(context);
-                    _showResultPopup(true);
-                  } catch (e) {
-                    _showResultPopup(false);
-                  }
-                },
+onConfirm: () async {
+  try {
+    await _workflowViewModel.delete(workflowId);
+    _cachedWorkflows = null; // Invalidate cache
+    _loadWorkflows();
+    Navigator.pop(context);
+    _showResultPopup(true);
+  } catch (e) {
+    _showResultPopup(false);
+  }
+},
                 confirmColor: Colors.red,
                 confirmText: intl.delete,
               ),
@@ -756,20 +783,24 @@ class _WorkflowViewState extends State<WorkflowView> {
             ? const Center(child: CircularProgressIndicator())
             : (workflowsList?.isEmpty ?? true)
                 ? Center(child: Text(intl.noWorkflows))
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: workflowsList!.length,
-                    itemBuilder: (context, index) {
-                      final workflow = workflowsList![index];
-                      return _WorkflowCard(
-                        workflow: workflow,
-                        processViewModel: _processViewModel,
-                        onEdit: () => _showEditWorkflowDialog(workflow),
-                        onDelete: () => _showDeleteConfirmation(workflow.id!),
-                        onTap: () => _handleWorkflowTap(workflow.id!),
-                      );
-                    },
-                  ),
+                : RefreshIndicator(
+           onRefresh: () => _loadWorkflows(forceRefresh: true),
+            color: const Color(0xFFB5927F),         
+                  child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: workflowsList!.length,
+                      itemBuilder: (context, index) {
+                        final workflow = workflowsList![index];
+                        return _WorkflowCard(
+                          workflow: workflow,
+                          processViewModel: _processViewModel,
+                          onEdit: () => _showEditWorkflowDialog(workflow),
+                          onDelete: () => _showDeleteConfirmation(workflow.id!),
+                          onTap: () => _handleWorkflowTap(workflow.id!),
+                        );
+                      },
+                    ),
+                ),
         Positioned(
           bottom: 0,
           left: 0,
@@ -810,10 +841,28 @@ class __WorkflowCardState extends State<_WorkflowCard> {
   @override
   void initState() {
     super.initState();
-    _processesFuture =
-        widget.processViewModel.getByWorkflowId(widget.workflow.id!);
+   _loadProcesses();
   }
+  Future<void> _loadProcesses() async {
+    // Check cache first
+    if (_WorkflowViewState._processesCache.containsKey(widget.workflow.id)) {
+      setState(() {
+        _processesFuture = Future.value(_WorkflowViewState._processesCache[widget.workflow.id]);
+      });
+      return;
+    }
 
+    // If not in cache, load from API
+    setState(() {
+      _processesFuture = widget.processViewModel
+          .getByWorkflowId(widget.workflow.id!)
+          .then((processes) {
+        // Store in cache
+        _WorkflowViewState._processesCache[widget.workflow.id!] = processes;
+        return processes;
+      });
+    });
+  }
   void _showAddSubProcessDialog(int processId) {
     showDialog(
       context: context,
@@ -823,8 +872,13 @@ class __WorkflowCardState extends State<_WorkflowCard> {
         userViewModel: UserViewModel(),
         notificationViewModel: NotificationViewModel(),
       ),
-    );
+    ).then((_) {
+      // When dialog closes, invalidate the cache for this workflow
+      _WorkflowViewState._processesCache.remove(widget.workflow.id);
+      _loadProcesses(); // Reload the processes
+    });
   }
+  
 
   @override
   Widget build(BuildContext context) {
