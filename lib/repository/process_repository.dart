@@ -70,18 +70,48 @@ try {
     throw Exception('failed to create');
   }
 
-  Future<Process> getProcessById(String id) async {
-    final response = await http.get(
-      Uri.parse('$apiUrl1/get-process-by-id/$id'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
-    if (response.statusCode == 200) {
-      return Process.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load client.');
+Future<Process> getProcessById(String id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$apiUrl1/get-process-by-id/$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      ).timeout(Duration(milliseconds: 1500));
+
+      if (response.statusCode == 200) {
+        final process = Process.fromJson(jsonDecode(response.body));
+        // Save to local DB for offline access
+        await _dbHelper.insertData('''
+          INSERT OR REPLACE INTO process
+            (id, name, workflow_id, status_id, ordera, created_by, is_synced)
+          VALUES
+            (?, ?, ?, ?, ?, ?, 1)
+        ''', [
+          process.id,
+          process.name,
+          process.workflowId,
+          process.statusId,
+          process.order,
+          process.createdBy
+        ]);
+        return process;
+      }
+    } catch (e) {
+      print('Failed to fetch process from server: $e');
     }
+
+    // Fallback to local data
+    final List<Map<String, dynamic>> raw = await _dbHelper.readData(
+      'SELECT * FROM process WHERE id = ? AND is_deleted = 0',
+      [id]
+    );
+
+    if (raw.isEmpty) {
+      throw Exception('Process not found in local database');
+    }
+
+    return Process.fromJson(raw.first);
   }
 
   Future<List<Process>> getByUserId(int userId) async {

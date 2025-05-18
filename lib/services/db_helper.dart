@@ -120,6 +120,18 @@ class DBHelper {
           needs_update INTEGER DEFAULT 0
         )
       ''');
+                    await db.execute('''
+        CREATE TABLE chat (
+          id INTEGER PRIMARY KEY,
+          message TEXT,
+          from_user INTEGER,
+          to_user INTEGER,
+          from_user_date TEXT,
+          is_synced INTEGER DEFAULT 0,
+          is_deleted INTEGER DEFAULT 0,
+          needs_update INTEGER DEFAULT 0
+        )
+      ''');
 
         print('on create worked');
       },
