@@ -1,3 +1,4 @@
+import 'package:bcrypt/bcrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:front/view/worker_home.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body :SafeArea(
+      body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -130,9 +131,14 @@ class _LoginState extends State<Login> {
 
   void _handleLogin() async {
     final session = Provider.of<UserSession>(context, listen: false);
-    final client = await _userViewModel.getClientbyEmail(_emailController.text.trim());
-
-    if (client != null && client.password == _passwordController.text) {
+    final client =
+        await _userViewModel.getClientbyEmail(_emailController.text.trim());
+    final passtest = BCrypt.hashpw(_passwordController.text, BCrypt.gensalt());
+    print("hashed pass is : $passtest");
+    if (client != null &&
+        BCrypt.checkpw(_passwordController.text, client.password!))
+    //client.password == _passwordController.text
+    {
       await session.logIn(client);
       Navigator.pushReplacement(
         context,
@@ -154,9 +160,12 @@ class _LoginState extends State<Login> {
 
   Widget _getHomeScreen(int role) {
     switch (role) {
-      case 1: return const AdminHome();
-      case 2: return const ManagerHome();
-      default: return const WorkerHome();
+      case 1:
+        return const AdminHome();
+      case 2:
+        return const ManagerHome();
+      default:
+        return const WorkerHome();
     }
   }
 }

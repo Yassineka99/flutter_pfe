@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:bcrypt/bcrypt.dart';
 import 'package:flutter/material.dart';
+import 'package:front/model/user_session.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../model/user.dart';
@@ -25,7 +27,7 @@ class _UsersViewState extends State<UsersView> {
   bool isLoading = true;
   bool _showFilters = false;
   SortCriteria? _selectedSort;
-    static List<User>? _cachedUsersList;
+  static List<User>? _cachedUsersList;
   static bool _isCacheValid = false;
   @override
   void initState() {
@@ -33,40 +35,40 @@ class _UsersViewState extends State<UsersView> {
     _loadUsers();
   }
 
-Future<void> _loadUsers({bool forceRefresh = false}) async {
-  // Use cached data if available and not forcing refresh
-  if (!forceRefresh && _isCacheValid && _cachedUsersList != null) {
-    setState(() {
-      usersList = _cachedUsersList;
-      isLoading = false;
-    });
-    return;
-  }
-
-  setState(() => isLoading = true);
-  
-  try {
-    final users = await _userViewModel.getUsersByRoleId(3);
-    // Update cache
-    _cachedUsersList = users;
-    _isCacheValid = true;
-    
-    setState(() {
-      usersList = users;
-      isLoading = false;
-    });
-  } catch (e) {
-    setState(() {
-      isLoading = false;
-    });
-    // If we have cached data, show it even if refresh failed
-    if (_cachedUsersList != null) {
+  Future<void> _loadUsers({bool forceRefresh = false}) async {
+    // Use cached data if available and not forcing refresh
+    if (!forceRefresh && _isCacheValid && _cachedUsersList != null) {
       setState(() {
         usersList = _cachedUsersList;
+        isLoading = false;
       });
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final users = await _userViewModel.getUsersByRoleId(3);
+      // Update cache
+      _cachedUsersList = users;
+      _isCacheValid = true;
+
+      setState(() {
+        usersList = users;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      // If we have cached data, show it even if refresh failed
+      if (_cachedUsersList != null) {
+        setState(() {
+          usersList = _cachedUsersList;
+        });
+      }
     }
   }
-}
 
   void _handleSort(SortCriteria criteria) async {
     if (usersList == null) return;
@@ -119,338 +121,353 @@ Future<void> _loadUsers({bool forceRefresh = false}) async {
     setState(() => usersList = sortedUsers);
   }
 
-void _showAddUserDialog() {
-  final intl = AppLocalizations.of(context)!;
-  final _formKey = GlobalKey<FormState>();
-  String name = '';
-  String email = '';
-  String phone = '';
-  String password = '';
-  int role = 2;
+  void _showAddUserDialog() {
+    final intl = AppLocalizations.of(context)!;
+    final _formKey = GlobalKey<FormState>();
+    String name = '';
+    String email = '';
+    String phone = '';
+    String password = '';
+    int role = 2;
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Theme(
-        data: Theme.of(context).copyWith(
-          dialogBackgroundColor: Colors.white,
-          dialogTheme: DialogTheme(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20)),
-            elevation: 16,
-          ),
-        ),
-        child: AlertDialog(
-          title: Center(
-            child: Text(
-              intl.addUser,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF4e3a31),
-              ),
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogBackgroundColor: Colors.white,
+            dialogTheme: DialogTheme(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              elevation: 16,
             ),
           ),
-          content: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildFormField(
-                    label: intl.name,
-                    icon: Icons.person_outline,
-                    validator: (value) => value?.isEmpty ?? true ? intl.requiredField : null,
-                    onSaved: (value) => name = value!,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildFormField(
-                    label: intl.email,
-                    icon: Icons.email_outlined,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) return intl.requiredField;
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!)) {
-                        return intl.invalidEmail;
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => email = value!,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildFormField(
-                    label: intl.phone,
-                    icon: Icons.phone_outlined,
-                    validator: (value) => value?.isEmpty ?? true ? intl.requiredField : null,
-                    onSaved: (value) => phone = value!,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildFormField(
-                    label: intl.password,
-                    icon: Icons.lock_outline,
-                    obscureText: true,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) return intl.requiredField;
-                      if (value!.length < 6) return intl.passwordLength;
-                      return null;
-                    },
-                    onSaved: (value) => password = value!,
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFB5927F).withOpacity(0.2)),
-                      borderRadius: BorderRadius.circular(10),
+          child: AlertDialog(
+            title: Center(
+              child: Text(
+                intl.addUser,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF4e3a31),
+                ),
+              ),
+            ),
+            content: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildFormField(
+                      label: intl.name,
+                      icon: Icons.person_outline,
+                      validator: (value) =>
+                          value?.isEmpty ?? true ? intl.requiredField : null,
+                      onSaved: (value) => name = value!,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: DropdownButtonFormField<int>(
-                      value: role,
-                      icon: Icon(Icons.arrow_drop_down, color: const Color(0xFF4e3a31)),
-                      decoration: InputDecoration(
-                        labelText: intl.role,
-                        border: InputBorder.none,
-                        labelStyle: TextStyle(color: const Color(0xFF4e3a31).withOpacity(0.6)),
+                    const SizedBox(height: 16),
+                    _buildFormField(
+                      label: intl.email,
+                      icon: Icons.email_outlined,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) return intl.requiredField;
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(value!)) {
+                          return intl.invalidEmail;
+                        }
+                        return null;
+                      },
+                      onSaved: (value) => email = value!,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildFormField(
+                      label: intl.phone,
+                      icon: Icons.phone_outlined,
+                      validator: (value) =>
+                          value?.isEmpty ?? true ? intl.requiredField : null,
+                      onSaved: (value) => phone = value!,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildFormField(
+                      label: intl.password,
+                      icon: Icons.lock_outline,
+                      obscureText: true,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) return intl.requiredField;
+                        if (value!.length < 6) return intl.passwordLength;
+                        return null;
+                      },
+                      onSaved: (value) => password = value!,
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: const Color(0xFFB5927F).withOpacity(0.2)),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      items: [
-                        DropdownMenuItem(
-                          value: 2,
-                          child: Text(intl.manager, 
-                            style: TextStyle(color: const Color(0xFF4e3a31))),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: DropdownButtonFormField<int>(
+                        value: role,
+                        icon: Icon(Icons.arrow_drop_down,
+                            color: const Color(0xFF4e3a31)),
+                        decoration: InputDecoration(
+                          labelText: intl.role,
+                          border: InputBorder.none,
+                          labelStyle: TextStyle(
+                              color: const Color(0xFF4e3a31).withOpacity(0.6)),
                         ),
-                        DropdownMenuItem(
-                          value: 3,
-                          child: Text(intl.worker, 
-                            style: TextStyle(color: const Color(0xFF4e3a31))),)
-                      ],
-                      onChanged: (value) => role = value!,
+                        items: [
+                          DropdownMenuItem(
+                            value: 2,
+                            child: Text(intl.manager,
+                                style:
+                                    TextStyle(color: const Color(0xFF4e3a31))),
+                          ),
+                          DropdownMenuItem(
+                            value: 3,
+                            child: Text(intl.worker,
+                                style:
+                                    TextStyle(color: const Color(0xFF4e3a31))),
+                          )
+                        ],
+                        onChanged: (value) => role = value!,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFFB5927F).withOpacity(0.1),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        intl.cancel,
+                        style: TextStyle(
+                          color: const Color(0xFF4e3a31),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFB5927F),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          final hashedpass =
+                              BCrypt.hashpw(password, BCrypt.gensalt());
+                          try {
+                            await _userViewModel.createClient(
+                                name, email, phone, hashedpass, role);
+                            // Invalidate cache after adding new user
+                            _isCacheValid = false;
+                            _loadUsers(forceRefresh: true);
+                            Navigator.pop(context);
+                            _showResultPopup(true);
+                          } catch (e) {
+                            Navigator.pop(context);
+                            _showResultPopup(false);
+                          }
+                        }
+                      },
+                      child: Text(
+                        intl.save,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
+            ],
+            contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+            actionsPadding: const EdgeInsets.all(24),
           ),
-          actions: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFFB5927F).withOpacity(0.1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      intl.cancel,
-                      style: TextStyle(
-                        color: const Color(0xFF4e3a31),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFB5927F),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-  onPressed: () async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      try {
-        await _userViewModel.createClient(name, email, phone, password, role);
-        // Invalidate cache after adding new user
-        _isCacheValid = false;
-        _loadUsers(forceRefresh: true);
-        Navigator.pop(context);
-        _showResultPopup(true);
-      } catch (e) {
-        Navigator.pop(context);
-        _showResultPopup(false);
-      }
-    }
-  },
-                    child: Text(
-                      intl.save,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+        );
+      },
+    );
+  }
+
+  void _showResultPopup(bool success) {
+    final intl = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: success ? const Color(0xFF78A190) : Colors.redAccent,
+        content: Row(
+          children: [
+            Icon(success ? Icons.check_circle : Icons.error,
+                color: Colors.white),
+            const SizedBox(width: 12),
+            Text(
+              success ? intl.userAddedSuccess : intl.errorCreatingUser,
+              style: const TextStyle(color: Colors.white),
             ),
           ],
-          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-          actionsPadding: const EdgeInsets.all(24),
         ),
-      );
-    },
-  );
-}
-void _showResultPopup(bool success) {
-  final intl = AppLocalizations.of(context)!;
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      backgroundColor: success ? const Color(0xFF78A190) : Colors.redAccent,
-      content: Row(
-        children: [
-          Icon(success ? Icons.check_circle : Icons.error, color: Colors.white),
-          const SizedBox(width: 12),
-          Text(
-            success ? intl.userAddedSuccess : intl.errorCreatingUser,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ],
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        margin: const EdgeInsets.all(20),
       ),
-      duration: const Duration(seconds: 3),
-      behavior: SnackBarBehavior.floating,
+    );
+  }
+
+  Widget _buildFormField({
+    required String label,
+    required IconData icon,
+    required String? Function(String?) validator,
+    required void Function(String?) onSaved,
+    bool obscureText = false,
+  }) {
+    return TextFormField(
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: const Color(0xFFB5927F).withOpacity(0.6)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: const Color(0xFFB5927F).withOpacity(0.2)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF4e3a31)),
+        ),
+        labelStyle: TextStyle(color: const Color(0xFF4e3a31).withOpacity(0.6)),
+      ),
+      validator: validator,
+      onSaved: onSaved,
+    );
+  }
+
+  Widget _buildFilterChip(SortCriteria criteria, String label) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: _selectedSort == criteria,
+      onSelected: (selected) {
+        setState(() {
+          _selectedSort = selected ? criteria : null;
+          _handleSort(_selectedSort!); // Call your sorting logic
+        });
+      },
+      selectedColor: const Color(0xFF28445C).withOpacity(0.2),
+      labelStyle: TextStyle(
+        color: _selectedSort == criteria
+            ? const Color(0xFF28445C) // Active color
+            : const Color(0xFF28445C).withOpacity(0.6),
+      ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20),
       ),
-      margin: const EdgeInsets.all(20),
-    ),
-  );
-}
-Widget _buildFormField({
-  required String label,
-  required IconData icon,
-  required String? Function(String?) validator,
-  required void Function(String?) onSaved,
-  bool obscureText = false,
-}) {
-  return TextFormField(
-    obscureText: obscureText,
-    decoration: InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: const Color(0xFFB5927F).withOpacity(0.6)),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: const Color(0xFFB5927F).withOpacity(0.2)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFF4e3a31)),
-      ),
-      labelStyle: TextStyle(color: const Color(0xFF4e3a31).withOpacity(0.6)),
-    ),
-    validator: validator,
-    onSaved: onSaved,
-  );
-}
+    );
+  }
 
-
-Widget _buildFilterChip(SortCriteria criteria, String label) {
-  return ChoiceChip(
-    label: Text(label),
-    selected: _selectedSort == criteria,
-    onSelected: (selected) {
-      setState(() {
-        _selectedSort = selected ? criteria : null;
-        _handleSort(_selectedSort!); // Call your sorting logic
-      });
-    },
-    selectedColor: const Color(0xFF28445C).withOpacity(0.2),
-    labelStyle: TextStyle(
-      color: _selectedSort == criteria 
-          ? const Color(0xFF28445C) // Active color
-          : const Color(0xFF28445C).withOpacity(0.6),
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
-    ),
-  );
-}
   @override
   Widget build(BuildContext context) {
- // Track selected filter
+    // Track selected filter
     final intl = AppLocalizations.of(context)!;
 
     return Scaffold(
-  appBar: AppBar(
-    backgroundColor: const Color(0xFFB5927F),
-    title: Padding(
-      padding: const EdgeInsets.only(left: 120),
-      child: Text(
-      intl.usersList,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        color:  Color(0xFF4e3a31).withOpacity(.70),
-        fontFamily: 'BrandonGrotesque'
-      )
-      
-      )
-    ),
-    iconTheme: IconThemeData(
-      color: const Color(0xFF4e3a31).withOpacity(.70),
-    ),
-    actions: [
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFB5927F),
+        title: Padding(
+            padding: const EdgeInsets.only(left: 120),
+            child: Text(intl.usersList,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF4e3a31).withOpacity(.70),
+                    fontFamily: 'BrandonGrotesque'))),
+        iconTheme: IconThemeData(
+          color: const Color(0xFF4e3a31).withOpacity(.70),
+        ),
+        actions: [
           IconButton(
             icon: Icon(
               Icons.filter_list,
-              color: _showFilters 
-                  ? const Color(0xFF4e3a31).withOpacity(.40) // Solid color when filters are visible
-                  : const Color(0xFF4e3a31).withOpacity(.70), // Transparent when hidden
+              color: _showFilters
+                  ? const Color(0xFF4e3a31)
+                      .withOpacity(.40) // Solid color when filters are visible
+                  : const Color(0xFF4e3a31)
+                      .withOpacity(.70), // Transparent when hidden
             ),
             onPressed: () => setState(() => _showFilters = !_showFilters),
           ),
-      IconButton(
-        icon: Icon(Icons.add, color: const Color(0xFF4e3a31).withOpacity(.70)),
-        onPressed: _showAddUserDialog,
+          IconButton(
+            icon: Icon(Icons.add,
+                color: const Color(0xFF4e3a31).withOpacity(.70)),
+            onPressed: _showAddUserDialog,
+          ),
+        ],
       ),
-    ],
-  ),
-  body: isLoading
-      ? const Center(child: CircularProgressIndicator())
-      : usersList == null
-          ? Center(child: Text(intl.errorLoadingUsers))
-          : Column(
-              children: [
-                // Filter section under AppBar
-                Visibility(
-                  visible: _showFilters,
-                  child: Container(
-                    color: Colors.white.withOpacity(0.9),
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildFilterChip(SortCriteria.byName, intl.byName),
-                        _buildFilterChip(SortCriteria.byRole, intl.byRole),
-                        _buildFilterChip(SortCriteria.byMaxFinished, intl.byMaxFinished),
-                      ],
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : usersList == null
+              ? Center(child: Text(intl.errorLoadingUsers))
+              : Column(
+                  children: [
+                    // Filter section under AppBar
+                    Visibility(
+                      visible: _showFilters,
+                      child: Container(
+                        color: Colors.white.withOpacity(0.9),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildFilterChip(SortCriteria.byName, intl.byName),
+                            _buildFilterChip(SortCriteria.byRole, intl.byRole),
+                            _buildFilterChip(
+                                SortCriteria.byMaxFinished, intl.byMaxFinished),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                // Main content area
+                    // Main content area
 // Replace your Expanded widget containing ListView.builder with:
-Expanded(
-  child: RefreshIndicator(
-    onRefresh: () => _loadUsers(forceRefresh: true),
-    color: const Color(0xFFB5927F),
-    child: ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: usersList!.length,
-      itemBuilder: (context, index) {
-        final user = usersList![index];
-        return _UserCard(
-          user: user,
-          subProcessViewModel: _subProcessViewModel,
-        );
-      },
-    ),
-  ),
-),
-              ],
-            ),
-);
+                    Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: () => _loadUsers(forceRefresh: true),
+                        color: const Color(0xFFB5927F),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: usersList!.length,
+                          itemBuilder: (context, index) {
+                            final user = usersList![index];
+                            return _UserCard(
+                              user: user,
+                              subProcessViewModel: _subProcessViewModel,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+    );
   }
-  
 }
 
 class UserProcessCount {
@@ -478,12 +495,12 @@ class __UserCardState extends State<_UserCard> {
   int finishedsum = 0;
   static final Map<int, Map<String, dynamic>> _userDataCache = {};
   late Future<Map<String, dynamic>> _combinedFuture;
-    final NotificationViewModel _notificationViewModel = NotificationViewModel();
+  final NotificationViewModel _notificationViewModel = NotificationViewModel();
 
   @override
   void initState() {
     super.initState();
-        if (_userDataCache.containsKey(widget.user.id)) {
+    if (_userDataCache.containsKey(widget.user.id)) {
       _combinedFuture = Future.value(_userDataCache[widget.user.id]);
     } else {
       _combinedFuture = _loadCombinedData().then((data) {
@@ -492,192 +509,201 @@ class __UserCardState extends State<_UserCard> {
       });
     }
   }
+
   void _clearCache() {
     _userDataCache.remove(widget.user.id);
   }
-Future<Map<String, dynamic>> _loadCombinedData({bool forceRefresh = false}) async {
-  if (!forceRefresh && _userDataCache.containsKey(widget.user.id)) {
-    return _userDataCache[widget.user.id]!;
+
+  Future<Map<String, dynamic>> _loadCombinedData(
+      {bool forceRefresh = false}) async {
+    if (!forceRefresh && _userDataCache.containsKey(widget.user.id)) {
+      return _userDataCache[widget.user.id]!;
+    }
+
+    final subProcesses =
+        await widget.subProcessViewModel.getByUserId(widget.user.id!);
+    final finished =
+        await SubProcessViewModel().getByStatusAndUserId(3, widget.user.id!);
+
+    final data = {
+      'all': subProcesses,
+      'finished': finished,
+    };
+
+    _userDataCache[widget.user.id!] = data; // Cache the data
+    return data;
   }
 
-  final subProcesses = await widget.subProcessViewModel.getByUserId(widget.user.id!);
-  final finished = await SubProcessViewModel().getByStatusAndUserId(3, widget.user.id!);
-  
-  final data = {
-    'all': subProcesses,
-    'finished': finished,
-  };
-  
-  _userDataCache[widget.user.id!] = data; // Cache the data
-  return data;
-}
   void _showResultPopup(bool success) {
-  final intl = AppLocalizations.of(context)!;
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      backgroundColor: success ? const Color(0xFF78A190) : Colors.redAccent,
-      content: Row(
-        children: [
-          Icon(success ? Icons.check_circle : Icons.error, color: Colors.white),
-          const SizedBox(width: 12),
-          Text(
-            success ? intl.notificationSentSuccessfully : intl.errorSendingNotification,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ],
-      ),
-      duration: const Duration(seconds: 3),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      margin: const EdgeInsets.all(20),
-    ),
-  );
-}
-void _showSendNotificationDialog(BuildContext context, int userId) {
-  final intl = AppLocalizations.of(context)!;
-  final _formKey = GlobalKey<FormState>();
-  String message = '';
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Theme(
-        data: Theme.of(context).copyWith(
-          dialogBackgroundColor: Colors.white,
-          dialogTheme: DialogTheme(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+    final intl = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: success ? const Color(0xFF78A190) : Colors.redAccent,
+        content: Row(
+          children: [
+            Icon(success ? Icons.check_circle : Icons.error,
+                color: Colors.white),
+            const SizedBox(width: 12),
+            Text(
+              success
+                  ? intl.notificationSentSuccessfully
+                  : intl.errorSendingNotification,
+              style: const TextStyle(color: Colors.white),
             ),
-            elevation: 16,
-          ),
+          ],
         ),
-        child: AlertDialog(
-          title: Center(
-            child: Text(
-              intl.sendNotification,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF28445C),
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        margin: const EdgeInsets.all(20),
+      ),
+    );
+  }
+
+  void _showSendNotificationDialog(BuildContext context, int userId) {
+    final intl = AppLocalizations.of(context)!;
+    final _formKey = GlobalKey<FormState>();
+    String message = '';
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogBackgroundColor: Colors.white,
+            dialogTheme: DialogTheme(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 16,
+            ),
+          ),
+          child: AlertDialog(
+            title: Center(
+              child: Text(
+                intl.sendNotification,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF28445C),
+                ),
               ),
             ),
-          ),
-          content: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+            content: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildMessageField(
+                      label: intl.message,
+                      validator: (value) =>
+                          value?.isEmpty ?? true ? intl.requiredField : null,
+                      onSaved: (value) => message = value!,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              Row(
                 children: [
-                  _buildMessageField(
-                    label: intl.message,
-                    validator: (value) => value?.isEmpty ?? true 
-                        ? intl.requiredField 
-                        : null,
-                    onSaved: (value) => message = value!,
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFF78A190).withOpacity(0.1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        intl.cancel,
+                        style: TextStyle(
+                          color: const Color(0xFF28445C),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF78A190),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          try {
+                            await _notificationViewModel.create(
+                                message, userId);
+                            Navigator.pop(context);
+                            _showResultPopup(true);
+                          } catch (e) {
+                            Navigator.pop(context);
+                            _showResultPopup(false);
+                          }
+                        }
+                      },
+                      child: Text(
+                        intl.send,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
+            ],
+            contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+            actionsPadding: const EdgeInsets.all(24),
           ),
-          actions: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFF78A190).withOpacity(0.1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      intl.cancel,
-                      style: TextStyle(
-                        color: const Color(0xFF28445C),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF78A190),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        try {
-                          await _notificationViewModel.create(
-                            message,
-                            userId
-                          );
-                          Navigator.pop(context);
-                          _showResultPopup(true);
-                        } catch (e) {
-                          Navigator.pop(context);
-                          _showResultPopup(false);
-                        }
-                      }
-                    },
-                    child: Text(
-                      intl.send,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-          contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-          actionsPadding: const EdgeInsets.all(24),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
-Widget _buildMessageField({
-  required String label,
-  required String? Function(String?) validator,
-  required void Function(String?) onSaved,
-}) {
-  return TextFormField(
-    maxLines: 3,
-    decoration: InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(
-        Icons.message_outlined,
-        color: const Color(0xFF28445C).withOpacity(0.6),
+  Widget _buildMessageField({
+    required String label,
+    required String? Function(String?) validator,
+    required void Function(String?) onSaved,
+  }) {
+    return TextFormField(
+      maxLines: 3,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(
+          Icons.message_outlined,
+          color: const Color(0xFF28445C).withOpacity(0.6),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:
+              BorderSide(color: const Color(0xFF28445C).withOpacity(0.2)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF78A190)),
+        ),
+        labelStyle: TextStyle(color: const Color(0xFF28445C).withOpacity(0.6)),
       ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: const Color(0xFF28445C).withOpacity(0.2)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFF78A190)),
-      ),
-      labelStyle: TextStyle(color: const Color(0xFF28445C).withOpacity(0.6)),
-    ),
-    validator: validator,
-    onSaved: onSaved,
-  );
-}
- 
-   Widget _buildLoadingIndicator() => Padding(
+      validator: validator,
+      onSaved: onSaved,
+    );
+  }
+
+  Widget _buildLoadingIndicator() => Padding(
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Center(
           child: CircularProgressIndicator(
@@ -728,7 +754,7 @@ Widget _buildMessageField({
           ],
         ),
       );
- 
+
   @override
   Widget build(BuildContext context) {
     final intl = AppLocalizations.of(context)!;
@@ -745,7 +771,8 @@ Widget _buildMessageField({
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: const Color(0xFFB5927F).withOpacity(0.2), width: 1),
+        side: BorderSide(
+            color: const Color(0xFFB5927F).withOpacity(0.2), width: 1),
       ),
       shadowColor: const Color(0xFF4e3a31).withOpacity(0.1),
       child: Container(
@@ -770,19 +797,19 @@ Widget _buildMessageField({
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5E6DC).withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFB5927F).withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                  border: Border.all(
-                    color: const Color(0xFFB5927F).withOpacity(0.15),
-                    width: 1,
-                  )),
+                    color: const Color(0xFFF5E6DC).withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFB5927F).withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: const Color(0xFFB5927F).withOpacity(0.15),
+                      width: 1,
+                    )),
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
@@ -826,7 +853,8 @@ Widget _buildMessageField({
                     _ActionButton(
                       icon: Icons.message_outlined,
                       color: const Color(0xFFB5927F),
-                      onPressed: () => _showSendNotificationDialog(context, widget.user.id!),
+                      onPressed: () =>
+                          _showSendNotificationDialog(context, widget.user.id!),
                     ),
                   ],
                 ),
@@ -870,22 +898,23 @@ Widget _buildMessageField({
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color:  Colors.grey.withOpacity(0.2),
+                                color: Colors.grey.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                    color: const Color(0xFFB5927F).withOpacity(0.2)),
+                                    color: const Color(0xFFB5927F)
+                                        .withOpacity(0.2)),
                               ),
                               child: Row(
                                 children: [
                                   _ProcessCounter(
                                     count: finished.length,
-                                    color:  Colors.green.withOpacity(0.2),
+                                    color: Colors.green.withOpacity(0.2),
                                     textColor: const Color(0xFF4e3a31),
                                   ),
                                   const SizedBox(width: 8),
                                   _ProcessCounter(
                                     count: subProcesses.length,
-                                    color:  Colors.blue.withOpacity(0.1),
+                                    color: Colors.blue.withOpacity(0.1),
                                     textColor: const Color(0xFF4e3a31),
                                   ),
                                 ],
@@ -919,6 +948,7 @@ Widget _buildMessageField({
     );
   }
 }
+
 class _ProcessCounter extends StatelessWidget {
   final int count;
   final Color color;
@@ -1014,6 +1044,7 @@ class _ExpandButton extends StatelessWidget {
     );
   }
 }
+
 class _ProcessItem extends StatelessWidget {
   final SubProcess process;
 
