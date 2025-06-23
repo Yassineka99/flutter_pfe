@@ -30,7 +30,7 @@ class WorkflowRepository {
         INSERT OR REPLACE INTO workflow
           (id, name, created_by, 
           quantity, status_id , image ,
-          imageType , product_id
+          imageType , product_id,
           is_synced, is_deleted, needs_update)
         VALUES
           (?, ?, ?,?,?,?,?,?, 1, 0, 0)

@@ -1227,45 +1227,47 @@ class _AddProcessesDialogState extends State<AddProcessesDialog> {
       shape: _dialogShape,
       child: Padding(
         padding: EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildDialogHeader(intl.addProcesses, Icons.add_task),
-            SizedBox(height: 16),
-            Container(
-              constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ..._controllers.map((controller) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: TextFormField(
-                            controller: controller,
-                            style: TextStyle(fontFamily: 'BrandonGrotesque'),
-                            decoration: InputDecoration(
-                              labelText: intl.processName,
-                              labelStyle: TextStyle(color: Color(0xFFB5927F)),
-                              border: _inputBorder,
-                              contentPadding: EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildDialogHeader(intl.addProcesses, Icons.add_task),
+              SizedBox(height: 16),
+              Container(
+                constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.6),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ..._controllers.map((controller) => Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: TextFormField(
+                              controller: controller,
+                              style: TextStyle(fontFamily: 'BrandonGrotesque'),
+                              decoration: InputDecoration(
+                                labelText: intl.processName,
+                                labelStyle: TextStyle(color: Color(0xFFB5927F)),
+                                border: _inputBorder,
+                                contentPadding: EdgeInsets.all(16),
+                              ),
                             ),
-                          ),
-                        )),
-                    IconButton(
-                      icon: Icon(Icons.add_circle, color: Color(0xFFA17A69)),
-                      onPressed: _addProcessField,
-                      tooltip: intl.addAnotherProcess,
-                    ),
-                  ],
+                          )),
+                      IconButton(
+                        icon: Icon(Icons.add_circle, color: Color(0xFFA17A69)),
+                        onPressed: _addProcessField,
+                        tooltip: intl.addAnotherProcess,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            _buildDialogActionButtons(
-              onCancel: () => Navigator.pop(context),
-              onConfirm: _saveProcesses,
-              confirmText: intl.saveAllProcesses,
-            ),
-          ],
+              _buildDialogActionButtons(
+                onCancel: () => Navigator.pop(context),
+                onConfirm: _saveProcesses,
+                confirmText: intl.saveAllProcesses,
+              ),
+            ],
+          ),
         ),
       ),
     );
